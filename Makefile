@@ -9,8 +9,8 @@ C1541 = c1541
 all: clean d64 run
 original: clean d64_orig run_orig
 
-gridrunner.prg: src/gridrunner.tas
-	64tass -Wall --cbm-prg -o bin/gridrunner.prg -L bin/list-co1.txt -l bin/labels.txt src/gridrunner.tas
+gridrunner.prg: src/gridrunner.asm
+	64tass -Wall --cbm-prg -o bin/gridrunner.prg -L bin/list-co1.txt -l bin/labels.txt src/gridrunner.asm
 	md5sum bin/gridrunner.prg orig/gridrunner.prg
 
 d64: gridrunner.prg
