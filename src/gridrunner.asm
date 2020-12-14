@@ -2065,43 +2065,13 @@ b16BA   CMP #$FE
         .BYTE $7C,$38,$38,$38,$38,$00,$CC,$CC
         .BYTE $FC,$CC,$CC,$00,$00,$00,$F0,$66
         .BYTE $60,$66,$F0,$00,$00,$00,$10,$08
-        .BYTE $7C,$08,$10,$00,$00,$00,$00,$00
-        .BYTE $00,$00,$00,$00,$00,$7C,$FE,$00
-        .BYTE $C0,$DE,$C6,$C6,$7C,$FC,$FE,$00
-        .BYTE $C6,$FC,$D0,$C8,$C6,$C6,$C6,$00
-        .BYTE $C6,$C6,$C6,$FE,$7C,$FC,$FC,$00
-        .BYTE $30,$30,$30,$FC,$FC,$FC,$FE,$00
-        .BYTE $C6,$C6,$C6,$FE,$FC,$C6,$C6,$00
-        .BYTE $E6,$F6,$DE,$CE,$C6,$FE,$FE,$00
-        .BYTE $F0,$F0,$C0,$FE,$FE,$FE,$FE,$00
-        .BYTE $C6,$FE,$C6,$C6,$C6,$FC,$FE,$00
-        .BYTE $C6,$FC,$C6,$C6,$FC,$FE,$FE,$00
-        .BYTE $F0,$F0,$C0,$C0,$C0,$C6,$C6,$00
-        .BYTE $C6,$FE,$C6,$C6,$C6,$06,$06,$00
-        .BYTE $06,$06,$C6,$FE,$7C,$C6,$EE,$00
-        .BYTE $FE,$C6,$C6,$C6,$C6,$FE,$FE,$00
-        .BYTE $C6,$FE,$C0,$C0,$C0,$FE,$FE,$00
-        .BYTE $C0,$FE,$06,$C6,$FE,$FE,$FE,$00
-        .BYTE $C6,$C6,$C6,$FE,$FE,$18,$18,$00
-        .BYTE $18,$38,$38,$38,$38,$7C,$FE,$00
-        .BYTE $06,$0C,$38,$FE,$FE,$7C,$FE,$00
-        .BYTE $1E,$1E,$06,$FE,$7C,$60,$60,$00
-        .BYTE $EC,$FE,$0C,$0C,$0C,$FE,$FE,$00
-        .BYTE $E0,$7C,$06,$FE,$7C,$7C,$FE,$00
-        .BYTE $C0,$FC,$C6,$C6,$7C,$FE,$FE,$00
-        .BYTE $0C,$18,$30,$30,$70,$7C,$FE,$00
-        .BYTE $C6,$7C,$C6,$C6,$7C,$7C,$FE,$00
-        .BYTE $C6,$7E,$06,$FE,$7C,$FC,$FC,$00
-        .BYTE $30,$30,$30,$30,$30,$C6,$C6,$00
-        .BYTE $C6,$6C,$6C,$38,$38,$1F,$30,$67
-        .BYTE $CC,$CC,$67,$30,$1F,$80,$C0,$60
-        .BYTE $30,$30,$60,$C0,$80,$C0,$C0,$00
-        .BYTE $C0,$C0,$C0,$FE,$FE,$18,$18,$18
-        .BYTE $18,$18,$18,$18,$18,$C1,$83,$E2
-        .BYTE $83,$C3,$C2,$CD,$38,$30,$00,$8F
-        .BYTE $9D,$00,$21,$CA,$D0,$F1
+        .BYTE $7C,$08,$10,$00,$00
+
+        *= $1800
+.binary "char.bin" ; The charset
         JMP e8100
 
+; The data below duplicates the data above and appears to be unused
         .BYTE $EA,$E8,$E0,$07,$D0,$48,$4C,$8E
         .BYTE $8D,$EA,$EA,$EA,$20,$8B,$81,$C9
         .BYTE $07,$F0,$01,$60,$4C,$DE,$8A,$EA
