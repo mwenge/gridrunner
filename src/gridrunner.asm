@@ -133,7 +133,7 @@ p05FF = $05FF
 p070F = $070F
 p0800 = $0800
 p4008 = $4008
-p8000 = $8000
+CopyBeforeInitialize = $8000
 pD000 = $D000
 ;
 ; **** EXTERNAL JUMPS **** 
@@ -148,10 +148,11 @@ e8040 = $8040
 e8056 = $8056
 e8060 = $8060
 e80A0 = $80A0
+e8028 = $8028
 e80D2 = $80D2
 e80E5 = $80E5
 e80F7 = $80F7
-e8100 = $8100
+InitializeGame = $8100
 e8163 = $8163
 e8172 = $8172
 e818B = $818B
@@ -243,14 +244,19 @@ ROM_RAMTASj = $FD50
 ROM_IOINITj = $FDA3
 ROM_CHROUT = $FFD2
 
-        * = $0801
+* = $0801
 
 ; 10 SYS 2061
 ; Used to execute the code at address $080d (2061).
         .BYTE $0B,$08 ;ANC #$08
         .BYTE $0A,$00,$9E,$32,$30,$36,$31,$00 ; SYS 2061
         .BYTE $00,$00
-; $080d
+;-------------------------------------------------------------
+; Copies the game code from $0900 to $8000 and starts executing code
+; at $8000.
+;-------------------------------------------------------------
+* = $080d
+Start
         LDY #$00
         LDA #$09
         STA aFD
@@ -258,64 +264,78 @@ ROM_CHROUT = $FFD2
         STA aFF
         STY aFC
         STY aFE
-b081B   LDA (pFC),Y
+CopyData
+        LDA (pFC),Y
         STA (pFE),Y
         INY 
-        BNE b081B
+        BNE CopyData
         INC aFD
         INC aFF
         LDA #$A0
         CMP aFF
-        BNE b081B
+        BNE CopyData
         SEI 
-        JMP (p8000)
+        JMP (CopyBeforeInitialize)
 
         .TEXT "        PRG   ", $00
-p083F   .TEXT $5F, $08, $0F, $00, "  ", $22,"C-64 BACKUP.BANK",$22," PRG   ", $00
+; This is later loaded to $04 in the zero-page address space.
+Progs
+        .TEXT $5F, $08, $0F, $00, "  ", $22,"C-64 BACKUP.BANK",$22," PRG   ", $00
         .TEXT $7F, $08, $09, $00, "   ",$22,"LOPAGE $4 $48",$22,"    PRG  ", $00
         .TEXT $9F, $08, $11, $00, "  ", $22,"WEDGE",$22,"            PRG   ", $00
         .TEXT $BF, $08, $02, $00, "   ",$22,"SYSTEM SET",$22,"       PRG  ", $00
         .TEXT $DF, $08, $05, $00, "   ",$22,"UNSCRATCH",$22,"        PRG  ", $00
         .TEXT $FF, $08, $07, $00, "   ",$22,"LODATA",$22,"           PRG  "
-
         BRK #$1F
-        CMP (p83,X)
-b0902   .BYTE $E2,$83 ;NOP #$83
-        BRK #$00
-        BRK #$00
-        BRK #$00
-        .BYTE $8F,$9D,$00 ;SAX $009D
-        AND (pCA,X)
-        BNE b0902
-        JMP e8100
 
+;------------------------------------------------------------------------------------
+; CopyBeforeInitialize
+; Copies more data to $2100. This is the site of some duplicated code and game data.
+; Not sure what's going on here.
+;------------------------------------------------------------------------------------
+; CopyBeforeInitialize
+        CMP (p83,X)
+b0902   .byte $E2,$83,$00,$00,$00,$00,$00,$00,$8F
+        STA $2100,X 
+        DEX 
+        BNE b0902
+        JMP InitializeGame
         NOP 
+
+; e8015
         INX 
         CPX #$07
         BNE b0962
         JMP e8D8E
+        NOP 
+        NOP 
+        NOP 
 
-        .BYTE $EA,$EA,$EA,$20,$8B,$81,$C9,$07
-        .BYTE $F0,$01
+; e8020
+        JSR e818B
+        CMP #$07
+        .BYTE $F0,$01 ;BEQ e8028
         RTS 
 
+;e8028
         JMP e8ADE
-
         NOP 
         NOP 
         NOP 
         NOP 
         NOP 
+;e8030
         AND #$1F
         CMP #$18
         BPL b093A
+;e8035
         STA f1600,X
         RTS 
 
 b093A   LDA a0C
         JMP e8036
-
         NOP 
+;e8040
         DEC f1500,X
         LDA f1500,X
         AND #$3F
@@ -328,11 +348,12 @@ b0950   LDA a0B
         STA f1500,X
         RTS 
 
+;e8056
         DEC f1600,X
         LDA f1600,X
         JMP e8030
-
         NOP 
+;e8060
         LDX #$00
 b0962   LDA f040F,X
         CMP f041B,X
@@ -356,6 +377,7 @@ b0972   LDA f040F,X
         BMI b09BB
         AND #$27
         AND (p24,X)
+;e80A0
         ROL aA5
         AND fC9,X
         JSR e04D0
@@ -380,7 +402,7 @@ b09CB   JSR e8386
         DEX 
         BNE b09CB
         RTS 
-
+;e80D2
         LDX #$20
 b09D4   LDA f807F,X
         STA f0592,X
@@ -389,7 +411,7 @@ b09D4   LDA f807F,X
         DEX 
         BNE b09D4
         JMP e8DC0
-
+;e80E5
         LDA #$34
         STA a0427
         LDX #$07
@@ -406,6 +428,7 @@ b09F7   LDA aC5
 
         NOP 
         NOP 
+;InitializeGame
         LDA #>pD000
         STA a03
         LDA #<pD000
@@ -432,6 +455,7 @@ b09F7   LDA aC5
         STA a02
         LDA #>p0400
         STA a03
+; Copy data to screen?
 b0A38   LDA a02
         STA f0340,X
         LDA a03
@@ -453,9 +477,9 @@ b0A46   STA (p02),Y
         CPX #$18
         BNE b0A38
         JMP e8818
-
         RTS 
 
+;e8163
         LDX a03
         LDY a02
         LDA f0340,X
@@ -464,6 +488,7 @@ b0A46   STA (p02),Y
         STA a07
         RTS 
 
+;e8172 - Called a lot!
         JSR e8163
         LDA a04
         STA (p06),Y
@@ -478,10 +503,12 @@ b0A46   STA (p02),Y
         STA (p06),Y
         RTS 
 
+;818B - Called a lot!
         JSR e8163
         LDA (p06),Y
         RTS 
 
+;e8191
         LDA #$00
         STA $D404    ;Voice 1: Control Register
         STA $D40B    ;Voice 2: Control Register
@@ -490,11 +517,13 @@ b0A46   STA (p02),Y
         STA $D40B    ;Voice 2: Control Register
         RTS 
 
+;e81A2
+; Load the programs at Progs to $05 $04.
         LDA #$02
         STA a08
-        LDA #>p083F
+        LDA #>Progs
         STA a05
-        LDA #<p083F
+        LDA #<Progs
         STA a04
 b0AAE   LDA #$00
         STA $D412    ;Voice 3: Control Register
@@ -550,6 +579,7 @@ b0B0F   DEX
         BNE b0AED
 b0B1A   RTS 
 
+;e821B
         LDA aC5
         CMP #$29
         BNE b0B1A
@@ -560,11 +590,12 @@ b0B27   LDA aC5
         CMP #$29
         BNE b0B27
         JMP e80F7
-
+;e8230
         JMP e8233
-
+;e8233
         LDA #$04
         STA a0A
+;e8237
         INC a0A
         LDA a0A
         CMP #$04
@@ -577,7 +608,7 @@ b0B40   LDA a08
         ADC #$01
         STA $D408    ;Voice 2: Frequency Control - High-Byte
         JMP e8237
-
+;e824F
         LDA #$0F
         STA a0A
         LDA #$02
@@ -587,6 +618,7 @@ b0B40   LDA a08
         STA $D40B    ;Voice 2: Control Register
         LDA #<p0116
         STA a04
+;e8264
         LDA #>p0116
         STA a05
         LDA #$00
@@ -652,7 +684,7 @@ b0BB2   JSR e8380
         SBC a0A
         STA a02
         JMP e8400
-
+;82EC
         LDX #$00
 b0BEE   LDA f8E00,X
         STA f2000,X
@@ -660,8 +692,8 @@ b0BEE   LDA f8E00,X
         STA f2100,X
         DEX 
         BNE b0BEE
-        JMP e8100
-
+        JMP InitializeGame
+;8300
         LDA #$0F
         STA $D418    ;Select Filter Mode and Volume
         LDA #$A0
@@ -722,7 +754,7 @@ b0BEE   LDA f8E00,X
         NOP 
         NOP 
         JMP e83A0
-
+;e8373
         LDA aDC11
         EOR #$FF
         STA a0E
@@ -733,10 +765,13 @@ b0BEE   LDA f8E00,X
         NOP 
         NOP 
         NOP 
+;e8380
         LDA a0A
         CMP #$00
         BEQ b0C92
+;e8386
         LDA #$00
+;e8388
         STA a30
 b0C8A   DEC a30
         BNE b0C8A
@@ -744,6 +779,7 @@ b0C8E   DEC a30
         BNE b0C8E
 b0C92   RTS 
 
+;e8393
         JSR e8470
         JSR e821B
         JMP e83A3
@@ -752,8 +788,9 @@ b0C92   RTS
         NOP 
         NOP 
         NOP 
+;e83A0
         JMP e8393
-
+;e83A3
         JSR e84F8
         JSR e859B
         JSR e8635
@@ -789,7 +826,7 @@ b0C92   RTS
         TAX 
         PLA 
         RTI 
-
+;e83E8
         LDX #$15
 b0CEA   DEX 
         BNE b0CEA
@@ -810,6 +847,7 @@ b0CEA   DEX
         NOP 
         NOP 
         NOP 
+;e8400
         JSR e8172
         LDA a09
         STA a04
@@ -846,7 +884,7 @@ b0D1A   LDA #<p0D07
         LDA #$0F
         STA $D418    ;Select Filter Mode and Volume
         RTS 
-
+;e8450
         LDA #$18
         STA a0A
 b0D54   LDA a0A
@@ -862,7 +900,7 @@ b0D65   JSR e8380
         DEC a0A
         BNE b0D54
         RTS 
-
+;e8470
         DEC a0D
         BEQ b0D75
         RTS 
@@ -929,7 +967,7 @@ b0DE5   LDA a02
         LDA #<p0D07
         STA a04
         JMP e8172
-
+;e84F8
         DEC a0F
         BEQ b0DFD
 b0DFC   RTS 
@@ -992,7 +1030,7 @@ b0E68   LDA a12
         LDA #$01
         STA a05
         JMP e8172
-
+;e8573
         LDA a13
         BNE b0E78
         RTS 
@@ -1012,7 +1050,7 @@ b0E78   DEC a13
         LDA #$81
         STA $D40B    ;Voice 2: Control Register
         RTS 
-
+;e859B
         LDA a0D
         CMP #$01
         BEQ b0EA2
@@ -1059,10 +1097,10 @@ b0EED   LDA a16
         LDA #$02
         STA a04
         JMP e85FD
-
+;e85F8
         STA a04
         JMP e8172
-
+;e85FD
         JSR e8172
         DEC a17
         BEQ b0F05
@@ -1088,11 +1126,11 @@ a0F0E   STA $D412    ;Voice 3: Control Register
         LDA a16
         STA a1C
         RTS 
-
+;e862F
         LDA #$03
         STA $D40F    ;Voice 3: Frequency Control - High-Byte
         RTS 
-
+;e8635
         LDA a0F
         CMP #$05
         BEQ b0F3C
@@ -1170,12 +1208,12 @@ b0FB2   JSR e8172
         LDA #$00
         STA a18
         JMP e8172
-
+;e86D0
         DEC a0F
         INC a19
         LDA a19
         RTS 
-
+;e86D7
         LDA a17
         CMP #$05
         BEQ b0FDE
@@ -1220,9 +1258,9 @@ f101F   NOP
         CLC 
         ORA a0F0E
         BPL b1037
-        .BYTE $12    ;JAM 
-        .BYTE $13,$A9 ;SLO ($A9),Y
-        ASL 
+        .BYTE $12,$13
+;e8728
+				LDA #$0A
         STA (p1F),Y
         LDX #$18
 b102E   LDA f101F,X
@@ -1240,14 +1278,14 @@ b103D   LDA a1F
         LDA a20
         STA f101F,X
         RTS 
-
+;e8748
         LDX #$20
         LDA #$FF
 b104C   STA f101F,X
         DEX 
         BNE b104C
         RTS 
-
+;e8753
         DEC a21
         BEQ b1058
         RTS 
@@ -1262,7 +1300,7 @@ b105E   LDA f101F,X
 b1068   DEX 
         BNE b105E
         RTS 
-
+;e876C
         LDA f0FFF,X
         STA a02
         LDA f101F,X
@@ -1311,14 +1349,13 @@ b10BB   LDA #$0A
         LDA #$01
         STA (p02),Y
         RTS 
-
+;e87CB
         LDX #$07
 b10CD   CMP f871F,X
         BEQ b10D9
         DEX 
         BNE b10CD
         JMP e8A11
-
         RTS 
 
 b10D9   DEX 
@@ -1343,10 +1380,11 @@ f10FE   PLA
 f10FF   PLA 
 f1100   RTS 
 
+;e8801
         PLA 
         PLA 
         JMP e8172
-
+;e8806
         LDX #$28
 b1108   LDA f881F,X
         STA f03FF,X
@@ -1355,7 +1393,7 @@ b1108   LDA f881F,X
         DEX 
         BNE b1108
         RTS 
-
+;e8818
         JSR e8806
         JMP e8D57
 
@@ -1386,7 +1424,7 @@ b1184   PLA
         DEY 
         BNE b1170
         RTS 
-
+;e888A
         LDX #$06
         LDY #$0A
         JSR e8870
@@ -1395,7 +1433,7 @@ b1184   PLA
         LDA #>p03F0
         STA a23
 b1199   RTS 
-
+;e889A
         LDA a0D
         AND #$01
         BEQ b1199
@@ -1421,7 +1459,7 @@ b11B8   LDA a23
 b11C3   LDA #$04
         STA $D40F    ;Voice 3: Frequency Control - High-Byte
         RTS 
-
+;e88C9
         DEC a25
         BEQ b11CE
 b11CD   RTS 
@@ -1466,6 +1504,7 @@ f11FF   LDA f12FF,X
         LDA #<p0313
         STA a04
         JSR e8172
+;e8924
         LDX a27
         DEX 
         BNE b11E6
@@ -1499,6 +1538,7 @@ b1235   DEC a02
 b1262   LDA f12FF,X
         EOR #$03
         STA f12FF,X
+;e896A
         LDA a02
         STA f10FF,X
         LDA a03
@@ -1514,16 +1554,15 @@ b1262   LDA f12FF,X
         LDX #$01
         INC a26
         RTS 
-
         LDX a27
         INX 
         CPX a24
         RTS 
-
         NOP 
+
 b1290   LDX a27
         JMP e896A
-
+;$8995
         LDA f12FF,X
         AND #$80
         BEQ b129F
@@ -1531,13 +1570,14 @@ b1290   LDX a27
 
 b129F   RTS 
 
+;e89A0
         LDA a0D
         CMP #$FF
         BNE b129F
         LDA #$80
         STA a0D
         RTS 
-
+;e89AB
         LDX #$07
 b12AD   CMP f871F,X
         BEQ b12B8
@@ -1550,7 +1590,7 @@ b12B8   LDA a0B
         LDA a0C
         STA a03
         RTS 
-
+;e89C1
         LDA a29
         BNE b12E6
         DEC a28
@@ -1596,7 +1636,7 @@ b1302   DEC a29
 b130C   LDA a2A
         BNE b12CA
         RTS 
-
+;e8A11
         CMP #$13
         BEQ b1328
         CMP #$14
@@ -1633,6 +1673,7 @@ b1342   LDA f11FF,X
         AND #$C0
         BNE b137A
         JSR e8AA4
+;e8A53
 b1353   LDA f1200,X
         STA f11FF,X
         LDA f1100,X
@@ -1664,13 +1705,13 @@ b138D   LDA f1300,X
         ORA f12FF,X
         STA f1300,X
         JMP e8A53
-
+;e8A99
         LDA #<p03F0
         STA a22
         LDA #>p03F0
         STA a23
         JMP e8870
-
+;e8A44
         STX a27
 b13A6   DEX 
         LDA f12FF,X
@@ -1686,10 +1727,12 @@ b13A6   DEX
         STA f12FE,X
         RTS 
 
+;e89A0
         ORA f1300,X
         STA f1300,X
         RTS 
 
+;e8AC8
         LDA a2A
         BEQ b13CD
 b13CC   RTS 
@@ -1697,22 +1740,23 @@ b13CC   RTS
 b13CD   LDA a24
         BNE b13CC
         JMP e8C2D
-
         JSR e818B
         CMP #$07
         BEQ b13DE
         JMP e8172
 
+;e8ADE
 b13DE   LDX #$F6
         TXS 
         NOP 
         NOP 
         NOP 
         JMP e8D78
-
         RTS 
 
         NOP 
+
+;e8AE9
         CMP #$07
         BEQ b13DE
         LDA f10FF,X
@@ -1722,6 +1766,7 @@ b13F0   RTS
         BEQ b13F0
         JMP e8ADE
 
+;e8AF8
         LDA #$0F
         STA a33
         LDA a0B
@@ -1742,6 +1787,7 @@ b140A   STA f1600,X
         STA $D401    ;Voice 1: Frequency Control - High-Byte
         LDA #$16
         STA a2D
+;e8B24
         LDA #$00
         STA $D404    ;Voice 1: Control Register
         LDA #$81
@@ -1767,9 +1813,10 @@ b1453   LDX a27
         BNE b143D
         LDA #$14
 b145A   JMP e8B60
-
         DEX 
         BNE b145A
+
+;e8B60
         INC a2D
         LDA a2D
         CMP #$19
@@ -1804,26 +1851,28 @@ b1491   JSR e8056
         BNE b14AE
         JSR e8172
 b14AE   JMP e8BD2
-
+;e8BB1
         DEC a33
         BMI b14B8
         JMP e8B24
 
 b14B8   JMP e8C17
 
+;e8BBB
         STX a27
         JMP e818B
+        NOP 
+        BRK #$01
+        ORA (p01,X)
+        BRK #$80
+        .BYTE $80,$80 ;NOP #$80
+        .BYTE $80,$80 ;NOP #$80
+        BRK #$01
+        ORA (p01,X)
+        BRK #$80
+        NOP 
 
-        NOP 
-        BRK #$01
-        ORA (p01,X)
-        BRK #$80
-        .BYTE $80,$80 ;NOP #$80
-        .BYTE $80,$80 ;NOP #$80
-        BRK #$01
-        ORA (p01,X)
-        BRK #$80
-        NOP 
+;e8BD2
         LDX a27
         DEX 
         BNE b146E
@@ -1837,6 +1886,7 @@ b14D9   JSR e8386
         STA $D404    ;Voice 1: Control Register
         JMP e8BB1
 
+;e8BEC
         CMP #$08
         BEQ b14FB
         CMP #$09
@@ -1845,8 +1895,10 @@ b14D9   JSR e8386
         BEQ b14FB
         JMP e8ADE
 
+;e8BFB
 b14FB   RTS 
 
+;e8BFC
         LDA #<p0450
         STA a07
 f1500   LDA #>p0450
@@ -1862,6 +1914,7 @@ b1508   STA (p07),Y
 p1514   BNE b1506
         RTS 
 
+;e8C17
         JSR e8BFC
         NOP 
         NOP 
@@ -1874,6 +1927,7 @@ p1514   BNE b1506
 
 b152A   JMP e8060
 
+;e8C2D
         LDX #$F6
         TXS 
         JSR e8BFC
@@ -1896,6 +1950,7 @@ b1535   LDA f8C50,X
         .BYTE $21,$22,$24,$25,$20,$28,$22
         .BYTE $27,$28 ;RLA a28
         JSR e3030
+;e8C75
         INC a0427
         LDA a0427
         CMP #$3A
@@ -1966,27 +2021,32 @@ b1624   JSR e8D52
         BNE b161A
         JMP e8300
 
+;e8D52
         LDA #$20
         JMP e8388
 
+;e8D57
         LDA a35
         STA a35
         JMP e8D8E
 
+;e8D5E
         DEC a0427
         DEC a35
         JMP e8C2D
 
+;e8D66
         STX a27
         LDA #$40
         SBC a27
         STA $D401    ;Voice 1: Frequency Control - High-Byte
         RTS 
 
+;e8D70
         LDA #$0F
         STA $D418    ;Select Filter Mode and Volume
         JMP e8D16
-
+;e8D78
         LDA #<p0800
         STA a04
         LDA #>p0800
@@ -1997,7 +2057,7 @@ b1624   JSR e8D52
         STA a03
         JSR e8172
         JMP e8AF8
-
+;e8D8E
         LDA #$01
         STA a35
         LDX #$0E
@@ -2012,7 +2072,7 @@ b1694   LDA f8DE0,X
         DEX 
         BNE b1694
         JMP e80D2
-
+;e8DB0
 b16B0   LDA aDC11
         CMP #$EF
         BNE b16BA
@@ -2021,9 +2081,11 @@ b16B0   LDA aDC11
 b16BA   CMP #$FE
         BNE b16B0
         INC a35
+;e8DC0
         JSR e80A0
         JMP e8DB0
 
+;e8DC6
         DEC a35
         JMP e80E5
 
@@ -2069,6 +2131,6 @@ b16BA   CMP #$FE
 
         *= $1800
 .binary "char.bin" ; The charset
-        JMP e8100
+        JMP InitializeGame
 .include "padding.asm"; This appears to be redundant, duplicated data
 
