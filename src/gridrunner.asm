@@ -1,3 +1,16 @@
+;Input
+JOY_UP                          = $01
+JOY_DOWN                        = $02
+JOY_LEFT                        = $04
+JOY_RIGHT                       = $08
+JOY_LEFTRIGHT                   = 12
+JOY_FIRE                        = 16
+JOY1_FIRE                       = 239
+KEY_F1                          = 4
+KEY_F3                          = 5
+KEY_F5                          = 6
+KEY_NONE                        = 64
+
 ;
 ; **** ZP FIELDS **** 
 ;
@@ -5,19 +18,19 @@ fC9 = $C9
 ;
 ; **** ZP ABSOLUTE ADRESSES **** 
 ;
-a02 = $02
-a03 = $03
-a04 = $04
-a05 = $05
-a06 = $06
-a07 = $07
+zpLo = $02
+zpHi = $03
+charToPlot = $04
+colourToPlot = $05
+zpLo3 = $06
+zpHi3 = $07
 a08 = $08
 a09 = $09
 a0A = $0A
 a0B = $0B
 a0C = $0C
 a0D = $0D
-a0E = $0E
+InputJoy = $0E
 a0F = $0F
 a10 = $10
 a11 = $11
@@ -53,7 +66,7 @@ a34 = $34
 a35 = $35
 a36 = $36
 aA5 = $A5
-aC5 = $C5
+SysKeyCode_C5 = $C5
 aFC = $FC
 aFD = $FD
 aFE = $FE
@@ -62,9 +75,6 @@ aFF = $FF
 ; **** ZP POINTERS **** 
 ;
 p01 = $01
-p02 = $02
-p06 = $06
-p07 = $07
 p1F = $1F
 p24 = $24
 p83 = $83
@@ -74,38 +84,27 @@ pFE = $FE
 ;
 ; **** FIELDS **** 
 ;
-f0340 = $0340
-f0360 = $0360
-f03FF = $03FF
-f040E = $040E
-f040F = $040F
-f041B = $041B
-f04FA = $04FA
-f04FD = $04FD
-f054A = $054A
-f054D = $054D
-f0592 = $0592
-f807F = $807F
+SCREEN_PTR_LO = $0340
+SCREEN_PTR_HI = $0360
+SCREENRAM = $0400
+COLOURRAM = $D800
+
+CopyrightLine = $807F
 f871F = $871F
-f881F = $881F
-f8847 = $8847
+ScreenHeaderText = $881F
+ScreenHeaderColors = $8847
 f8BC0 = $8BC0
 f8BC8 = $8BC8
-f8C50 = $8C50
+LevelSplashText = $8C50
 f8C62 = $8C62
 f8CB4 = $8CB4
 f8CD4 = $8CD4
 f8CF4 = $8CF4
-f8DE0 = $8DE0
-f8DF0 = $8DF0
+ByJeffMinter = $8DE0
+EnterLevelText = $8DF0
 f8E00 = $8E00
-f8F00 = $8F00
-fD7FF = $D7FF
-fD8FA = $D8FA
-fD8FD = $D8FD
-fD94A = $D94A
-fD94D = $D94D
-fD992 = $D992
+CharSet = $8F00
+
 ;
 ; **** ABSOLUTE ADRESSES **** 
 ;
@@ -118,7 +117,7 @@ a055E = $055E
 a055F = $055F
 aD95E = $D95E
 aD95F = $D95F
-aDC11 = $DC11
+JOY1 = $DC11
 ;
 ; **** POINTERS **** 
 ;
@@ -127,7 +126,6 @@ p0102 = $0102
 p0116 = $0116
 p0313 = $0313
 p03F0 = $03F0
-p0400 = $0400
 p0450 = $0450
 p05FF = $05FF
 p070F = $070F
@@ -138,7 +136,6 @@ pD000 = $D000
 ;
 ; **** EXTERNAL JUMPS **** 
 ;
-e04D0 = $04D0
 e3030 = $3030
 e8015 = $8015
 e8020 = $8020
@@ -149,16 +146,16 @@ e8056 = $8056
 e8060 = $8060
 e80A0 = $80A0
 e8028 = $8028
-e80D2 = $80D2
+WriteCopyrightLine = $80D2
 e80E5 = $80E5
-e80F7 = $80F7
+CheckInputAgain = $80F7
 InitializeGame = $8100
-e8163 = $8163
-e8172 = $8172
-e818B = $818B
+Screen_GetPointer = $8163
+Screen_Plot = $8172
+GetCurrentChar = $818B
 e8191 = $8191
 e81A2 = $81A2
-e821B = $821B
+CheckPause = $821B
 e8230 = $8230
 e8233 = $8233
 e8237 = $8237
@@ -166,17 +163,17 @@ e824F = $824F
 e8264 = $8264
 e82EC = $82EC
 e8300 = $8300
-e8373 = $8373
+CheckJoy = $8373
 e8380 = $8380
 e8386 = $8386
 e8388 = $8388
-e8393 = $8393
-e83A0 = $83A0
-e83A3 = $83A3
+Main_GameLoop = $8393
+JumpToMainGameLoop = $83A0
+GameLoopBody = $83A3
 e83E8 = $83E8
 e8400 = $8400
 e8450 = $8450
-e8470 = $8470
+Input_CheckJoy = $8470
 e84F8 = $84F8
 e8573 = $8573
 e859B = $859B
@@ -193,8 +190,8 @@ e8753 = $8753
 e876C = $876C
 e87CB = $87CB
 e8801 = $8801
-e8806 = $8806
-e8818 = $8818
+Menu_DisplayHeader = $8806
+SetUpMenu = $8818
 e8870 = $8870
 e888A = $888A
 e889A = $889A
@@ -222,7 +219,7 @@ e8BD2 = $8BD2
 e8BEC = $8BEC
 e8BFC = $8BFC
 e8C17 = $8C17
-e8C2D = $8C2D
+DisplayNewLevelText = $8C2D
 e8C75 = $8C75
 e8D16 = $8D16
 e8D52 = $8D52
@@ -231,7 +228,7 @@ e8D5E = $8D5E
 e8D66 = $8D66
 e8D70 = $8D70
 e8D78 = $8D78
-e8D8E = $8D8E
+DisplayTitleScreen = $8D8E
 e8DB0 = $8DB0
 e8DC0 = $8DC0
 e8DC6 = $8DC6
@@ -246,15 +243,17 @@ ROM_CHROUT = $FFD2
 
 * = $0801
 
+;------------------------------------------------------------------------------------
 ; 10 SYS 2061
 ; Used to execute the code at address $080d (2061).
+;------------------------------------------------------------------------------------
         .BYTE $0B,$08 ;ANC #$08
         .BYTE $0A,$00,$9E,$32,$30,$36,$31,$00 ; SYS 2061
         .BYTE $00,$00
-;-------------------------------------------------------------
+;------------------------------------------------------------------------------------
 ; Copies the game code from $0900 to $8000 and starts executing code
 ; at $8000.
-;-------------------------------------------------------------
+;------------------------------------------------------------------------------------
 * = $080d
 Start
         LDY #$00
@@ -264,16 +263,16 @@ Start
         STA aFF
         STY aFC
         STY aFE
-CopyData
+CopyDataLoop
         LDA (pFC),Y
         STA (pFE),Y
         INY 
-        BNE CopyData
+        BNE CopyDataLoop
         INC aFD
         INC aFF
         LDA #$A0
         CMP aFF
-        BNE CopyData
+        BNE CopyDataLoop
         SEI 
         JMP (CopyBeforeInitialize)
 
@@ -306,13 +305,13 @@ b0902   .byte $E2,$83,$00,$00,$00,$00,$00,$00,$8F
         INX 
         CPX #$07
         BNE b0962
-        JMP e8D8E
+        JMP DisplayTitleScreen
         NOP 
         NOP 
         NOP 
 
 ; e8020
-        JSR e818B
+        JSR GetCurrentChar
         CMP #$07
         .BYTE $F0,$01 ;BEQ e8028
         RTS 
@@ -355,35 +354,33 @@ b0950   LDA a0B
         NOP 
 ;e8060
         LDX #$00
-b0962   LDA f040F,X
-        CMP f041B,X
+b0962   LDA SCREENRAM+15,X
+        CMP SCREENRAM+27,X
         BNE b0970
         JMP e8015
 
-b096D   JMP e8D8E
+b096D   JMP DisplayTitleScreen
 
 b0970   BMI b096D
-b0972   LDA f040F,X
-        STA f041B,X
+b0972   LDA SCREENRAM+15,X
+        STA SCREENRAM+27,X
         INX 
         CPX #$07
         BNE b0972
-        JMP e8D8E
+        JMP DisplayTitleScreen
 
-        .BYTE $3C,$3D,$20,$31,$39,$38,$32,$20
-        .BYTE $2B,$27,$2F,$20,$20,$2E,$22,$27
-        .BYTE $2F,$2F,$20,$2A,$24,$22,$27,$20
-        .BYTE $3A    ;NOP 
-        BMI b09BB
-        AND #$27
-        AND (p24,X)
+;CopyrightLine
+        .BYTE $3C,$3D,$20,$31,$39,$38,$32,$20 ; (c) 1982
+        .BYTE $2B,$27,$2F,$20,$20,$2E,$22,$27 ; HES  PRE
+        .BYTE $2F,$2F,$20,$2A,$24,$22,$27,$20 ; SS FIRE 
+        .BYTE $3A,$30,$20,$29,$27,$21,$24,$26 ; TO BEGIN
 ;e80A0
-        ROL aA5
-        AND fC9,X
-        JSR e04D0
+      	LDA a35
+				CMP #$20
+				BNE b09AA
         LDA #$01
         STA a35
-        LDA #$30
+b09AA   LDA #$30
         STA a0557
         STA a0558
         LDX a35
@@ -402,26 +399,29 @@ b09CB   JSR e8386
         DEX 
         BNE b09CB
         RTS 
-;e80D2
+
+;WriteCopyrightLine
         LDX #$20
-b09D4   LDA f807F,X
-        STA f0592,X
+CopyrightLineLoop
+		    LDA CopyrightLine,X
+        STA SCREENRAM + $0192,X
         LDA #$07
-        STA fD992,X
+        STA COLOURRAM + $0192,X
         DEX 
-        BNE b09D4
+        BNE CopyrightLineLoop
         JMP e8DC0
 ;e80E5
         LDA #$34
         STA a0427
         LDX #$07
         LDA #$30
-b09EE   STA f040E,X
+b09EE   STA SCREENRAM+14,X
         DEX 
         BNE b09EE
-        JMP e8C2D
+        JMP DisplayNewLevelText
 
-b09F7   LDA aC5
+;CheckInputAgain
+b09F7   LDA SysKeyCode_C5
         CMP #$29
         BEQ b09F7
         RTS 
@@ -430,17 +430,17 @@ b09F7   LDA aC5
         NOP 
 ;InitializeGame
         LDA #>pD000
-        STA a03
+        STA zpHi
         LDA #<pD000
-        STA a02
+        STA zpLo
         LDY #$18
         TYA 
-        STA (p02),Y
+        STA (zpLo),Y
         LDY #$20
         LDA #$00
-        STA (p02),Y
+        STA (zpLo),Y
         INY 
-        STA (p02),Y
+        STA (zpLo),Y
         LDA #$0A
         STA $D401    ;Voice 1: Frequency Control - High-Byte
         STA $D405    ;Voice 1: Attack / Decay Cycle Control
@@ -451,61 +451,70 @@ b09F7   LDA aC5
         LDA #$05
         STA $D408    ;Voice 2: Frequency Control - High-Byte
         LDX #$00
-        LDA #<p0400
-        STA a02
-        LDA #>p0400
-        STA a03
-; Copy data to screen?
-b0A38   LDA a02
-        STA f0340,X
-        LDA a03
-        STA f0360,X
+        LDA #<SCREENRAM
+        STA zpLo
+        LDA #>SCREENRAM
+        STA zpHi
+SetScreenPointersLoop
+		    LDA zpLo
+        STA SCREEN_PTR_LO,X
+        LDA zpHi
+        STA SCREEN_PTR_HI,X
         LDY #$00
         LDA #$20
-b0A46   STA (p02),Y
+NextRow
+			  STA (zpLo),Y
         INY 
         CPY #$28
-        BNE b0A46
-        LDA a02
+        BNE NextRow
+        LDA zpLo
         CLC 
         ADC #$28
-        STA a02
-        LDA a03
+        STA zpLo
+        LDA zpHi
         ADC #$00
-        STA a03
+        STA zpHi
         INX 
         CPX #$18
-        BNE b0A38
-        JMP e8818
+        BNE SetScreenPointersLoop
+        JMP SetUpMenu
         RTS 
 
-;e8163
-        LDX a03
-        LDY a02
-        LDA f0340,X
-        STA a06
-        LDA f0360,X
-        STA a07
+;-------------------------------------------------------------------------------
+; Screen_GetPointer
+; Uses the screen pointer array to fetch screen address based on an X and Y 
+; value stored in zpHi and zpLo before the routine is called
+;-------------------------------------------------------------------------------
+        LDX zpHi
+        LDY zpLo
+        LDA SCREEN_PTR_LO,X
+        STA zpLo3
+        LDA SCREEN_PTR_HI,X
+        STA zpHi3
         RTS 
 
-;e8172 - Called a lot!
-        JSR e8163
-        LDA a04
-        STA (p06),Y
-        LDA a07
+;-------------------------------------------------------------------------------
+; Screen_Plot
+; Plots a char to the screen and sets its colour. Char is stored in charToPlot
+; and colour in colourToPlot before routine is called.
+;-------------------------------------------------------------------------------
+        JSR Screen_GetPointer
+        LDA charToPlot
+        STA (zpLo3),Y
+        LDA zpHi3
         CLC 
         ADC #$D4
-        STA a07
-        LDA a07
-        LDA a07
-        STA a07
-        LDA a05
-        STA (p06),Y
+        STA zpHi3
+        LDA zpHi3
+        LDA zpHi3
+        STA zpHi3
+        LDA colourToPlot
+        STA (zpLo3),Y
         RTS 
 
-;818B - Called a lot!
-        JSR e8163
-        LDA (p06),Y
+;GetCurrentChar
+        JSR Screen_GetPointer
+        LDA (zpLo3),Y
         RTS 
 
 ;e8191
@@ -518,13 +527,15 @@ b0A46   STA (p02),Y
         RTS 
 
 ;e81A2
+;-------------------------------------------------------------
 ; Load the programs at Progs to $05 $04.
+;-------------------------------------------------------------
         LDA #$02
         STA a08
         LDA #>Progs
-        STA a05
+        STA colourToPlot
         LDA #<Progs
-        STA a04
+        STA charToPlot
 b0AAE   LDA #$00
         STA $D412    ;Voice 3: Control Register
         LDA #$00
@@ -532,10 +543,10 @@ b0AAE   LDA #$00
         LDA #$02
         STA a09
 b0ABC   LDA a09
-        STA a03
+        STA zpHi
         LDA a08
-        STA a02
-        JSR e8172
+        STA zpLo
+        JSR Screen_Plot
         JSR e8191
         INC a09
         LDA a09
@@ -554,14 +565,14 @@ b0ADA   DEX
         LDA #$02
         STA a08
         LDA #$00
-        STA a04
+        STA charToPlot
 b0AED   LDA #$01
         STA a09
 b0AF1   LDA a09
-        STA a02
+        STA zpLo
         LDA a08
-        STA a03
-        JSR e8172
+        STA zpHi
+        JSR Screen_Plot
         JSR e8191
         INC a09
         LDA a09
@@ -579,17 +590,18 @@ b0B0F   DEX
         BNE b0AED
 b0B1A   RTS 
 
-;e821B
-        LDA aC5
+;CheckPause
+        LDA SysKeyCode_C5
         CMP #$29
         BNE b0B1A
-b0B21   LDA aC5
+b0B21   LDA SysKeyCode_C5
         CMP #$29
         BEQ b0B21
-b0B27   LDA aC5
+b0B27   LDA SysKeyCode_C5
         CMP #$29
         BNE b0B27
-        JMP e80F7
+        JMP CheckInputAgain
+
 ;e8230
         JMP e8233
 ;e8233
@@ -617,40 +629,40 @@ b0B40   LDA a08
         STA $D404    ;Voice 1: Control Register
         STA $D40B    ;Voice 2: Control Register
         LDA #<p0116
-        STA a04
+        STA charToPlot
 ;e8264
         LDA #>p0116
-        STA a05
+        STA colourToPlot
         LDA #$00
         STA $D40B    ;Voice 2: Control Register
         LDA #$81
         STA $D40B    ;Voice 2: Control Register
         LDA #$15
-        STA a03
+        STA zpHi
         LDA #$14
         CLC 
         SBC a0A
-        STA a02
-        JSR e8172
+        STA zpLo
+        JSR Screen_Plot
         LDA #$14
         CLC 
         ADC a0A
-        STA a02
-        JSR e8172
-        LDA a03
+        STA zpLo
+        JSR Screen_Plot
+        LDA zpHi
         CLC 
         SBC a0A
-        STA a03
-        JSR e8172
+        STA zpHi
+        JSR Screen_Plot
         LDA #$14
-        STA a02
-        JSR e8172
+        STA zpLo
+        JSR Screen_Plot
         LDA #$14
         SBC a0A
-        STA a02
-        JSR e8172
-        INC a04
-        LDA a04
+        STA zpLo
+        JSR Screen_Plot
+        INC charToPlot
+        LDA charToPlot
         CMP #$19
         BNE b0BAE
         LDA #$16
@@ -660,35 +672,35 @@ b0BB2   JSR e8380
         DEX 
         BNE b0BB2
         LDA #<p0800
-        STA a04
+        STA charToPlot
         LDA #>p0800
-        STA a05
+        STA colourToPlot
         LDA #$14
-        STA a02
-        JSR e8172
+        STA zpLo
+        JSR Screen_Plot
         LDA #$14
         CLC 
         SBC a0A
-        STA a02
-        JSR e8172
+        STA zpLo
+        JSR Screen_Plot
         LDA #$14
         CLC 
         ADC a0A
-        STA a02
-        JSR e8172
+        STA zpLo
+        JSR Screen_Plot
         LDA #$15
-        STA a03
-        JSR e8172
+        STA zpHi
+        JSR Screen_Plot
         LDA #$14
         CLC 
         SBC a0A
-        STA a02
+        STA zpLo
         JMP e8400
 ;82EC
         LDX #$00
 b0BEE   LDA f8E00,X
         STA f2000,X
-        LDA f8F00,X
+        LDA CharSet,X
         STA f2100,X
         DEX 
         BNE b0BEE
@@ -753,11 +765,12 @@ b0BEE   LDA f8E00,X
         NOP 
         NOP 
         NOP 
-        JMP e83A0
-;e8373
-        LDA aDC11
+        JMP JumpToMainGameLoop
+
+;CheckJoy
+        LDA JOY1
         EOR #$FF
-        STA a0E
+        STA InputJoy
         RTS 
 
         NOP 
@@ -779,18 +792,22 @@ b0C8E   DEC a30
         BNE b0C8E
 b0C92   RTS 
 
-;e8393
-        JSR e8470
-        JSR e821B
-        JMP e83A3
+;-------------------------------------------------------------------------------
+;Main_GameLoop
+;-------------------------------------------------------------------------------
+        JSR Input_CheckJoy
+        JSR CheckPause
+        JMP GameLoopBody
 
         NOP 
         NOP 
         NOP 
         NOP 
-;e83A0
-        JMP e8393
-;e83A3
+
+;JumpToMainGameLoop
+        JMP Main_GameLoop
+
+;GameLoopBody
         JSR e84F8
         JSR e859B
         JSR e8635
@@ -830,7 +847,7 @@ b0C92   RTS
         LDX #$15
 b0CEA   DEX 
         BNE b0CEA
-        JMP e83A0
+        JMP JumpToMainGameLoop
 
         NOP 
         NOP 
@@ -842,15 +859,15 @@ b0CEA   DEX
         NOP 
         NOP 
         NOP 
-        JMP e83A0
+        JMP JumpToMainGameLoop
 
         NOP 
         NOP 
         NOP 
 ;e8400
-        JSR e8172
+        JSR Screen_Plot
         LDA a09
-        STA a04
+        STA charToPlot
 p0D07   DEC a0A
         LDA a0A
         CMP #$FF
@@ -862,14 +879,14 @@ p0D07   DEC a0A
         JMP e8264
 
 b0D1A   LDA #<p0D07
-        STA a04
+        STA charToPlot
         LDA #>p0D07
-        STA a05
+        STA colourToPlot
         LDA #>p1514
-        STA a03
+        STA zpHi
         LDA #<p1514
-        STA a02
-        JSR e8172
+        STA zpLo
+        JSR Screen_Plot
         LDA #$0F
         STA $D418    ;Select Filter Mode and Volume
         JSR e8450
@@ -884,6 +901,7 @@ b0D1A   LDA #<p0D07
         LDA #$0F
         STA $D418    ;Select Filter Mode and Volume
         RTS 
+
 ;e8450
         LDA #$18
         STA a0A
@@ -900,73 +918,76 @@ b0D65   JSR e8380
         DEC a0A
         BNE b0D54
         RTS 
-;e8470
+;Input_CheckJoy
         DEC a0D
         BEQ b0D75
         RTS 
 
-b0D75   JSR e8373
+b0D75   JSR CheckJoy
         LDA a0B
-        STA a02
+        STA zpLo
         LDA a0C
-        STA a03
-        JSR e818B
+        STA zpHi
+        JSR GetCurrentChar
         CMP #$07
         BEQ b0D8A
         JSR e8BEC
 b0D8A   LDA #<p0800
-        STA a04
+        STA charToPlot
         LDA #>p0800
-        STA a05
-        JSR e8172
-        LDA a0E
-        AND #$01
-        BEQ b0DA7
-        DEC a03
-        LDA a03
+        STA colourToPlot
+        JSR Screen_Plot
+        LDA InputJoy
+        AND #JOY_UP
+        BEQ CheckJoyDown
+        DEC zpHi
+        LDA zpHi
         CMP #$0E
-        BNE b0DA7
+        BNE CheckJoyDown
         LDA #$0F
-        STA a03
-b0DA7   LDA a0E
-        AND #$02
-        BEQ b0DB9
-        INC a03
-        LDA a03
+        STA zpHi
+CheckJoyDown
+		    LDA InputJoy
+        AND #JOY_DOWN
+        BEQ CheckJoyLeft
+        INC zpHi
+        LDA zpHi
         CMP #$16
-        BNE b0DB9
+        BNE CheckJoyLeft
         LDA #$15
-        STA a03
-b0DB9   LDA a0E
-        AND #$04
-        BEQ b0DCB
-        DEC a02
-        LDA a02
+        STA zpHi
+CheckJoyLeft
+	 	    LDA InputJoy
+        AND #JOY_LEFT
+        BEQ CheckJoyRight
+        DEC zpLo
+        LDA zpLo
         CMP #$00
-        BNE b0DCB
+        BNE CheckJoyRight
         LDA #$01
-        STA a02
-b0DCB   LDA a0E
-        AND #$08
+        STA zpLo
+CheckJoyRight
+		    LDA InputJoy
+        AND #JOY_RIGHT
         BEQ b0DDD
-        INC a02
-        LDA a02
+        INC zpLo
+        LDA zpLo
         CMP #$27
         BNE b0DDD
         LDA #$26
-        STA a02
-b0DDD   JSR e818B
+        STA zpLo
+b0DDD   JSR GetCurrentChar
         BEQ b0DE5
         JSR e89AB
-b0DE5   LDA a02
+b0DE5   LDA zpLo
         STA a0B
-        LDA a03
+        LDA zpHi
         STA a0C
         LDA #>p0D07
-        STA a05
+        STA colourToPlot
         LDA #<p0D07
-        STA a04
-        JMP e8172
+        STA charToPlot
+        JMP Screen_Plot
 ;e84F8
         DEC a0F
         BEQ b0DFD
@@ -979,7 +1000,7 @@ p0E02   =*+$01
         LDA a11
         CMP #$FF
         BNE b0E22
-        LDA a0E
+        LDA InputJoy
         AND #$10
         BEQ b0DFC
         LDA a0B
@@ -992,20 +1013,20 @@ p0E02   =*+$01
         LDA #>p4008
         STA a13
 b0E22   LDA a10
-        STA a02
+        STA zpLo
         LDA a11
-        STA a03
-        JSR e818B
+        STA zpHi
+        JSR GetCurrentChar
         CMP a12
         BEQ b0E38
         CMP #$00
         BEQ b0E38
         JSR e87CB
 b0E38   LDA #>p0800
-        STA a05
+        STA colourToPlot
         LDA #<p0800
-        STA a04
-        JSR e8172
+        STA charToPlot
+        JSR Screen_Plot
         INC a12
         LDA a12
         CMP #$0A
@@ -1021,15 +1042,15 @@ b0E38   LDA #>p0800
 b0E58   LDA #$08
         STA a12
 b0E5C   LDA a11
-        STA a03
-        JSR e818B
+        STA zpHi
+        JSR GetCurrentChar
         BEQ b0E68
         JSR e87CB
 b0E68   LDA a12
-        STA a04
+        STA charToPlot
         LDA #$01
-        STA a05
-        JMP e8172
+        STA colourToPlot
+        JMP Screen_Plot
 ;e8573
         LDA a13
         BNE b0E78
@@ -1061,12 +1082,12 @@ b0EA2   DEC a14
         LDA #$02
         STA a14
         LDA #$00
-        STA a02
+        STA zpLo
         LDA a15
-        STA a03
+        STA zpHi
         LDA #$20
-        STA a04
-        JSR e8172
+        STA charToPlot
+        JSR Screen_Plot
         INC a15
         LDA a15
         CMP #$16
@@ -1074,16 +1095,16 @@ b0EA2   DEC a14
         LDA #$03
         STA a15
 b0EC5   LDA a15
-        STA a03
+        STA zpHi
         LDA #>p0101
-        STA a05
+        STA colourToPlot
         LDA #<p0101
-        STA a04
-        JSR e8172
+        STA charToPlot
+        JSR Screen_Plot
         LDA #$16
-        STA a03
+        STA zpHi
         LDA a16
-        STA a02
+        STA zpLo
         LDA #$20
         JSR e85F8
         INC a16
@@ -1093,15 +1114,15 @@ b0EC5   LDA a15
         LDA #$01
         STA a16
 b0EED   LDA a16
-        STA a02
+        STA zpLo
         LDA #$02
-        STA a04
+        STA charToPlot
         JMP e85FD
 ;e85F8
-        STA a04
-        JMP e8172
+        STA charToPlot
+        JMP Screen_Plot
 ;e85FD
-        JSR e8172
+        JSR Screen_Plot
         DEC a17
         BEQ b0F05
         RTS 
@@ -1146,68 +1167,68 @@ b0F3C   LDA a18
         LDA #$05
         STA a19
 b0F4E   LDA #$01
-        STA a05
+        STA colourToPlot
         LDA a19
-        STA a04
+        STA charToPlot
         LDA #$15
         STA a1D
 b0F5A   LDA a1D
-        STA a03
+        STA zpHi
         LDA a1C
-        STA a02
-        JSR e8172
+        STA zpLo
+        JSR Screen_Plot
         DEC a1D
         LDA a1D
         CMP #$02
         BNE b0F5A
         LDA a1A
-        STA a03
+        STA zpHi
         LDA a1B
-        STA a02
-        JSR e818B
+        STA zpLo
+        JSR GetCurrentChar
         CMP a19
         BEQ b0FA2
         LDA #<p0800
-        STA a04
+        STA charToPlot
         LDA #>p0800
-        STA a05
-        JSR e8172
+        STA colourToPlot
+        JSR Screen_Plot
         INC a1B
         LDA a1B
-        STA a02
+        STA zpLo
         JSR e8020
         CMP a19
         BEQ b0FA2
         LDA #$01
-        STA a05
+        STA colourToPlot
         LDA a19
         CLC 
         SBC #$01
-        STA a04
-        JMP e8172
+        STA charToPlot
+        JMP Screen_Plot
 
 b0FA2   LDA #$15
-        STA a03
+        STA zpHi
         LDA a1C
-        STA a02
+        STA zpLo
         LDA #>p0800
-        STA a05
+        STA colourToPlot
         LDA #<p0800
-        STA a04
-b0FB2   JSR e8172
-        DEC a03
-        LDA a03
+        STA charToPlot
+b0FB2   JSR Screen_Plot
+        DEC zpHi
+        LDA zpHi
         CMP #$02
         BNE b0FB2
         LDA a1A
-        STA a03
+        STA zpHi
         LDA #>p070F
-        STA a05
+        STA colourToPlot
         LDA #<p070F
-        STA a04
+        STA charToPlot
         LDA #$00
         STA a18
-        JMP e8172
+        JMP Screen_Plot
 ;e86D0
         DEC a0F
         INC a19
@@ -1302,23 +1323,23 @@ b1068   DEX
         RTS 
 ;e876C
         LDA f0FFF,X
-        STA a02
+        STA zpLo
         LDA f101F,X
-        STA a03
+        STA zpHi
         LDY #$00
-        LDA (p02),Y
+        LDA (zpLo),Y
         CMP #$07
         BNE b1081
         JMP e8ADE
 
 b1081   LDA #$00
-        STA (p02),Y
-        LDA a03
+        STA (zpLo),Y
+        LDA zpHi
         CLC 
         ADC #$D4
-        STA a03
+        STA zpHi
         LDA #$08
-        STA (p02),Y
+        STA (zpLo),Y
         LDA f0FFF,X
         CLC 
         ADC #$28
@@ -1326,10 +1347,10 @@ b1081   LDA #$00
         LDA f101F,X
         ADC #$00
         STA f101F,X
-        STA a03
+        STA zpHi
         LDA f0FFF,X
-        STA a02
-        LDA (p02),Y
+        STA zpLo
+        LDA (zpLo),Y
         CMP #$20
         BNE b10B4
         LDA #$FF
@@ -1341,13 +1362,13 @@ b10B4   CMP #$07
         JMP e8ADE
 
 b10BB   LDA #$0A
-        STA (p02),Y
-        LDA a03
+        STA (zpLo),Y
+        LDA zpHi
         CLC 
         ADC #$D4
-        STA a03
+        STA zpHi
         LDA #$01
-        STA (p02),Y
+        STA (zpLo),Y
         RTS 
 ;e87CB
         LDX #$07
@@ -1361,20 +1382,20 @@ b10CD   CMP f871F,X
 b10D9   DEX 
         BEQ b10EC
         LDA f871F,X
-        STA a04
+        STA charToPlot
         LDA #$07
-        STA a05
+        STA colourToPlot
         LDA #$FF
         STA a11
         JMP e8801
 
 b10EC   LDA #<p0800
-        STA a04
+        STA charToPlot
         LDA #>p0800
-        STA a05
+        STA colourToPlot
         LDA #$FF
         STA a11
-        JSR e8172
+        JSR Screen_Plot
         JSR e888A
 f10FE   PLA 
 f10FF   PLA 
@@ -1383,40 +1404,51 @@ f1100   RTS
 ;e8801
         PLA 
         PLA 
-        JMP e8172
-;e8806
+        JMP Screen_Plot
+;---------------------------------------------------------------
+; Menu_DisplayHeader
+; Writes the text for the top of the title screen to the screen.
+;---------------------------------------------------------------
         LDX #$28
-b1108   LDA f881F,X
-        STA f03FF,X
-        LDA f8847,X
-        STA fD7FF,X
+DisplayHeaderLoop
+		    LDA ScreenHeaderText,X
+        STA SCREENRAM-1,X
+        LDA ScreenHeaderColors,X
+        STA COLOURRAM-1,X
         DEX 
-        BNE b1108
+        BNE DisplayHeaderLoop
         RTS 
-;e8818
-        JSR e8806
+;SetUpMenu
+        JSR Menu_DisplayHeader
         JMP e8D57
 
-        .BYTE $EA,$EA,$21,$22,$24,$25,$22,$23
-        .BYTE $26,$26,$27,$22,$20,$20,$19,$1A
-        .BYTE $20,$30,$30,$30,$30,$30,$30,$30
-        .BYTE $20,$20,$1D,$1E,$20,$30,$30,$30
-        .BYTE $30,$30,$30,$30,$20,$20,$07,$20
-        .BYTE $20,$34,$03,$03,$03,$03,$04,$04
-        .BYTE $04,$04,$04,$04,$01,$01,$07,$07
+				NOP
+				NOP
+
+;ScreenHeaderText
+				.BYTE $21,$22,$24,$25,$22,$23          ; GRIDRU
+        .BYTE $26,$26,$27,$22,$20,$20,$19,$1A  ; NNER  PL 1
+        .BYTE $20,$30,$30,$30,$30,$30,$30,$30  ;  0000000
+        .BYTE $20,$20,$1D,$1E,$20,$30,$30,$30  ;  HI: 000
+        .BYTE $30,$30,$30,$30,$20,$20,$07,$20  ; 0000  * 
+        .BYTE $20
+;ScreenHeaderColors
+				.BYTE $34,$03,$03,$03,$03,$04,$04  ;  4
+        .BYTE $04,$04,$04,$04,$01,$01,$07,$07 
         .BYTE $01,$03,$03,$03,$03,$03,$03,$03
         .BYTE $01,$01,$07,$07,$01,$0E,$0E,$0E
         .BYTE $0E,$0E,$0E,$0E,$01,$01
         ORA p0101
+
 b1170   =*+$01
         .BYTE $04,$8A ;NOP $8A
         PHA 
-b1172   INC f040F,X
-        LDA f040F,X
+b1172   INC SCREENRAM+15,X
+        LDA SCREENRAM+15,X
         CMP #$3A
         BNE b1184
         LDA #$30
-        STA f040F,X
+        STA SCREENRAM+15,X
         DEX 
         BNE b1172
 b1184   PLA 
@@ -1478,13 +1510,13 @@ b11CE   LDA #$80
         STA a26
 b11E6   STX a27
         LDA f10FF,X
-        STA a02
+        STA zpLo
         LDA f11FF,X
-        STA a03
+        STA zpHi
         LDA #<p0800
-        STA a04
+        STA charToPlot
         LDA #>p0800
-        STA a05
+        STA colourToPlot
         JSR e8995
 f11FE   =*+$01
         LDX a27
@@ -1496,14 +1528,14 @@ f11FF   LDA f12FF,X
         STA f10FF,X
         LDA f11FE,X
         STA f11FF,X
-        STA a03
+        STA zpHi
         LDA f10FF,X
-        STA a02
+        STA zpLo
         LDA #>p0313
-        STA a05
+        STA colourToPlot
         LDA #<p0313
-        STA a04
-        JSR e8172
+        STA charToPlot
+        JSR Screen_Plot
 ;e8924
         LDX a27
         DEX 
@@ -1513,16 +1545,16 @@ f11FF   LDA f12FF,X
 b122A   LDA f12FF,X
         AND #$02
         BNE b1235
-        INC a02
-        INC a02
-b1235   DEC a02
-        JSR e818B
+        INC zpLo
+        INC zpLo
+b1235   DEC zpLo
+        JSR GetCurrentChar
         BEQ b1290
         LDX a27
         JSR e8AE9
-        STA a02
-        INC a03
-        LDA a03
+        STA zpLo
+        INC zpHi
+        LDA zpHi
         CMP #$16
         BNE b1262
         LDA f12FF,X
@@ -1539,15 +1571,15 @@ b1262   LDA f12FF,X
         EOR #$03
         STA f12FF,X
 ;e896A
-        LDA a02
+        LDA zpLo
         STA f10FF,X
-        LDA a03
+        LDA zpHi
         STA f11FF,X
         LDA #$03
-        STA a05
+        STA colourToPlot
         LDA a26
-        STA a04
-        JSR e8172
+        STA charToPlot
+        JSR Screen_Plot
         LDX a27
         JMP e8924
 
@@ -1566,7 +1598,7 @@ b1290   LDX a27
         LDA f12FF,X
         AND #$80
         BEQ b129F
-        JMP e8172
+        JMP Screen_Plot
 
 b129F   RTS 
 
@@ -1586,9 +1618,9 @@ b12AD   CMP f871F,X
         JMP e8BEC
 
 b12B8   LDA a0B
-        STA a02
+        STA zpLo
         LDA a0C
-        STA a03
+        STA zpHi
         RTS 
 ;e89C1
         LDA a29
@@ -1660,14 +1692,14 @@ b1328   LDX #$04
         PLA 
         LDX a24
 b1337   LDA f10FF,X
-        CMP a02
+        CMP zpLo
         BEQ b1342
 b133E   DEX 
         BNE b1337
         RTS 
 
 b1342   LDA f11FF,X
-        CMP a03
+        CMP zpHi
         BNE b133E
         LDA f12FF,X
         AND #$C0
@@ -1686,11 +1718,11 @@ b1353   LDA f1200,X
         JMP e8A53
 
 b136D   LDA #>p070F
-        STA a05
+        STA colourToPlot
         LDA #<p070F
-        STA a04
+        STA charToPlot
         DEC a24
-        JMP e8172
+        JMP Screen_Plot
 
 b137A   CMP #$C0
         BEQ b1353
@@ -1739,11 +1771,11 @@ b13CC   RTS
 
 b13CD   LDA a24
         BNE b13CC
-        JMP e8C2D
-        JSR e818B
+        JMP DisplayNewLevelText
+        JSR GetCurrentChar
         CMP #$07
         BEQ b13DE
-        JMP e8172
+        JMP Screen_Plot
 
 ;e8ADE
 b13DE   LDX #$F6
@@ -1796,18 +1828,18 @@ b140A   STA f1600,X
         STA $D418    ;Select Filter Mode and Volume
         LDX #$08
         LDA #>p0800
-        STA a05
+        STA colourToPlot
         LDA #<p0800
-        STA a04
+        STA charToPlot
 b143D   LDA f1500,X
-        STA a02
+        STA zpLo
         LDA f1600,X
-        STA a03
+        STA zpHi
         STX a27
-        JSR e818B
+        JSR GetCurrentChar
         CMP a2D
         BNE b1453
-        JSR e8172
+        JSR Screen_Plot
 b1453   LDX a27
         DEX 
         BNE b143D
@@ -1840,16 +1872,16 @@ b147F   JSR e8040
 b148E   INC f1600,X
 b1491   JSR e8056
         LDA f1500,X
-        STA a02
+        STA zpLo
         LDA f1600,X
-        STA a03
+        STA zpHi
         LDA #$01
-        STA a05
+        STA colourToPlot
         LDA a2D
-        STA a04
+        STA charToPlot
         JSR e8BBB
         BNE b14AE
-        JSR e8172
+        JSR Screen_Plot
 b14AE   JMP e8BD2
 ;e8BB1
         DEC a33
@@ -1860,7 +1892,7 @@ b14B8   JMP e8C17
 
 ;e8BBB
         STX a27
-        JMP e818B
+        JMP GetCurrentChar
         NOP 
         BRK #$01
         ORA (p01,X)
@@ -1900,13 +1932,13 @@ b14FB   RTS
 
 ;e8BFC
         LDA #<p0450
-        STA a07
+        STA zpHi3
 f1500   LDA #>p0450
         STA a08
         LDY #$00
 b1506   LDA #$20
-b1508   STA (p07),Y
-        INC a07
+b1508   STA (zpHi3),Y
+        INC zpHi3
         BNE b1508
         INC a08
         LDA a08
@@ -1927,29 +1959,30 @@ p1514   BNE b1506
 
 b152A   JMP e8060
 
-;e8C2D
+;DisplayNewLevelText
         LDX #$F6
         TXS 
         JSR e8BFC
         LDX #$12
-b1535   LDA f8C50,X
-        STA f04FD,X
+CopyLevelTextLoop
+		    LDA LevelSplashText,X
+        STA SCREENRAM + $FD,X
         LDA #$0E
-        STA fD8FD,X
+        STA COLOURRAM + $FD,X
         LDA f8C62,X
-        STA f054D,X
+        STA SCREENRAM + $014D,X
         LDA #$01
-        STA fD94D,X
+        STA COLOURRAM + $014D,X
         DEX 
-        BNE b1535
+        BNE CopyLevelTextLoop
         JMP e8C75
 
-        .BYTE $20,$29,$28,$3A,$3A,$3E,$27,$20
-        .BYTE $20,$2F,$3A,$28,$3A,$24,$30,$26
-        .BYTE $2F,$20,$27,$26,$3A,$27,$22,$20
-        .BYTE $21,$22,$24,$25,$20,$28,$22
-        .BYTE $27,$28 ;RLA a28
-        JSR e3030
+;LevelSplashText
+        .BYTE $20,$29,$28,$3A,$3A,$3E,$27,$20 ; " BATTLE "
+        .BYTE $20,$2F,$3A,$28,$3A,$24,$30,$26 ; " STATION"
+        .BYTE $2F,$20,$27,$26,$3A,$27,$22,$20 ; "S ENTER "
+        .BYTE $21,$22,$24,$25,$20,$28,$22,$27,$28 ; "GRID AREA"
+				.BYTE $20,$30,$30 ; " 00"
 ;e8C75
         INC a0427
         LDA a0427
@@ -1979,7 +2012,7 @@ b15AF   DEX
         BNE b159D
         JMP e8D70
 
-        ORA (p02,X)
+        ORA (zpLo,X)
         .BYTE $02,$03,$03,$03,$04,$04,$04,$04
         .BYTE $05,$05,$10,$06,$06,$06,$06,$06
         .BYTE $06,$06,$06,$06,$06,$06,$06,$06
@@ -1993,7 +2026,7 @@ b15AF   DEX
 f1600   .BYTE $09,$09,$09,$09,$09,$08,$08,$08
         .BYTE $08,$07,$07,$07,$07,$07,$07,$07
         .BYTE $07,$07,$06
-        ASL a05
+        ASL colourToPlot
         NOP 
         LDA #$30
         STA a36
@@ -2028,12 +2061,12 @@ b1624   JSR e8D52
 ;e8D57
         LDA a35
         STA a35
-        JMP e8D8E
+        JMP DisplayTitleScreen
 
 ;e8D5E
         DEC a0427
         DEC a35
-        JMP e8C2D
+        JMP DisplayNewLevelText
 
 ;e8D66
         STX a27
@@ -2048,32 +2081,33 @@ b1624   JSR e8D52
         JMP e8D16
 ;e8D78
         LDA #<p0800
-        STA a04
+        STA charToPlot
         LDA #>p0800
-        STA a05
+        STA colourToPlot
         LDA a0B
-        STA a02
+        STA zpLo
         LDA a0C
-        STA a03
-        JSR e8172
+        STA zpHi
+        JSR Screen_Plot
         JMP e8AF8
-;e8D8E
+
+;DisplayTitleScreen
         LDA #$01
         STA a35
         LDX #$0E
-b1694   LDA f8DE0,X
-        STA f04FA,X
+b1694   LDA ByJeffMinter,X
+        STA SCREENRAM + $FA,X
         LDA #$03
-        STA fD8FA,X
-        LDA f8DF0,X
-        STA f054A,X
+        STA COLOURRAM + $FA,X
+        LDA EnterLevelText,X
+        STA SCREENRAM + $014A,X
         LDA #$01
-        STA fD94A,X
+        STA COLOURRAM + $014A,X
         DEX 
         BNE b1694
-        JMP e80D2
+        JMP WriteCopyrightLine
 ;e8DB0
-b16B0   LDA aDC11
+b16B0   LDA JOY1
         CMP #$EF
         BNE b16BA
         JMP e8DC6
@@ -2091,11 +2125,14 @@ b16BA   CMP #$FE
 
         .BYTE $B0,$8D,$EA,$EA,$EA,$EA,$EA,$EA
         .BYTE $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
-        .BYTE $EA,$EA,$EA,$EA,$EA,$EA,$29,$1B
-        .BYTE $20,$2C,$27,$2A,$2A,$20,$2D,$24
-        .BYTE $26,$3A,$27,$22,$20,$EA,$27,$26
-        .BYTE $3A,$27,$22,$20,$3E,$27,$3B,$27
-        .BYTE $3E,$20,$30,$30,$20,$18,$18,$18
+        .BYTE $EA,$EA,$EA,$EA,$EA,$EA
+;ByJeffMinter
+				.BYTE $29,$1B,$20,$2C,$27,$2A,$2A,$20,$2D,$24,$26,$3A,$27,$22,$20 ; "BY JEFF MINTER "
+				NOP
+;EnterLevelText
+				.BYTE $27,$26,$3A,$27,$22,$20,$3E,$27,$3B,$27,$3E,$20,$30,$30,$20 ; "ENTER LEVEL 00 "
+;f8E00
+				.BYTE $18,$18,$18
         .BYTE $18,$FF,$18,$18,$18,$F0,$20,$10
         .BYTE $1F,$1F,$10,$20,$F0,$18,$18,$18
         .BYTE $18,$BD,$C3,$81,$81,$00,$20,$60
@@ -2128,7 +2165,7 @@ b16BA   CMP #$FE
         .BYTE $FC,$CC,$CC,$00,$00,$00,$F0,$66
         .BYTE $60,$66,$F0,$00,$00,$00,$10,$08
         .BYTE $7C,$08,$10,$00,$00
-
+;CharSet
         *= $1800
 .binary "char.bin" ; The charset
         JMP InitializeGame
