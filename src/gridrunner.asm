@@ -375,9 +375,9 @@ b0972   LDA SCREENRAM+15,X
         .BYTE $2F,$2F,$20,$2A,$24,$22,$27,$20 ; SS FIRE 
         .BYTE $3A,$30,$20,$29,$27,$21,$24,$26 ; TO BEGIN
 ;e80A0
-      	LDA a35
-				CMP #$20
-				BNE b09AA
+        LDA a35
+        CMP #$20
+        BNE b09AA
         LDA #$01
         STA a35
 b09AA   LDA #$30
@@ -403,7 +403,7 @@ b09CB   JSR e8386
 ;WriteCopyrightLine
         LDX #$20
 CopyrightLineLoop
-		    LDA CopyrightLine,X
+        LDA CopyrightLine,X
         STA SCREENRAM + $0192,X
         LDA #$07
         STA COLOURRAM + $0192,X
@@ -456,14 +456,14 @@ b09F7   LDA SysKeyCode_C5
         LDA #>SCREENRAM
         STA zpHi
 SetScreenPointersLoop
-		    LDA zpLo
+        LDA zpLo
         STA SCREEN_PTR_LO,X
         LDA zpHi
         STA SCREEN_PTR_HI,X
         LDY #$00
         LDA #$20
 NextRow
-			  STA (zpLo),Y
+        STA (zpLo),Y
         INY 
         CPY #$28
         BNE NextRow
@@ -947,7 +947,7 @@ b0D8A   LDA #<p0800
         LDA #$0F
         STA zpHi
 CheckJoyDown
-		    LDA InputJoy
+        LDA InputJoy
         AND #JOY_DOWN
         BEQ CheckJoyLeft
         INC zpHi
@@ -957,7 +957,7 @@ CheckJoyDown
         LDA #$15
         STA zpHi
 CheckJoyLeft
-	 	    LDA InputJoy
+         LDA InputJoy
         AND #JOY_LEFT
         BEQ CheckJoyRight
         DEC zpLo
@@ -967,7 +967,7 @@ CheckJoyLeft
         LDA #$01
         STA zpLo
 CheckJoyRight
-		    LDA InputJoy
+        LDA InputJoy
         AND #JOY_RIGHT
         BEQ b0DDD
         INC zpLo
@@ -1281,7 +1281,7 @@ f101F   NOP
         BPL b1037
         .BYTE $12,$13
 ;e8728
-				LDA #$0A
+        LDA #$0A
         STA (p1F),Y
         LDX #$18
 b102E   LDA f101F,X
@@ -1411,7 +1411,7 @@ f1100   RTS
 ;---------------------------------------------------------------
         LDX #$28
 DisplayHeaderLoop
-		    LDA ScreenHeaderText,X
+        LDA ScreenHeaderText,X
         STA SCREENRAM-1,X
         LDA ScreenHeaderColors,X
         STA COLOURRAM-1,X
@@ -1422,18 +1422,18 @@ DisplayHeaderLoop
         JSR Menu_DisplayHeader
         JMP e8D57
 
-				NOP
-				NOP
+        NOP
+        NOP
 
 ;ScreenHeaderText
-				.BYTE $21,$22,$24,$25,$22,$23          ; GRIDRU
+        .BYTE $21,$22,$24,$25,$22,$23          ; GRIDRU
         .BYTE $26,$26,$27,$22,$20,$20,$19,$1A  ; NNER  PL 1
         .BYTE $20,$30,$30,$30,$30,$30,$30,$30  ;  0000000
         .BYTE $20,$20,$1D,$1E,$20,$30,$30,$30  ;  HI: 000
         .BYTE $30,$30,$30,$30,$20,$20,$07,$20  ; 0000  * 
         .BYTE $20
 ;ScreenHeaderColors
-				.BYTE $34,$03,$03,$03,$03,$04,$04  ;  4
+        .BYTE $34,$03,$03,$03,$03,$04,$04  ;  4
         .BYTE $04,$04,$04,$04,$01,$01,$07,$07 
         .BYTE $01,$03,$03,$03,$03,$03,$03,$03
         .BYTE $01,$01,$07,$07,$01,$0E,$0E,$0E
@@ -1965,7 +1965,7 @@ b152A   JMP e8060
         JSR e8BFC
         LDX #$12
 CopyLevelTextLoop
-		    LDA LevelSplashText,X
+        LDA LevelSplashText,X
         STA SCREENRAM + $FD,X
         LDA #$0E
         STA COLOURRAM + $FD,X
@@ -1982,7 +1982,7 @@ CopyLevelTextLoop
         .BYTE $20,$2F,$3A,$28,$3A,$24,$30,$26 ; " STATION"
         .BYTE $2F,$20,$27,$26,$3A,$27,$22,$20 ; "S ENTER "
         .BYTE $21,$22,$24,$25,$20,$28,$22,$27,$28 ; "GRID AREA"
-				.BYTE $20,$30,$30 ; " 00"
+        .BYTE $20,$30,$30 ; " 00"
 ;e8C75
         INC a0427
         LDA a0427
@@ -2127,12 +2127,13 @@ b16BA   CMP #$FE
         .BYTE $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
         .BYTE $EA,$EA,$EA,$EA,$EA,$EA
 ;ByJeffMinter
-				.BYTE $29,$1B,$20,$2C,$27,$2A,$2A,$20,$2D,$24,$26,$3A,$27,$22,$20 ; "BY JEFF MINTER "
-				NOP
+        .BYTE $29,$1B,$20,$2C,$27,$2A,$2A,$20,$2D,$24,$26,$3A,$27,$22,$20 ; "BY JEFF MINTER "
+        NOP
+  
 ;EnterLevelText
-				.BYTE $27,$26,$3A,$27,$22,$20,$3E,$27,$3B,$27,$3E,$20,$30,$30,$20 ; "ENTER LEVEL 00 "
+        .BYTE $27,$26,$3A,$27,$22,$20,$3E,$27,$3B,$27,$3E,$20,$30,$30,$20 ; "ENTER LEVEL 00 "
 ;f8E00
-				.BYTE $18,$18,$18
+        .BYTE $18,$18,$18
         .BYTE $18,$FF,$18,$18,$18,$F0,$20,$10
         .BYTE $1F,$1F,$10,$20,$F0,$18,$18,$18
         .BYTE $18,$BD,$C3,$81,$81,$00,$20,$60
