@@ -29,9 +29,9 @@ a09 = $09
 a0A = $0A
 a0B = $0B
 a0C = $0C
-a0D = $0D
+SomeCounter = $0D
 InputJoy = $0E
-a0F = $0F
+GameTimer = $0F
 a10 = $10
 a11 = $11
 a12 = $12
@@ -63,7 +63,7 @@ a2D = $2D
 a30 = $30
 a33 = $33
 a34 = $34
-a35 = $35
+Lives = $35
 a36 = $36
 aA5 = $A5
 SysKeyCode_C5 = $C5
@@ -95,8 +95,8 @@ ScreenHeaderText = $881F
 ScreenHeaderColors = $8847
 f8BC0 = $8BC0
 f8BC8 = $8BC8
-LevelSplashText = $8C50
-f8C62 = $8C62
+BattleStations = $8C50
+EnterGridArea = $8C62
 f8CB4 = $8CB4
 f8CD4 = $8CD4
 f8CF4 = $8CF4
@@ -110,7 +110,7 @@ CharSet = $8F00
 ;
 a0002 = $0002
 a0003 = $0003
-a0427 = $0427
+LivesDisplay = $0427
 a0557 = $0557
 a0558 = $0558
 a055E = $055E
@@ -137,13 +137,13 @@ pD000 = $D000
 ; **** EXTERNAL JUMPS **** 
 ;
 e3030 = $3030
-e8015 = $8015
+UpdateRestOfScore = $8015
 e8020 = $8020
 e8030 = $8030
 e8036 = $8036
 e8040 = $8040
 e8056 = $8056
-e8060 = $8060
+ClearScore = $8060
 e80A0 = $80A0
 e8028 = $8028
 WriteCopyrightLine = $80D2
@@ -161,7 +161,7 @@ e8233 = $8233
 e8237 = $8237
 e824F = $824F
 e8264 = $8264
-e82EC = $82EC
+LoadCharSetData = $82EC
 e8300 = $8300
 CheckJoy = $8373
 e8380 = $8380
@@ -170,17 +170,17 @@ e8388 = $8388
 Main_GameLoop = $8393
 JumpToMainGameLoop = $83A0
 GameLoopBody = $83A3
-e83E8 = $83E8
+StartWaitLoop = $83E8
 e8400 = $8400
 e8450 = $8450
 Input_CheckJoy = $8470
-e84F8 = $84F8
-e8573 = $8573
+Game_DecrementTimer = $84F8
+MaybePlayPulse = $8573
 e859B = $859B
 e85F8 = $85F8
 e85FD = $85FD
 e862F = $862F
-e8635 = $8635
+UpdateScreen = $8635
 e86D0 = $86D0
 e86D7 = $86D7
 e86EE = $86EE
@@ -192,14 +192,14 @@ e87CB = $87CB
 e8801 = $8801
 Menu_DisplayHeader = $8806
 SetUpMenu = $8818
-e8870 = $8870
+IncrementPlayerScore = $8870
 e888A = $888A
 e889A = $889A
 e88C9 = $88C9
 e8924 = $8924
 e896A = $896A
 e8995 = $8995
-e89A0 = $89A0
+MaybeResetSomeCounter = $89A0
 e89AB = $89AB
 e89C1 = $89C1
 e8A11 = $8A11
@@ -217,7 +217,7 @@ e8BB1 = $8BB1
 e8BBB = $8BBB
 e8BD2 = $8BD2
 e8BEC = $8BEC
-e8BFC = $8BFC
+ClearScreen = $8BFC
 e8C17 = $8C17
 DisplayNewLevelText = $8C2D
 e8C75 = $8C75
@@ -301,10 +301,10 @@ b0902   .byte $E2,$83,$00,$00,$00,$00,$00,$00,$8F
         JMP InitializeGame
         NOP 
 
-; e8015
+; UpdateRestOfScore
         INX 
-        CPX #$07
-        BNE b0962
+        CPX #$07                ; The score is 7 characters long
+        BNE UpdateScore
         JMP DisplayTitleScreen
         NOP 
         NOP 
@@ -352,18 +352,24 @@ b0950   LDA a0B
         LDA f1600,X
         JMP e8030
         NOP 
-;e8060
+
+SCREEN_PL1_SCORE = SCREENRAM+15
+SCREEN_PL1_HISCORE = SCREENRAM+27
+
+;ClearScore
         LDX #$00
-b0962   LDA SCREENRAM+15,X
-        CMP SCREENRAM+27,X
-        BNE b0970
-        JMP e8015
+UpdateScore
+        LDA SCREEN_PL1_SCORE,X
+        CMP SCREEN_PL1_HISCORE,X
+        BNE UpdateHiScore
+        JMP UpdateRestOfScore
 
 b096D   JMP DisplayTitleScreen
 
-b0970   BMI b096D
-b0972   LDA SCREENRAM+15,X
-        STA SCREENRAM+27,X
+UpdateHiScore
+        BMI b096D
+b0972   LDA SCREEN_PL1_SCORE,X
+        STA SCREEN_PL1_HISCORE,X
         INX 
         CPX #$07
         BNE b0972
@@ -375,15 +381,15 @@ b0972   LDA SCREENRAM+15,X
         .BYTE $2F,$2F,$20,$2A,$24,$22,$27,$20 ; SS FIRE 
         .BYTE $3A,$30,$20,$29,$27,$21,$24,$26 ; TO BEGIN
 ;e80A0
-        LDA a35
+        LDA Lives
         CMP #$20
         BNE b09AA
         LDA #$01
-        STA a35
+        STA Lives
 b09AA   LDA #$30
         STA a0557
         STA a0558
-        LDX a35
+        LDX Lives
 b09B4   INC a0558
         LDA a0558
 b09BB   =*+$01
@@ -412,7 +418,7 @@ CopyrightLineLoop
         JMP e8DC0
 ;e80E5
         LDA #$34
-        STA a0427
+        STA LivesDisplay
         LDX #$07
         LDA #$30
 b09EE   STA SCREENRAM+14,X
@@ -420,7 +426,9 @@ b09EE   STA SCREENRAM+14,X
         BNE b09EE
         JMP DisplayNewLevelText
 
+;--------------------------------------------------------------
 ;CheckInputAgain
+;--------------------------------------------------------------
 b09F7   LDA SysKeyCode_C5
         CMP #$29
         BEQ b09F7
@@ -428,7 +436,10 @@ b09F7   LDA SysKeyCode_C5
 
         NOP 
         NOP 
+
+;--------------------------------------------------------------
 ;InitializeGame
+;--------------------------------------------------------------
         LDA #>pD000
         STA zpHi
         LDA #<pD000
@@ -696,7 +707,7 @@ b0BB2   JSR e8380
         SBC a0A
         STA zpLo
         JMP e8400
-;82EC
+;LoadCharSetData
         LDX #$00
 b0BEE   LDA f8E00,X
         STA f2000,X
@@ -705,7 +716,7 @@ b0BEE   LDA f8E00,X
         DEX 
         BNE b0BEE
         JMP InitializeGame
-;8300
+;e8300
         LDA #$0F
         STA $D418    ;Select Filter Mode and Volume
         LDA #$A0
@@ -808,63 +819,66 @@ b0C92   RTS
         JMP Main_GameLoop
 
 ;GameLoopBody
-        JSR e84F8
+        JSR Game_DecrementTimer
         JSR e859B
-        JSR e8635
+        JSR UpdateScreen
         JSR e86D7
         JSR e8753
         JSR e889A
         JSR e88C9
-        JSR e89A0
+        JSR MaybeResetSomeCounter
         JSR e8AC8
-        JMP e83E8
+        JMP StartWaitLoop
 
-        SEI 
-        CLD 
-        LDA #$05
-        STA $D016    ;VIC Control Register 2
-        JSR ROM_IOINITj ;$FDA3 (jmp) - initialize CIA & IRQ             
-        JSR ROM_RAMTASj ;$FD50 (jmp) - RAM test & search RAM end        
-        JSR ROM_RESTORj ;$FD15 (jmp) - restore default I/O vectors      
-        JSR eE518
-        CLI 
-        LDA #$08
-        JSR ROM_CHROUT ;$FFD2 - output character                 
-        NOP 
-        NOP 
-        NOP 
-        NOP 
-        NOP 
-        JMP e82EC
+        SEI                                                            ; Never Reached
+        CLD                                                            ; Never Reached
+        LDA #$05                                                       ; Never Reached
+        STA $D016    ;VIC Control Register 2                           ; Never Reached
+        JSR ROM_IOINITj ;$FDA3 (jmp) - initialize CIA & IRQ            ; Never Reached
+        JSR ROM_RAMTASj ;$FD50 (jmp) - RAM test & search RAM end       ; Never Reached
+        JSR ROM_RESTORj ;$FD15 (jmp) - restore default I/O vectors     ; Never Reached
+        JSR eE518                                                      ; Never Reached
+        CLI                                                            ; Never Reached
+        LDA #$08                                                       ; Never Reached
+        JSR ROM_CHROUT ;$FFD2 - output character                       ; Never Reached
+        NOP                               ; Never Reached
+        NOP                               ; Never Reached
+        NOP                               ; Never Reached
+        NOP                               ; Never Reached
+        NOP                               ; Never Reached
+        JMP LoadCharSetData                         ; Never Reached
+        PLA                               ; Never Reached
+        TAY                               ; Never Reached
+        PLA                               ; Never Reached
+        TAX                               ; Never Reached
+        PLA                               ; Never Reached
+        RTI                               ; Never Reached
 
-        PLA 
-        TAY 
-        PLA 
-        TAX 
-        PLA 
-        RTI 
-;e83E8
+;StartWaitLoop
         LDX #$15
-b0CEA   DEX 
-        BNE b0CEA
+WaitLoop
+        DEX 
+        BNE WaitLoop
         JMP JumpToMainGameLoop
 
-        NOP 
-        NOP 
-        NOP 
-        NOP 
-        NOP 
-        NOP 
-        NOP 
-        NOP 
-        NOP 
-        NOP 
-        JMP JumpToMainGameLoop
+        NOP                               ; Never Reached
+        NOP                               ; Never Reached
+        NOP                               ; Never Reached
+        NOP                               ; Never Reached
+        NOP                               ; Never Reached
+        NOP                               ; Never Reached
+        NOP                               ; Never Reached
+        NOP                               ; Never Reached
+        NOP                               ; Never Reached
+        NOP                               ; Never Reached
+        JMP JumpToMainGameLoop            ; Never Reached
+        NOP                               ; Never Reached
+        NOP                               ; Never Reached
+        NOP                               ; Never Reached
 
-        NOP 
-        NOP 
-        NOP 
+;--------------------------------------------------------------
 ;e8400
+;--------------------------------------------------------------
         JSR Screen_Plot
         LDA a09
         STA charToPlot
@@ -902,7 +916,9 @@ b0D1A   LDA #<p0D07
         STA $D418    ;Select Filter Mode and Volume
         RTS 
 
+;--------------------------------------------------------------
 ;e8450
+;--------------------------------------------------------------
         LDA #$18
         STA a0A
 b0D54   LDA a0A
@@ -918,8 +934,11 @@ b0D65   JSR e8380
         DEC a0A
         BNE b0D54
         RTS 
+
+;--------------------------------------------------------------
 ;Input_CheckJoy
-        DEC a0D
+;--------------------------------------------------------------
+        DEC SomeCounter
         BEQ b0D75
         RTS 
 
@@ -988,15 +1007,20 @@ b0DE5   LDA zpLo
         LDA #<p0D07
         STA charToPlot
         JMP Screen_Plot
-;e84F8
-        DEC a0F
-        BEQ b0DFD
+
+;-------------------------------------------------------------------------------
+;Game_DecrementTimer
+;-------------------------------------------------------------------------------
+        DEC GameTimer
+        BEQ ResetGameTimer
 b0DFC   RTS 
 
-b0DFD   LDA #$18
-        STA a0F
+ResetGameTimer
+        LDA #$18
+        STA GameTimer
+
 p0E02   =*+$01
-        JSR e8573
+        JSR MaybePlayPulse
         LDA a11
         CMP #$FF
         BNE b0E22
@@ -1051,12 +1075,14 @@ b0E68   LDA a12
         LDA #$01
         STA colourToPlot
         JMP Screen_Plot
-;e8573
+
+;MaybePlayPulse
         LDA a13
-        BNE b0E78
+        BNE PlayPulse
         RTS 
 
-b0E78   DEC a13
+PlayPulse
+        DEC a13
         LDA a13
         ADC #$00
         STA $D401    ;Voice 1: Frequency Control - High-Byte
@@ -1071,8 +1097,11 @@ b0E78   DEC a13
         LDA #$81
         STA $D40B    ;Voice 2: Control Register
         RTS 
+
+;-------------------------------------------------------------------------------
 ;e859B
-        LDA a0D
+;-------------------------------------------------------------------------------
+        LDA SomeCounter
         CMP #$01
         BEQ b0EA2
 b0EA1   RTS 
@@ -1151,8 +1180,11 @@ a0F0E   STA $D412    ;Voice 3: Control Register
         LDA #$03
         STA $D40F    ;Voice 3: Frequency Control - High-Byte
         RTS 
-;e8635
-        LDA a0F
+
+;------------------------------------------------------------
+;UpdateScreen
+;------------------------------------------------------------
+        LDA GameTimer
         CMP #$05
         BEQ b0F3C
 b0F3B   RTS 
@@ -1230,11 +1262,14 @@ b0FB2   JSR Screen_Plot
         STA a18
         JMP Screen_Plot
 ;e86D0
-        DEC a0F
+        DEC GameTimer
         INC a19
         LDA a19
         RTS 
+
+;------------------------------------------------------------
 ;e86D7
+;------------------------------------------------------------
         LDA a17
         CMP #$05
         BEQ b0FDE
@@ -1248,6 +1283,8 @@ b0FDE   DEC a17
         LDY #$00
 b0FEA   LDA (p1F),Y
         BNE b0FFB
+
+;e86EE
 b0FEE   INC a1F
         BNE b0FEA
         INC a20
@@ -1299,18 +1336,23 @@ b103D   LDA a1F
         LDA a20
         STA f101F,X
         RTS 
+
+;--------------------------------------------------------------
 ;e8748
+;--------------------------------------------------------------
         LDX #$20
         LDA #$FF
 b104C   STA f101F,X
         DEX 
         BNE b104C
         RTS 
+
+;--------------------------------------------------------------
 ;e8753
+;--------------------------------------------------------------
         DEC a21
         BEQ b1058
         RTS 
-
 b1058   LDA #$40
         STA a21
         LDX #$18
@@ -1321,6 +1363,7 @@ b105E   LDA f101F,X
 b1068   DEX 
         BNE b105E
         RTS 
+
 ;e876C
         LDA f0FFF,X
         STA zpLo
@@ -1437,18 +1480,20 @@ DisplayHeaderLoop
         .BYTE $04,$04,$04,$04,$01,$01,$07,$07 
         .BYTE $01,$03,$03,$03,$03,$03,$03,$03
         .BYTE $01,$01,$07,$07,$01,$0E,$0E,$0E
-        .BYTE $0E,$0E,$0E,$0E,$01,$01
-        ORA p0101
+        .BYTE $0E,$0E,$0E,$0E,$01,$01,$0D,$01,$01
+        .BYTE $04
 
-b1170   =*+$01
-        .BYTE $04,$8A ;NOP $8A
+;-------------------------------------------------------------------
+;IncrementPlayerScore
+;-------------------------------------------------------------------
+b1170   TXA
         PHA 
-b1172   INC SCREENRAM+15,X
-        LDA SCREENRAM+15,X
+b1172   INC SCREEN_PL1_SCORE,X
+        LDA SCREEN_PL1_SCORE,X
         CMP #$3A
         BNE b1184
         LDA #$30
-        STA SCREENRAM+15,X
+        STA SCREEN_PL1_SCORE,X
         DEX 
         BNE b1172
 b1184   PLA 
@@ -1456,17 +1501,21 @@ b1184   PLA
         DEY 
         BNE b1170
         RTS 
+
 ;e888A
         LDX #$06
         LDY #$0A
-        JSR e8870
+        JSR IncrementPlayerScore
         LDA #<p03F0
         STA a22
         LDA #>p03F0
         STA a23
 b1199   RTS 
+
+;--------------------------------------------------------------
 ;e889A
-        LDA a0D
+;--------------------------------------------------------------
+        LDA SomeCounter
         AND #$01
         BEQ b1199
         LDA a22
@@ -1491,7 +1540,10 @@ b11B8   LDA a23
 b11C3   LDA #$04
         STA $D40F    ;Voice 3: Frequency Control - High-Byte
         RTS 
+
+;--------------------------------------------------------------
 ;e88C9
+;--------------------------------------------------------------
         DEC a25
         BEQ b11CE
 b11CD   RTS 
@@ -1602,14 +1654,19 @@ b1290   LDX a27
 
 b129F   RTS 
 
-;e89A0
-        LDA a0D
+;-------------------------------------------------------------------------------
+;MaybeResetSomeCounter
+;-------------------------------------------------------------------------------
+        LDA SomeCounter
         CMP #$FF
         BNE b129F
         LDA #$80
-        STA a0D
+        STA SomeCounter
         RTS 
+
+;-------------------------------------------------------------------------------
 ;e89AB
+;-------------------------------------------------------------------------------
         LDX #$07
 b12AD   CMP f871F,X
         BEQ b12B8
@@ -1622,7 +1679,10 @@ b12B8   LDA a0B
         LDA a0C
         STA zpHi
         RTS 
+
+;-------------------------------------------------------------------------------
 ;e89C1
+;-------------------------------------------------------------------------------
         LDA a29
         BNE b12E6
         DEC a28
@@ -1682,7 +1742,7 @@ b130C   LDA a2A
 
 b1321   LDX #$04
         LDY #$03
-        JSR e8870
+        JSR IncrementPlayerScore
 b1328   LDX #$04
         LDY #$01
         JSR e8A99
@@ -1742,7 +1802,8 @@ b138D   LDA f1300,X
         STA a22
         LDA #>p03F0
         STA a23
-        JMP e8870
+        JMP IncrementPlayerScore
+
 ;e8A44
         STX a27
 b13A6   DEX 
@@ -1759,12 +1820,14 @@ b13A6   DEX
         STA f12FE,X
         RTS 
 
-;e89A0
+;MaybeResetSomeCounter
         ORA f1300,X
         STA f1300,X
         RTS 
 
+;--------------------------------------------------------------
 ;e8AC8
+;--------------------------------------------------------------
         LDA a2A
         BEQ b13CD
 b13CC   RTS 
@@ -1788,7 +1851,9 @@ b13DE   LDX #$F6
 
         NOP 
 
+;--------------------------------------------------------------
 ;e8AE9
+;--------------------------------------------------------------
         CMP #$07
         BEQ b13DE
         LDA f10FF,X
@@ -1883,6 +1948,7 @@ b1491   JSR e8056
         BNE b14AE
         JSR Screen_Plot
 b14AE   JMP e8BD2
+
 ;e8BB1
         DEC a33
         BMI b14B8
@@ -1930,7 +1996,7 @@ b14D9   JSR e8386
 ;e8BFB
 b14FB   RTS 
 
-;e8BFC
+;ClearScreen
         LDA #<p0450
         STA zpHi3
 f1500   LDA #>p0450
@@ -1946,30 +2012,32 @@ b1508   STA (zpHi3),Y
 p1514   BNE b1506
         RTS 
 
+ZERO = $30
 ;e8C17
-        JSR e8BFC
+        JSR ClearScreen
         NOP 
         NOP 
         NOP 
-        DEC a0427
-        LDA a0427
-        CMP #$30
-        BEQ b152A
+        DEC LivesDisplay
+        LDA LivesDisplay
+        CMP #ZERO
+        BEQ JumpToClearScore
         JMP e8D5E
 
-b152A   JMP e8060
+JumpToClearScore
+        JMP ClearScore
 
 ;DisplayNewLevelText
         LDX #$F6
         TXS 
-        JSR e8BFC
+        JSR ClearScreen
         LDX #$12
 CopyLevelTextLoop
-        LDA LevelSplashText,X
+        LDA BattleStations,X
         STA SCREENRAM + $FD,X
         LDA #$0E
         STA COLOURRAM + $FD,X
-        LDA f8C62,X
+        LDA EnterGridArea,X
         STA SCREENRAM + $014D,X
         LDA #$01
         STA COLOURRAM + $014D,X
@@ -1977,24 +2045,22 @@ CopyLevelTextLoop
         BNE CopyLevelTextLoop
         JMP e8C75
 
-;LevelSplashText
-        .BYTE $20,$29,$28,$3A,$3A,$3E,$27,$20 ; " BATTLE "
-        .BYTE $20,$2F,$3A,$28,$3A,$24,$30,$26 ; " STATION"
-        .BYTE $2F,$20,$27,$26,$3A,$27,$22,$20 ; "S ENTER "
-        .BYTE $21,$22,$24,$25,$20,$28,$22,$27,$28 ; "GRID AREA"
-        .BYTE $20,$30,$30 ; " 00"
+;BattleStations
+        .BYTE $20,$29,$28,$3A,$3A,$3E,$27,$20,$20,$2F,$3A,$28,$3A,$24,$30,$26,$2F ; "BATTLE  STATIONS"
+;EnterGridArea
+        .BYTE $20,$27,$26,$3A,$27,$22,$20,$21,$22,$24,$25,$20,$28,$22,$27,$28,$20,$30,$30 ; "ENTER GRID AREA 00"
 ;e8C75
-        INC a0427
-        LDA a0427
+        INC LivesDisplay
+        LDA LivesDisplay
         CMP #$3A
         BNE b1582
-        DEC a0427
-b1582   INC a35
-        LDA a35
+        DEC LivesDisplay
+b1582   INC Lives
+        LDA Lives
         CMP #$20
         BNE b158C
-        DEC a35
-b158C   LDX a35
+        DEC Lives
+b158C   LDX Lives
         LDA f8CB4,X
         STA a2A
         LDA f8CD4,X
@@ -2028,6 +2094,8 @@ f1600   .BYTE $09,$09,$09,$09,$09,$08,$08,$08
         .BYTE $07,$07,$06
         ASL colourToPlot
         NOP 
+
+;e8D16
         LDA #$30
         STA a36
 b161A   LDA a36
@@ -2059,13 +2127,13 @@ b1624   JSR e8D52
         JMP e8388
 
 ;e8D57
-        LDA a35
-        STA a35
+        LDA Lives
+        STA Lives
         JMP DisplayTitleScreen
 
 ;e8D5E
-        DEC a0427
-        DEC a35
+        DEC LivesDisplay
+        DEC Lives
         JMP DisplayNewLevelText
 
 ;e8D66
@@ -2075,10 +2143,13 @@ b1624   JSR e8D52
         STA $D401    ;Voice 1: Frequency Control - High-Byte
         RTS 
 
+;--------------------------------------------------------------
 ;e8D70
+;--------------------------------------------------------------
         LDA #$0F
         STA $D418    ;Select Filter Mode and Volume
         JMP e8D16
+
 ;e8D78
         LDA #<p0800
         STA charToPlot
@@ -2093,7 +2164,7 @@ b1624   JSR e8D52
 
 ;DisplayTitleScreen
         LDA #$01
-        STA a35
+        STA Lives
         LDX #$0E
 b1694   LDA ByJeffMinter,X
         STA SCREENRAM + $FA,X
@@ -2114,13 +2185,13 @@ b16B0   LDA JOY1
 
 b16BA   CMP #$FE
         BNE b16B0
-        INC a35
+        INC Lives
 ;e8DC0
         JSR e80A0
         JMP e8DB0
 
 ;e8DC6
-        DEC a35
+        DEC Lives
         JMP e80E5
 
         .BYTE $B0,$8D,$EA,$EA,$EA,$EA,$EA,$EA
