@@ -6,6 +6,7 @@ JOY_RIGHT                       = $08
 JOY_LEFTRIGHT                   = 12
 JOY_FIRE                        = 16
 JOY1_FIRE                       = 239
+JOY1_UP                         = 254
 KEY_F1                          = 4
 KEY_F3                          = 5
 KEY_F5                          = 6
@@ -60,11 +61,9 @@ a29 = $29
 a2A = $2A
 a2B = $2B
 a2D = $2D
-a30 = $30
 a33 = $33
 a34 = $34
-Lives = $35
-a36 = $36
+SelectedLevel = $35
 aA5 = $A5
 SysKeyCode_C5 = $C5
 aFC = $FC
@@ -113,10 +112,8 @@ a0003 = $0003
 LivesDisplay = $0427
 a0557 = $0557
 a0558 = $0558
-a055E = $055E
-a055F = $055F
-aD95E = $D95E
-aD95F = $D95F
+LevelDisplayByte1 = $055E
+LevelDisplayByte2 = $055F
 JOY1 = $DC11
 ;
 ; **** POINTERS **** 
@@ -131,7 +128,7 @@ p05FF = $05FF
 p070F = $070F
 p0800 = $0800
 p4008 = $4008
-CopyBeforeInitialize = $8000
+InitializeDataAndGame = $8000
 pD000 = $D000
 ;
 ; **** EXTERNAL JUMPS **** 
@@ -144,16 +141,16 @@ e8036 = $8036
 e8040 = $8040
 e8056 = $8056
 ClearScore = $8060
-e80A0 = $80A0
+IncrementSelectedLevel = $80A0
 e8028 = $8028
 WriteCopyrightLine = $80D2
-e80E5 = $80E5
+StartLevel = $80E5
 CheckInputAgain = $80F7
 InitializeGame = $8100
 Screen_GetPointer = $8163
 Screen_Plot = $8172
 GetCurrentChar = $818B
-e8191 = $8191
+PlaySomeSound = $8191
 e81A2 = $81A2
 CheckPause = $821B
 e8230 = $8230
@@ -162,11 +159,11 @@ e8237 = $8237
 e824F = $824F
 e8264 = $8264
 LoadCharSetData = $82EC
-e8300 = $8300
+DrawNewLevelScreen = $8300
 CheckJoy = $8373
-e8380 = $8380
-e8386 = $8386
-e8388 = $8388
+SpinForCyclesIn0A = $8380
+SpinFor255Cycles = $8386
+DecrementAccumToZero = $8388
 Main_GameLoop = $8393
 JumpToMainGameLoop = $83A0
 GameLoopBody = $83A3
@@ -219,19 +216,16 @@ e8BD2 = $8BD2
 e8BEC = $8BEC
 ClearScreen = $8BFC
 e8C17 = $8C17
-DisplayNewLevelText = $8C2D
-e8C75 = $8C75
-e8D16 = $8D16
-e8D52 = $8D52
-e8D57 = $8D57
-e8D5E = $8D5E
-e8D66 = $8D66
-e8D70 = $8D70
+DisplayNewLevelInterstitial = $8C2D
+IncrementLives = $8C75
+PlayNewLevelMusic = $8D16
+JumpToDisplayTitleScreen = $8D57
+UpdateLivesAndStartNewLevel = $8D5E
+SetSoundVolumeToMax = $8D70
 e8D78 = $8D78
 DisplayTitleScreen = $8D8E
-e8DB0 = $8DB0
 e8DC0 = $8DC0
-e8DC6 = $8DC6
+Start_Game = $8DC6
 eE518 = $E518
 ;
 ; **** PREDEFINED LABELS **** 
@@ -274,7 +268,7 @@ CopyDataLoop
         CMP aFF
         BNE CopyDataLoop
         SEI 
-        JMP (CopyBeforeInitialize)
+        JMP (InitializeDataAndGame)
 
         .TEXT "        PRG   ", $00
 ; This is later loaded to $04 in the zero-page address space.
@@ -288,11 +282,10 @@ Progs
         BRK #$1F
 
 ;------------------------------------------------------------------------------------
-; CopyBeforeInitialize
+; InitializeDataAndGame
 ; Copies more data to $2100. This is the site of some duplicated code and game data.
 ; Not sure what's going on here.
 ;------------------------------------------------------------------------------------
-; CopyBeforeInitialize
         CMP (p83,X)
 b0902   .byte $E2,$83,$00,$00,$00,$00,$00,$00,$8F
         STA $2100,X 
@@ -380,33 +373,38 @@ b0972   LDA SCREEN_PL1_SCORE,X
         .BYTE $2B,$27,$2F,$20,$20,$2E,$22,$27 ; HES  PRE
         .BYTE $2F,$2F,$20,$2A,$24,$22,$27,$20 ; SS FIRE 
         .BYTE $3A,$30,$20,$29,$27,$21,$24,$26 ; TO BEGIN
-;e80A0
-        LDA Lives
+
+;-----------------------------------------------------------
+;IncrementSelectedLevel
+;-----------------------------------------------------------
+        LDA SelectedLevel
         CMP #$20
         BNE b09AA
         LDA #$01
-        STA Lives
-b09AA   LDA #$30
+        STA SelectedLevel
+b09AA   LDA #$30 ; "0"
         STA a0557
         STA a0558
-        LDX Lives
+        LDX SelectedLevel
 b09B4   INC a0558
         LDA a0558
 b09BB   =*+$01
         CMP #$3A
         BNE b09C6
-        LDA #$30
+        LDA #$30 ; "0"
         STA a0558
         INC a0557
 b09C6   DEX 
         BNE b09B4
         LDX #$30
-b09CB   JSR e8386
+b09CB   JSR SpinFor255Cycles
         DEX 
         BNE b09CB
         RTS 
 
+;-----------------------------------------------------------
 ;WriteCopyrightLine
+;-----------------------------------------------------------
         LDX #$20
 CopyrightLineLoop
         LDA CopyrightLine,X
@@ -416,15 +414,19 @@ CopyrightLineLoop
         DEX 
         BNE CopyrightLineLoop
         JMP e8DC0
-;e80E5
-        LDA #$34
+
+;--------------------------------------------------------------
+;StartLevel
+;--------------------------------------------------------------
+        LDA #$34 ; '4' is the inital number of lives
         STA LivesDisplay
-        LDX #$07
-        LDA #$30
-b09EE   STA SCREENRAM+14,X
+        LDX #$07 ; The score is 7 digits long
+        LDA #$30 ; "0"
+ILS_LOOP
+        STA SCREEN_PL1_SCORE-1,X
         DEX 
-        BNE b09EE
-        JMP DisplayNewLevelText
+        BNE ILS_LOOP
+        JMP DisplayNewLevelInterstitial
 
 ;--------------------------------------------------------------
 ;CheckInputAgain
@@ -528,7 +530,7 @@ NextRow
         LDA (zpLo3),Y
         RTS 
 
-;e8191
+;PlaySomeSound
         LDA #$00
         STA $D404    ;Voice 1: Control Register
         STA $D40B    ;Voice 2: Control Register
@@ -558,7 +560,7 @@ b0ABC   LDA a09
         LDA a08
         STA zpLo
         JSR Screen_Plot
-        JSR e8191
+        JSR PlaySomeSound
         INC a09
         LDA a09
         CMP #$16
@@ -584,7 +586,7 @@ b0AF1   LDA a09
         LDA a08
         STA zpHi
         JSR Screen_Plot
-        JSR e8191
+        JSR PlaySomeSound
         INC a09
         LDA a09
         CMP #$27
@@ -679,7 +681,7 @@ b0B40   LDA a08
         LDA #$16
 b0BAE   STA a09
         LDX a0A
-b0BB2   JSR e8380
+b0BB2   JSR SpinForCyclesIn0A
         DEX 
         BNE b0BB2
         LDA #<p0800
@@ -707,16 +709,23 @@ b0BB2   JSR e8380
         SBC a0A
         STA zpLo
         JMP e8400
+
+;-----------------------------------------------------------
 ;LoadCharSetData
+;-----------------------------------------------------------
         LDX #$00
-b0BEE   LDA f8E00,X
+LCS_LOOP
+        LDA f8E00,X
         STA f2000,X
         LDA CharSet,X
         STA f2100,X
         DEX 
-        BNE b0BEE
+        BNE LCS_LOOP
         JMP InitializeGame
-;e8300
+
+;-----------------------------------------------------------
+;DrawNewLevelScreen
+;-----------------------------------------------------------
         LDA #$0F
         STA $D418    ;Select Filter Mode and Volume
         LDA #$A0
@@ -778,30 +787,36 @@ b0BEE   LDA f8E00,X
         NOP 
         JMP JumpToMainGameLoop
 
+;-----------------------------------------------------------
 ;CheckJoy
+;-----------------------------------------------------------
         LDA JOY1
         EOR #$FF
         STA InputJoy
         RTS 
 
-        NOP 
-        NOP 
-        NOP 
-        NOP 
-        NOP 
-;e8380
+        .BYTE $EA,$EA,$EA,$EA,$EA ; Bunch No-Ops
+
+;-----------------------------------------------------------
+;SpinForCyclesIn0A
+;-----------------------------------------------------------
         LDA a0A
         CMP #$00
-        BEQ b0C92
-;e8386
+        BEQ SC_RETURN
+
+;SpinFor255Cycles
         LDA #$00
-;e8388
+        ; Fall through to DecrementAccumToZero
+
+a30 = $30
+;DecrementAccumToZero
         STA a30
 b0C8A   DEC a30
         BNE b0C8A
 b0C8E   DEC a30
         BNE b0C8E
-b0C92   RTS 
+SC_RETURN
+        RTS 
 
 ;-------------------------------------------------------------------------------
 ;Main_GameLoop
@@ -928,7 +943,7 @@ b0D54   LDA a0A
         LDA #$11
         STA $D40B    ;Voice 2: Control Register
         LDX #$02
-b0D65   JSR e8380
+b0D65   JSR SpinForCyclesIn0A
         DEX 
         BNE b0D65
         DEC a0A
@@ -1463,7 +1478,7 @@ DisplayHeaderLoop
         RTS 
 ;SetUpMenu
         JSR Menu_DisplayHeader
-        JMP e8D57
+        JMP JumpToDisplayTitleScreen
 
         NOP
         NOP
@@ -1492,7 +1507,7 @@ b1172   INC SCREEN_PL1_SCORE,X
         LDA SCREEN_PL1_SCORE,X
         CMP #$3A
         BNE b1184
-        LDA #$30
+        LDA #$30 ; "0"
         STA SCREEN_PL1_SCORE,X
         DEX 
         BNE b1172
@@ -1834,7 +1849,7 @@ b13CC   RTS
 
 b13CD   LDA a24
         BNE b13CC
-        JMP DisplayNewLevelText
+        JMP DisplayNewLevelInterstitial
         JSR GetCurrentChar
         CMP #$07
         BEQ b13DE
@@ -1975,7 +1990,7 @@ b14B8   JMP e8C17
         DEX 
         BNE b146E
         LDX #$10
-b14D9   JSR e8386
+b14D9   JSR SpinFor255Cycles
         DEX 
         BNE b14D9
         LDA #$00
@@ -2021,17 +2036,20 @@ ZERO = $30
         DEC LivesDisplay
         LDA LivesDisplay
         CMP #ZERO
-        BEQ JumpToClearScore
-        JMP e8D5E
+        BEQ GameOver
+        JMP UpdateLivesAndStartNewLevel
 
-JumpToClearScore
+GameOver
         JMP ClearScore
 
-;DisplayNewLevelText
+;--------------------------------------------------------------
+;DisplayNewLevelInterstitial
+;--------------------------------------------------------------
         LDX #$F6
         TXS 
         JSR ClearScreen
         LDX #$12
+
 CopyLevelTextLoop
         LDA BattleStations,X
         STA SCREENRAM + $FD,X
@@ -2043,40 +2061,45 @@ CopyLevelTextLoop
         STA COLOURRAM + $014D,X
         DEX 
         BNE CopyLevelTextLoop
-        JMP e8C75
+        JMP IncrementLives
 
 ;BattleStations
         .BYTE $20,$29,$28,$3A,$3A,$3E,$27,$20,$20,$2F,$3A,$28,$3A,$24,$30,$26,$2F ; "BATTLE  STATIONS"
 ;EnterGridArea
         .BYTE $20,$27,$26,$3A,$27,$22,$20,$21,$22,$24,$25,$20,$28,$22,$27,$28,$20,$30,$30 ; "ENTER GRID AREA 00"
-;e8C75
+
+;IncrementLives
         INC LivesDisplay
         LDA LivesDisplay
         CMP #$3A
         BNE b1582
         DEC LivesDisplay
-b1582   INC Lives
-        LDA Lives
+b1582   INC SelectedLevel
+        LDA SelectedLevel
         CMP #$20
         BNE b158C
-        DEC Lives
-b158C   LDX Lives
+        DEC SelectedLevel
+b158C   LDX SelectedLevel
         LDA f8CB4,X
         STA a2A
         LDA f8CD4,X
         STA a2B
         LDA f8CF4,X
         STA a34
-b159D   INC a055F
-        LDA a055F
-        CMP #$3A
-        BNE b15AF
-        LDA #$30
-        STA a055F
-        INC a055E
-b15AF   DEX 
-        BNE b159D
-        JMP e8D70
+
+; Increment the level displayed in 'ENTER GRID AREA XX'
+IncrementLevel
+        INC LevelDisplayByte2
+        LDA LevelDisplayByte2
+        CMP #$3A  ; Has the byte overflowed from 9 to 0? If so increment to '10'.
+        BNE IL_ADJUST
+        LDA #$30 ; "0"
+        STA LevelDisplayByte2
+        INC LevelDisplayByte1
+IL_ADJUST
+        DEX 
+        BNE IncrementLevel
+        JMP SetSoundVolumeToMax ; Which then jumps below to PlayNewLevelMusic
 
         ORA (zpLo,X)
         .BYTE $02,$03,$03,$03,$04,$04,$04,$04
@@ -2095,15 +2118,23 @@ f1600   .BYTE $09,$09,$09,$09,$09,$08,$08,$08
         ASL colourToPlot
         NOP 
 
-;e8D16
-        LDA #$30
-        STA a36
-b161A   LDA a36
-        STA aD95F
-        STA aD95E
-        LDX a36
-b1624   JSR e8D52
-        JSR e8D66
+PNL_COUNTER = $36
+LevelColor1stByte = $D95E
+LevelColor2ndByte = $D95F
+SpinFor32Cycles = $8D52
+SoundEffect = $8D66
+
+;PlayNewLevelMusic
+        LDA #$30 ; Play the loop 30 times
+        STA PNL_COUNTER
+MainNewLevelSoundLoop
+        LDA PNL_COUNTER               ; Flashing effect on the level number
+        STA LevelColor2ndByte
+        STA LevelColor1stByte
+        LDX PNL_COUNTER
+NewLevelSoundLoop             ; Play the level sounds
+        JSR SpinFor32Cycles
+        JSR SoundEffect
         NOP 
         STA $D408    ;Voice 2: Frequency Control - High-Byte
         NOP 
@@ -2117,38 +2148,37 @@ b1624   JSR e8D52
         STA $D40B    ;Voice 2: Control Register
         STA $D412    ;Voice 3: Control Register
         DEX 
-        BNE b1624
-        DEC a36
-        BNE b161A
-        JMP e8300
+        BNE NewLevelSoundLoop
+        DEC PNL_COUNTER
+        BNE MainNewLevelSoundLoop
+        JMP DrawNewLevelScreen ; Which then jumps to JumpToMainGameLoop
 
-;e8D52
+;SpinFor32Cycles
         LDA #$20
-        JMP e8388
+        JMP DecrementAccumToZero
+        ; RTS
 
-;e8D57
-        LDA Lives
-        STA Lives
+;JumpToDisplayTitleScreen
+        LDA SelectedLevel
+        STA SelectedLevel
         JMP DisplayTitleScreen
 
-;e8D5E
+;UpdateLivesAndStartNewLevel
         DEC LivesDisplay
-        DEC Lives
-        JMP DisplayNewLevelText
+        DEC SelectedLevel
+        JMP DisplayNewLevelInterstitial
 
-;e8D66
+;SoundEffect
         STX a27
         LDA #$40
         SBC a27
         STA $D401    ;Voice 1: Frequency Control - High-Byte
         RTS 
 
-;--------------------------------------------------------------
-;e8D70
-;--------------------------------------------------------------
-        LDA #$0F
+;SetSoundVolumeToMax
+        LDA #$0F     ;Set volume to full?
         STA $D418    ;Select Filter Mode and Volume
-        JMP e8D16
+        JMP PlayNewLevelMusic
 
 ;e8D78
         LDA #<p0800
@@ -2162,11 +2192,16 @@ b1624   JSR e8D52
         JSR Screen_Plot
         JMP e8AF8
 
-;DisplayTitleScreen
+;-----------------------------------------------------
+; DisplayTitleScreen
+; This is the main loop for displaying the title screen. It waits for the player
+; to press fire or select a level to start at. 
+;-----------------------------------------------------
         LDA #$01
-        STA Lives
+        STA SelectedLevel
         LDX #$0E
-b1694   LDA ByJeffMinter,X
+DTS_LOOP   
+        LDA ByJeffMinter,X
         STA SCREENRAM + $FA,X
         LDA #$03
         STA COLOURRAM + $FA,X
@@ -2175,24 +2210,33 @@ b1694   LDA ByJeffMinter,X
         LDA #$01
         STA COLOURRAM + $014A,X
         DEX 
-        BNE b1694
+        BNE DTS_LOOP
         JMP WriteCopyrightLine
-;e8DB0
-b16B0   LDA JOY1
-        CMP #$EF
+
+; Loop while waiting for the player to press fire (JOY1_FIRE) or
+; increment the starting level by pressing the joystick upwards (JOY1_UP).
+
+LoopWhileWaitingToStartGame = $8DB0
+WTS_LOOP
+        LDA JOY1
+        CMP #JOY1_FIRE
         BNE b16BA
-        JMP e8DC6
+        JMP Start_Game
 
-b16BA   CMP #$FE
-        BNE b16B0
-        INC Lives
+b16BA   CMP #JOY1_UP
+        BNE WTS_LOOP
+        INC SelectedLevel
 ;e8DC0
-        JSR e80A0
-        JMP e8DB0
+        JSR IncrementSelectedLevel
+        JMP LoopWhileWaitingToStartGame
 
-;e8DC6
-        DEC Lives
-        JMP e80E5
+;Start_Game
+        DEC SelectedLevel
+        JMP StartLevel
+
+;-----------------------------------------------------
+; Game Data
+;-----------------------------------------------------
 
         .BYTE $B0,$8D,$EA,$EA,$EA,$EA,$EA,$EA
         .BYTE $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
