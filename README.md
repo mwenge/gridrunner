@@ -18,7 +18,7 @@ To compile and run it do:
 $ make
 ```
 
-#Disassembling the Game
+# Disassembling the Game
 
 The game circulates in many forms since it's original release in 1982. This disassembled version is derived from the version made available by Jeff Minter in Llamasoft1.d64.
 
