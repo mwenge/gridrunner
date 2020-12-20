@@ -167,13 +167,13 @@ Screen_GetPointer = $8163
 Screen_Plot = $8172
 GetCurrentChar = $818B
 PlaySomeSound = $8191
-e81A2 = $81A2
+DrawGrid = $81A2
 CheckPause = $821B
 e8230 = $8230
 e8233 = $8233
 e8237 = $8237
-e824F = $824F
-e8264 = $8264
+MaterializeShip = $824F
+MaterializeShipLoop = $8264
 LoadCharSetData = $82EC
 DrawNewLevelScreen = $8300
 CheckJoy = $8373
@@ -184,7 +184,7 @@ Main_GameLoop = $8393
 JumpToMainGameLoop = $83A0
 GameLoopBody = $83A3
 StartWaitLoop = $83E8
-e8400 = $8400
+DrawMaterializeShip = $8400
 e8450 = $8450
 UpdateShipPosition = $8470
 Game_DecrementTimer = $84F8
@@ -555,9 +555,8 @@ NextRow
         STA $D40B    ;Voice 2: Control Register
         RTS 
 
-;e81A2
 ;-------------------------------------------------------------
-; Load the programs at Progs to $05 $04.
+; DrawGrid
 ;-------------------------------------------------------------
         LDA #$02
         STA a08
@@ -652,7 +651,10 @@ b0B40   LDA a08
         ADC #$01
         STA $D408    ;Voice 2: Frequency Control - High-Byte
         JMP e8237
-;e824F
+
+;-------------------------------------------------------------------------------
+;MaterializeShip
+;-------------------------------------------------------------------------------
         LDA #$0F
         STA a0A
         LDA #$02
@@ -660,9 +662,9 @@ b0B40   LDA a08
         LDA #$00
         STA $D404    ;Voice 1: Control Register
         STA $D40B    ;Voice 2: Control Register
-        LDA #<p0116
+        LDA #$16
         STA charToPlot
-;e8264
+;MaterializeShipLoop
         LDA #>p0116
         STA colourToPlot
         LDA #$00
@@ -727,10 +729,11 @@ b0BB2   JSR SpinForCyclesIn0A
         CLC 
         SBC a0A
         STA ShipXPosition
-        JMP e8400
+        JMP DrawMaterializeShip ; Jumps to MaterializeShipLoop
+        ; This will eventually RTS from DrawMaterializeShip
 
 ;-----------------------------------------------------------
-;LoadCharSetData
+; LoadCharSetData
 ;-----------------------------------------------------------
         LDX #$00
 LCS_LOOP
@@ -743,7 +746,7 @@ LCS_LOOP
         JMP InitializeGame
 
 ;-----------------------------------------------------------
-;DrawNewLevelScreen
+; DrawNewLevelScreen
 ;-----------------------------------------------------------
         LDA #$0F
         STA $D418    ;Select Filter Mode and Volume
@@ -753,8 +756,10 @@ LCS_LOOP
         STA $D413    ;Voice 3: Attack / Decay Cycle Control
         LDA #$00
         STA $D414    ;Voice 3: Sustain / Release Cycle Control
-        JSR e81A2
-        JSR e824F
+
+        JSR DrawGrid
+        JSR MaterializeShip
+
         LDA #<p1514
         STA a0B
         LDA #>p1514
@@ -885,7 +890,7 @@ SC_RETURN
         PLA                               ; Never Reached
         RTI                               ; Never Reached
 
-;StartWaitLoop
+; StartWaitLoop
         LDX #$15
 WaitLoop
         DEX 
@@ -899,7 +904,7 @@ WaitLoop
         NOP                               
 
 ;--------------------------------------------------------------
-;e8400
+; DrawMaterializeShip
 ;--------------------------------------------------------------
         JSR Screen_Plot
         LDA a09
@@ -912,7 +917,7 @@ p0D07   DEC a0A
         CLC 
         SBC a0A
         STA $D418    ;Select Filter Mode and Volume
-        JMP e8264
+        JMP MaterializeShipLoop
 
 b0D1A   LDA #<p0D07
         STA charToPlot
