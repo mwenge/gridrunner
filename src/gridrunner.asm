@@ -19,8 +19,8 @@ fC9 = $C9
 ;
 ; **** ZP ABSOLUTE ADRESSES **** 
 ;
-zpLo = $02
-zpHi = $03
+ShipXPosition = $02
+ShipYPosition = $03
 charToPlot = $04
 colourToPlot = $05
 zpLo3 = $06
@@ -88,6 +88,22 @@ SCREEN_PTR_HI = $0360
 SCREENRAM = $0400
 COLOURRAM = $D800
 
+;Colours
+BLACK                   = 0
+WHITE                   = 1
+RED                     = 2
+CYAN                    = 3
+PURPLE                  = 4
+BLUE                    = 6
+YELLOW                  = 7
+ORANGE                  = 8
+BROWN                   = 9
+PINK                    = 10
+GREY1                   = 11
+LGREEN                  = 13
+LBLUE                   = 14
+LGREY                   = 15
+
 CopyrightLine = $807F
 f871F = $871F
 ScreenHeaderText = $881F
@@ -101,8 +117,8 @@ f8CD4 = $8CD4
 f8CF4 = $8CF4
 ByJeffMinter = $8DE0
 EnterLevelText = $8DF0
-f8E00 = $8E00
-CharSet = $8F00
+CharSet1 = $8E00
+CharSet2 = $8F00
 
 ;
 ; **** ABSOLUTE ADRESSES **** 
@@ -170,10 +186,10 @@ GameLoopBody = $83A3
 StartWaitLoop = $83E8
 e8400 = $8400
 e8450 = $8450
-Input_CheckJoy = $8470
+UpdateShipPosition = $8470
 Game_DecrementTimer = $84F8
 MaybePlayPulse = $8573
-e859B = $859B
+UpdateShipPosition2 = $859B
 e85F8 = $85F8
 e85FD = $85FD
 e862F = $862F
@@ -409,7 +425,7 @@ b09CB   JSR SpinFor255Cycles
 CopyrightLineLoop
         LDA CopyrightLine,X
         STA SCREENRAM + $0192,X
-        LDA #$07
+        LDA #YELLOW
         STA COLOURRAM + $0192,X
         DEX 
         BNE CopyrightLineLoop
@@ -443,17 +459,17 @@ b09F7   LDA SysKeyCode_C5
 ;InitializeGame
 ;--------------------------------------------------------------
         LDA #>pD000
-        STA zpHi
+        STA ShipYPosition
         LDA #<pD000
-        STA zpLo
+        STA ShipXPosition
         LDY #$18
         TYA 
-        STA (zpLo),Y
+        STA (ShipXPosition),Y
         LDY #$20
         LDA #$00
-        STA (zpLo),Y
+        STA (ShipXPosition),Y
         INY 
-        STA (zpLo),Y
+        STA (ShipXPosition),Y
         LDA #$0A
         STA $D401    ;Voice 1: Frequency Control - High-Byte
         STA $D405    ;Voice 1: Attack / Decay Cycle Control
@@ -465,28 +481,28 @@ b09F7   LDA SysKeyCode_C5
         STA $D408    ;Voice 2: Frequency Control - High-Byte
         LDX #$00
         LDA #<SCREENRAM
-        STA zpLo
+        STA ShipXPosition
         LDA #>SCREENRAM
-        STA zpHi
+        STA ShipYPosition
 SetScreenPointersLoop
-        LDA zpLo
+        LDA ShipXPosition
         STA SCREEN_PTR_LO,X
-        LDA zpHi
+        LDA ShipYPosition
         STA SCREEN_PTR_HI,X
         LDY #$00
         LDA #$20
 NextRow
-        STA (zpLo),Y
+        STA (ShipXPosition),Y
         INY 
         CPY #$28
         BNE NextRow
-        LDA zpLo
+        LDA ShipXPosition
         CLC 
         ADC #$28
-        STA zpLo
-        LDA zpHi
+        STA ShipXPosition
+        LDA ShipYPosition
         ADC #$00
-        STA zpHi
+        STA ShipYPosition
         INX 
         CPX #$18
         BNE SetScreenPointersLoop
@@ -496,10 +512,10 @@ NextRow
 ;-------------------------------------------------------------------------------
 ; Screen_GetPointer
 ; Uses the screen pointer array to fetch screen address based on an X and Y 
-; value stored in zpHi and zpLo before the routine is called
+; value stored in ShipYPosition and ShipXPosition before the routine is called
 ;-------------------------------------------------------------------------------
-        LDX zpHi
-        LDY zpLo
+        LDX ShipYPosition
+        LDY ShipXPosition
         LDA SCREEN_PTR_LO,X
         STA zpLo3
         LDA SCREEN_PTR_HI,X
@@ -556,9 +572,9 @@ b0AAE   LDA #$00
         LDA #$02
         STA a09
 b0ABC   LDA a09
-        STA zpHi
+        STA ShipYPosition
         LDA a08
-        STA zpLo
+        STA ShipXPosition
         JSR Screen_Plot
         JSR PlaySomeSound
         INC a09
@@ -582,9 +598,9 @@ b0ADA   DEX
 b0AED   LDA #$01
         STA a09
 b0AF1   LDA a09
-        STA zpLo
+        STA ShipXPosition
         LDA a08
-        STA zpHi
+        STA ShipYPosition
         JSR Screen_Plot
         JSR PlaySomeSound
         INC a09
@@ -603,7 +619,9 @@ b0B0F   DEX
         BNE b0AED
 b0B1A   RTS 
 
+;-------------------------------------------------------------------------------
 ;CheckPause
+;-------------------------------------------------------------------------------
         LDA SysKeyCode_C5
         CMP #$29
         BNE b0B1A
@@ -614,6 +632,7 @@ b0B27   LDA SysKeyCode_C5
         CMP #$29
         BNE b0B27
         JMP CheckInputAgain
+        ;RTS
 
 ;e8230
         JMP e8233
@@ -651,28 +670,28 @@ b0B40   LDA a08
         LDA #$81
         STA $D40B    ;Voice 2: Control Register
         LDA #$15
-        STA zpHi
+        STA ShipYPosition
         LDA #$14
         CLC 
         SBC a0A
-        STA zpLo
+        STA ShipXPosition
         JSR Screen_Plot
         LDA #$14
         CLC 
         ADC a0A
-        STA zpLo
+        STA ShipXPosition
         JSR Screen_Plot
-        LDA zpHi
+        LDA ShipYPosition
         CLC 
         SBC a0A
-        STA zpHi
+        STA ShipYPosition
         JSR Screen_Plot
         LDA #$14
-        STA zpLo
+        STA ShipXPosition
         JSR Screen_Plot
         LDA #$14
         SBC a0A
-        STA zpLo
+        STA ShipXPosition
         JSR Screen_Plot
         INC charToPlot
         LDA charToPlot
@@ -689,25 +708,25 @@ b0BB2   JSR SpinForCyclesIn0A
         LDA #>p0800
         STA colourToPlot
         LDA #$14
-        STA zpLo
+        STA ShipXPosition
         JSR Screen_Plot
         LDA #$14
         CLC 
         SBC a0A
-        STA zpLo
+        STA ShipXPosition
         JSR Screen_Plot
         LDA #$14
         CLC 
         ADC a0A
-        STA zpLo
+        STA ShipXPosition
         JSR Screen_Plot
         LDA #$15
-        STA zpHi
+        STA ShipYPosition
         JSR Screen_Plot
         LDA #$14
         CLC 
         SBC a0A
-        STA zpLo
+        STA ShipXPosition
         JMP e8400
 
 ;-----------------------------------------------------------
@@ -715,9 +734,9 @@ b0BB2   JSR SpinForCyclesIn0A
 ;-----------------------------------------------------------
         LDX #$00
 LCS_LOOP
-        LDA f8E00,X
+        LDA CharSet1,X
         STA f2000,X
-        LDA CharSet,X
+        LDA CharSet2,X
         STA f2100,X
         DEX 
         BNE LCS_LOOP
@@ -821,21 +840,18 @@ SC_RETURN
 ;-------------------------------------------------------------------------------
 ;Main_GameLoop
 ;-------------------------------------------------------------------------------
-        JSR Input_CheckJoy
+        JSR UpdateShipPosition
         JSR CheckPause
         JMP GameLoopBody
 
-        NOP 
-        NOP 
-        NOP 
-        NOP 
+        .BYTE $EA, $EA, $EA, $EA ; NOPs
 
 ;JumpToMainGameLoop
         JMP Main_GameLoop
 
 ;GameLoopBody
         JSR Game_DecrementTimer
-        JSR e859B
+        JSR UpdateShipPosition2
         JSR UpdateScreen
         JSR e86D7
         JSR e8753
@@ -876,20 +892,11 @@ WaitLoop
         BNE WaitLoop
         JMP JumpToMainGameLoop
 
-        NOP                               ; Never Reached
-        NOP                               ; Never Reached
-        NOP                               ; Never Reached
-        NOP                               ; Never Reached
-        NOP                               ; Never Reached
-        NOP                               ; Never Reached
-        NOP                               ; Never Reached
-        NOP                               ; Never Reached
-        NOP                               ; Never Reached
-        NOP                               ; Never Reached
-        JMP JumpToMainGameLoop            ; Never Reached
-        NOP                               ; Never Reached
-        NOP                               ; Never Reached
-        NOP                               ; Never Reached
+        .BYTE $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA ; NOPs
+        JMP JumpToMainGameLoop            
+        NOP                               
+        NOP                               
+        NOP                               
 
 ;--------------------------------------------------------------
 ;e8400
@@ -912,9 +919,9 @@ b0D1A   LDA #<p0D07
         LDA #>p0D07
         STA colourToPlot
         LDA #>p1514
-        STA zpHi
+        STA ShipYPosition
         LDA #<p1514
-        STA zpLo
+        STA ShipXPosition
         JSR Screen_Plot
         LDA #$0F
         STA $D418    ;Select Filter Mode and Volume
@@ -951,7 +958,7 @@ b0D65   JSR SpinForCyclesIn0A
         RTS 
 
 ;--------------------------------------------------------------
-;Input_CheckJoy
+; UpdateShipPosition
 ;--------------------------------------------------------------
         DEC SomeCounter
         BEQ b0D75
@@ -959,9 +966,9 @@ b0D65   JSR SpinForCyclesIn0A
 
 b0D75   JSR CheckJoy
         LDA a0B
-        STA zpLo
+        STA ShipXPosition
         LDA a0C
-        STA zpHi
+        STA ShipYPosition
         JSR GetCurrentChar
         CMP #$07
         BEQ b0D8A
@@ -974,48 +981,48 @@ b0D8A   LDA #<p0800
         LDA InputJoy
         AND #JOY_UP
         BEQ CheckJoyDown
-        DEC zpHi
-        LDA zpHi
+        DEC ShipYPosition
+        LDA ShipYPosition
         CMP #$0E
         BNE CheckJoyDown
         LDA #$0F
-        STA zpHi
+        STA ShipYPosition
 CheckJoyDown
         LDA InputJoy
         AND #JOY_DOWN
         BEQ CheckJoyLeft
-        INC zpHi
-        LDA zpHi
+        INC ShipYPosition
+        LDA ShipYPosition
         CMP #$16
         BNE CheckJoyLeft
         LDA #$15
-        STA zpHi
+        STA ShipYPosition
 CheckJoyLeft
          LDA InputJoy
         AND #JOY_LEFT
         BEQ CheckJoyRight
-        DEC zpLo
-        LDA zpLo
+        DEC ShipXPosition
+        LDA ShipXPosition
         CMP #$00
         BNE CheckJoyRight
         LDA #$01
-        STA zpLo
+        STA ShipXPosition
 CheckJoyRight
         LDA InputJoy
         AND #JOY_RIGHT
         BEQ b0DDD
-        INC zpLo
-        LDA zpLo
+        INC ShipXPosition
+        LDA ShipXPosition
         CMP #$27
         BNE b0DDD
         LDA #$26
-        STA zpLo
+        STA ShipXPosition
 b0DDD   JSR GetCurrentChar
         BEQ b0DE5
         JSR e89AB
-b0DE5   LDA zpLo
+b0DE5   LDA ShipXPosition
         STA a0B
-        LDA zpHi
+        LDA ShipYPosition
         STA a0C
         LDA #>p0D07
         STA colourToPlot
@@ -1052,9 +1059,9 @@ p0E02   =*+$01
         LDA #>p4008
         STA a13
 b0E22   LDA a10
-        STA zpLo
+        STA ShipXPosition
         LDA a11
-        STA zpHi
+        STA ShipYPosition
         JSR GetCurrentChar
         CMP a12
         BEQ b0E38
@@ -1081,7 +1088,7 @@ b0E38   LDA #>p0800
 b0E58   LDA #$08
         STA a12
 b0E5C   LDA a11
-        STA zpHi
+        STA ShipYPosition
         JSR GetCurrentChar
         BEQ b0E68
         JSR e87CB
@@ -1114,7 +1121,7 @@ PlayPulse
         RTS 
 
 ;-------------------------------------------------------------------------------
-;e859B
+; UpdateShipPosition2
 ;-------------------------------------------------------------------------------
         LDA SomeCounter
         CMP #$01
@@ -1126,9 +1133,9 @@ b0EA2   DEC a14
         LDA #$02
         STA a14
         LDA #$00
-        STA zpLo
+        STA ShipXPosition
         LDA a15
-        STA zpHi
+        STA ShipYPosition
         LDA #$20
         STA charToPlot
         JSR Screen_Plot
@@ -1139,16 +1146,16 @@ b0EA2   DEC a14
         LDA #$03
         STA a15
 b0EC5   LDA a15
-        STA zpHi
+        STA ShipYPosition
         LDA #>p0101
         STA colourToPlot
         LDA #<p0101
         STA charToPlot
         JSR Screen_Plot
         LDA #$16
-        STA zpHi
+        STA ShipYPosition
         LDA a16
-        STA zpLo
+        STA ShipXPosition
         LDA #$20
         JSR e85F8
         INC a16
@@ -1158,7 +1165,7 @@ b0EC5   LDA a15
         LDA #$01
         STA a16
 b0EED   LDA a16
-        STA zpLo
+        STA ShipXPosition
         LDA #$02
         STA charToPlot
         JMP e85FD
@@ -1197,7 +1204,7 @@ a0F0E   STA $D412    ;Voice 3: Control Register
         RTS 
 
 ;------------------------------------------------------------
-;UpdateScreen
+; UpdateScreen
 ;------------------------------------------------------------
         LDA GameTimer
         CMP #$05
@@ -1220,18 +1227,18 @@ b0F4E   LDA #$01
         LDA #$15
         STA a1D
 b0F5A   LDA a1D
-        STA zpHi
+        STA ShipYPosition
         LDA a1C
-        STA zpLo
+        STA ShipXPosition
         JSR Screen_Plot
         DEC a1D
         LDA a1D
         CMP #$02
         BNE b0F5A
         LDA a1A
-        STA zpHi
+        STA ShipYPosition
         LDA a1B
-        STA zpLo
+        STA ShipXPosition
         JSR GetCurrentChar
         CMP a19
         BEQ b0FA2
@@ -1242,7 +1249,7 @@ b0F5A   LDA a1D
         JSR Screen_Plot
         INC a1B
         LDA a1B
-        STA zpLo
+        STA ShipXPosition
         JSR e8020
         CMP a19
         BEQ b0FA2
@@ -1255,20 +1262,20 @@ b0F5A   LDA a1D
         JMP Screen_Plot
 
 b0FA2   LDA #$15
-        STA zpHi
+        STA ShipYPosition
         LDA a1C
-        STA zpLo
+        STA ShipXPosition
         LDA #>p0800
         STA colourToPlot
         LDA #<p0800
         STA charToPlot
 b0FB2   JSR Screen_Plot
-        DEC zpHi
-        LDA zpHi
+        DEC ShipYPosition
+        LDA ShipYPosition
         CMP #$02
         BNE b0FB2
         LDA a1A
-        STA zpHi
+        STA ShipYPosition
         LDA #>p070F
         STA colourToPlot
         LDA #<p070F
@@ -1381,23 +1388,23 @@ b1068   DEX
 
 ;e876C
         LDA f0FFF,X
-        STA zpLo
+        STA ShipXPosition
         LDA f101F,X
-        STA zpHi
+        STA ShipYPosition
         LDY #$00
-        LDA (zpLo),Y
+        LDA (ShipXPosition),Y
         CMP #$07
         BNE b1081
         JMP e8ADE
 
 b1081   LDA #$00
-        STA (zpLo),Y
-        LDA zpHi
+        STA (ShipXPosition),Y
+        LDA ShipYPosition
         CLC 
         ADC #$D4
-        STA zpHi
+        STA ShipYPosition
         LDA #$08
-        STA (zpLo),Y
+        STA (ShipXPosition),Y
         LDA f0FFF,X
         CLC 
         ADC #$28
@@ -1405,10 +1412,10 @@ b1081   LDA #$00
         LDA f101F,X
         ADC #$00
         STA f101F,X
-        STA zpHi
+        STA ShipYPosition
         LDA f0FFF,X
-        STA zpLo
-        LDA (zpLo),Y
+        STA ShipXPosition
+        LDA (ShipXPosition),Y
         CMP #$20
         BNE b10B4
         LDA #$FF
@@ -1420,13 +1427,13 @@ b10B4   CMP #$07
         JMP e8ADE
 
 b10BB   LDA #$0A
-        STA (zpLo),Y
-        LDA zpHi
+        STA (ShipXPosition),Y
+        LDA ShipYPosition
         CLC 
         ADC #$D4
-        STA zpHi
+        STA ShipYPosition
         LDA #$01
-        STA (zpLo),Y
+        STA (ShipXPosition),Y
         RTS 
 ;e87CB
         LDX #$07
@@ -1489,9 +1496,9 @@ DisplayHeaderLoop
         .BYTE $20,$30,$30,$30,$30,$30,$30,$30  ;  0000000
         .BYTE $20,$20,$1D,$1E,$20,$30,$30,$30  ;  HI: 000
         .BYTE $30,$30,$30,$30,$20,$20,$07,$20  ; 0000  * 
-        .BYTE $20
+        .BYTE $20,$34                          ; 4
 ;ScreenHeaderColors
-        .BYTE $34,$03,$03,$03,$03,$04,$04  ;  4
+        .BYTE $03,$03,$03,$03,$04,$04  ;  
         .BYTE $04,$04,$04,$04,$01,$01,$07,$07 
         .BYTE $01,$03,$03,$03,$03,$03,$03,$03
         .BYTE $01,$01,$07,$07,$01,$0E,$0E,$0E
@@ -1577,9 +1584,9 @@ b11CE   LDA #$80
         STA a26
 b11E6   STX a27
         LDA f10FF,X
-        STA zpLo
+        STA ShipXPosition
         LDA f11FF,X
-        STA zpHi
+        STA ShipYPosition
         LDA #<p0800
         STA charToPlot
         LDA #>p0800
@@ -1595,9 +1602,9 @@ f11FF   LDA f12FF,X
         STA f10FF,X
         LDA f11FE,X
         STA f11FF,X
-        STA zpHi
+        STA ShipYPosition
         LDA f10FF,X
-        STA zpLo
+        STA ShipXPosition
         LDA #>p0313
         STA colourToPlot
         LDA #<p0313
@@ -1612,16 +1619,16 @@ f11FF   LDA f12FF,X
 b122A   LDA f12FF,X
         AND #$02
         BNE b1235
-        INC zpLo
-        INC zpLo
-b1235   DEC zpLo
+        INC ShipXPosition
+        INC ShipXPosition
+b1235   DEC ShipXPosition
         JSR GetCurrentChar
         BEQ b1290
         LDX a27
         JSR e8AE9
-        STA zpLo
-        INC zpHi
-        LDA zpHi
+        STA ShipXPosition
+        INC ShipYPosition
+        LDA ShipYPosition
         CMP #$16
         BNE b1262
         LDA f12FF,X
@@ -1638,9 +1645,9 @@ b1262   LDA f12FF,X
         EOR #$03
         STA f12FF,X
 ;e896A
-        LDA zpLo
+        LDA ShipXPosition
         STA f10FF,X
-        LDA zpHi
+        LDA ShipYPosition
         STA f11FF,X
         LDA #$03
         STA colourToPlot
@@ -1690,9 +1697,9 @@ b12AD   CMP f871F,X
         JMP e8BEC
 
 b12B8   LDA a0B
-        STA zpLo
+        STA ShipXPosition
         LDA a0C
-        STA zpHi
+        STA ShipYPosition
         RTS 
 
 ;-------------------------------------------------------------------------------
@@ -1767,14 +1774,14 @@ b1328   LDX #$04
         PLA 
         LDX a24
 b1337   LDA f10FF,X
-        CMP zpLo
+        CMP ShipXPosition
         BEQ b1342
 b133E   DEX 
         BNE b1337
         RTS 
 
 b1342   LDA f11FF,X
-        CMP zpHi
+        CMP ShipYPosition
         BNE b133E
         LDA f12FF,X
         AND #$C0
@@ -1912,9 +1919,9 @@ b140A   STA f1600,X
         LDA #<p0800
         STA charToPlot
 b143D   LDA f1500,X
-        STA zpLo
+        STA ShipXPosition
         LDA f1600,X
-        STA zpHi
+        STA ShipYPosition
         STX a27
         JSR GetCurrentChar
         CMP a2D
@@ -1952,9 +1959,9 @@ b147F   JSR e8040
 b148E   INC f1600,X
 b1491   JSR e8056
         LDA f1500,X
-        STA zpLo
+        STA ShipXPosition
         LDA f1600,X
-        STA zpHi
+        STA ShipYPosition
         LDA #$01
         STA colourToPlot
         LDA a2D
@@ -2043,7 +2050,7 @@ GameOver
         JMP ClearScore
 
 ;--------------------------------------------------------------
-;DisplayNewLevelInterstitial
+; DisplayNewLevelInterstitial
 ;--------------------------------------------------------------
         LDX #$F6
         TXS 
@@ -2101,7 +2108,7 @@ IL_ADJUST
         BNE IncrementLevel
         JMP SetSoundVolumeToMax ; Which then jumps below to PlayNewLevelMusic
 
-        ORA (zpLo,X)
+        ORA (ShipXPosition,X)
         .BYTE $02,$03,$03,$03,$04,$04,$04,$04
         .BYTE $05,$05,$10,$06,$06,$06,$06,$06
         .BYTE $06,$06,$06,$06,$06,$06,$06,$06
@@ -2186,9 +2193,9 @@ NewLevelSoundLoop             ; Play the level sounds
         LDA #>p0800
         STA colourToPlot
         LDA a0B
-        STA zpLo
+        STA ShipXPosition
         LDA a0C
-        STA zpHi
+        STA ShipYPosition
         JSR Screen_Plot
         JMP e8AF8
 
@@ -2244,46 +2251,740 @@ b16BA   CMP #JOY1_UP
 ;ByJeffMinter
         .BYTE $29,$1B,$20,$2C,$27,$2A,$2A,$20,$2D,$24,$26,$3A,$27,$22,$20 ; "BY JEFF MINTER "
         NOP
-  
 ;EnterLevelText
         .BYTE $27,$26,$3A,$27,$22,$20,$3E,$27,$3B,$27,$3E,$20,$30,$30,$20 ; "ENTER LEVEL 00 "
-;f8E00
-        .BYTE $18,$18,$18
-        .BYTE $18,$FF,$18,$18,$18,$F0,$20,$10
-        .BYTE $1F,$1F,$10,$20,$F0,$18,$18,$18
-        .BYTE $18,$BD,$C3,$81,$81,$00,$20,$60
-        .BYTE $A3,$2C,$30,$00,$00,$00,$02,$05
-        .BYTE $C8,$30,$00,$00,$00,$08,$04,$3E
-        .BYTE $20,$10,$10,$08,$08,$08,$08,$10
-        .BYTE $10,$08,$04,$02,$04,$18,$3C,$66
-        .BYTE $18,$7E,$FF,$E7,$C3,$18,$18,$18
-        .BYTE $3C,$7E,$7E,$7E,$3C,$3C,$7E,$7E
-        .BYTE $7E,$3C,$18,$18,$18,$42,$66,$24
-        .BYTE $3C,$18,$18,$3C,$18,$00,$C0,$72
-        .BYTE $1F,$1F,$72,$C0,$00,$00,$03,$4E
-        .BYTE $F8,$F8,$4E,$03,$00,$00,$00,$00
-        .BYTE $18,$18,$00,$00,$00,$00,$00,$18
-        .BYTE $3C,$3C,$18,$00,$00,$18,$24,$5A
-        .BYTE $BD,$BD,$5A,$24,$18,$99,$7E,$5A
-        .BYTE $FF,$FF,$5A,$7E,$99,$66,$99,$BD
-        .BYTE $5A,$5A,$BD,$99,$66,$24,$42,$A5
-        .BYTE $00,$00,$A5,$42,$24,$30,$46,$48
-        .BYTE $FF,$FF,$12,$62,$0C,$C0,$FC,$72
-        .BYTE $F8,$1F,$4E,$3F,$03,$0B,$2F,$4E
-        .BYTE $5E,$7A,$72,$F4,$D0,$00,$46,$28
-        .BYTE $80,$16,$08,$20,$42,$40,$21,$06
-        .BYTE $00,$00,$60,$82,$01,$02,$80,$00
-        .BYTE $00,$00,$00,$01,$40,$00,$F3,$DB
-        .BYTE $F3,$C3,$C3,$00,$00,$00,$03,$03
-        .BYTE $03,$03,$DB,$00,$00,$C6,$C6,$00
-        .BYTE $7C,$38,$38,$38,$38,$C6,$C6,$00
-        .BYTE $7C,$38,$38,$38,$38,$00,$CC,$CC
-        .BYTE $FC,$CC,$CC,$00,$00,$00,$F0,$66
-        .BYTE $60,$66,$F0,$00,$00,$00,$10,$08
-        .BYTE $7C,$08,$10,$00,$00
-;CharSet
-        *= $1800
-.binary "char.bin" ; The charset
+
+;-----------------------------------------------------
+;CharSet1
+;-----------------------------------------------------
+.BYTE	$18,$18,$18,$18,$FF,$18,$18,$18 ; CHARACTER 0
+                                        ; $00
+                                        ; 00011000      **   
+                                        ; 00011000      **   
+                                        ; 00011000      **   
+                                        ; 00011000      **   
+                                        ; 11111111   ********
+                                        ; 00011000      **   
+                                        ; 00011000      **   
+                                        ; 00011000      **   
+
+.BYTE	$F0,$20,$10,$1F,$1F,$10,$20,$F0 ; CHARACTER 1
+                                        ; $01
+                                        ; 11110000   ****    
+                                        ; 00100000     *     
+                                        ; 00010000      *    
+                                        ; 00011111      *****
+                                        ; 00011111      *****
+                                        ; 00010000      *    
+                                        ; 00100000     *     
+                                        ; 11110000   ****    
+
+.BYTE	$18,$18,$18,$18,$BD,$C3,$81,$81 ; CHARACTER 2
+                                        ; $02
+                                        ; 00011000      **   
+                                        ; 00011000      **   
+                                        ; 00011000      **   
+                                        ; 00011000      **   
+                                        ; 10111101   * **** *
+                                        ; 11000011   **    **
+                                        ; 10000001   *      *
+                                        ; 10000001   *      *
+
+.BYTE	$00,$20,$60,$A3,$2C,$30,$00,$00 ; CHARACTER 3
+                                        ; $03
+                                        ; 00000000           
+                                        ; 00100000     *     
+                                        ; 01100000    **     
+                                        ; 10100011   * *   **
+                                        ; 00101100     * **  
+                                        ; 00110000     **    
+                                        ; 00000000           
+                                        ; 00000000           
+
+.BYTE	$00,$02,$05,$C8,$30,$00,$00,$00 ; CHARACTER 4
+                                        ; $04
+                                        ; 00000000           
+                                        ; 00000010         * 
+                                        ; 00000101        * *
+                                        ; 11001000   **  *   
+                                        ; 00110000     **    
+                                        ; 00000000           
+                                        ; 00000000           
+                                        ; 00000000           
+
+.BYTE	$08,$04,$3E,$20,$10,$10,$08,$08 ; CHARACTER 5
+                                        ; $05
+                                        ; 00001000       *   
+                                        ; 00000100        *  
+                                        ; 00111110     ***** 
+                                        ; 00100000     *     
+                                        ; 00010000      *    
+                                        ; 00010000      *    
+                                        ; 00001000       *   
+                                        ; 00001000       *   
+
+.BYTE	$08,$08,$10,$10,$08,$04,$02,$04 ; CHARACTER 6
+                                        ; $06
+                                        ; 00001000       *   
+                                        ; 00001000       *   
+                                        ; 00010000      *    
+                                        ; 00010000      *    
+                                        ; 00001000       *   
+                                        ; 00000100        *  
+                                        ; 00000010         * 
+                                        ; 00000100        *  
+
+.BYTE	$18,$3C,$66,$18,$7E,$FF,$E7,$C3 ; CHARACTER 7
+                                        ; $07
+                                        ; 00011000      **   
+                                        ; 00111100     ****  
+                                        ; 01100110    **  ** 
+                                        ; 00011000      **   
+                                        ; 01111110    ****** 
+                                        ; 11111111   ********
+                                        ; 11100111   ***  ***
+                                        ; 11000011   **    **
+
+.BYTE	$18,$18,$18,$3C,$7E,$7E,$7E,$3C ; CHARACTER 8
+                                        ; $08
+                                        ; 00011000      **   
+                                        ; 00011000      **   
+                                        ; 00011000      **   
+                                        ; 00111100     ****  
+                                        ; 01111110    ****** 
+                                        ; 01111110    ****** 
+                                        ; 01111110    ****** 
+                                        ; 00111100     ****  
+
+.BYTE	$3C,$7E,$7E,$7E,$3C,$18,$18,$18 ; CHARACTER 9
+                                        ; $09
+                                        ; 00111100     ****  
+                                        ; 01111110    ****** 
+                                        ; 01111110    ****** 
+                                        ; 01111110    ****** 
+                                        ; 00111100     ****  
+                                        ; 00011000      **   
+                                        ; 00011000      **   
+                                        ; 00011000      **   
+
+.BYTE	$42,$66,$24,$3C,$18,$18,$3C,$18 ; CHARACTER 10
+                                        ; $0a
+                                        ; 01000010    *    * 
+                                        ; 01100110    **  ** 
+                                        ; 00100100     *  *  
+                                        ; 00111100     ****  
+                                        ; 00011000      **   
+                                        ; 00011000      **   
+                                        ; 00111100     ****  
+                                        ; 00011000      **   
+
+.BYTE	$00,$C0,$72,$1F,$1F,$72,$C0,$00 ; CHARACTER 11
+                                        ; $0b
+                                        ; 00000000           
+                                        ; 11000000   **      
+                                        ; 01110010    ***  * 
+                                        ; 00011111      *****
+                                        ; 00011111      *****
+                                        ; 01110010    ***  * 
+                                        ; 11000000   **      
+                                        ; 00000000           
+
+.BYTE	$00,$03,$4E,$F8,$F8,$4E,$03,$00 ; CHARACTER 12
+                                        ; $0c
+                                        ; 00000000           
+                                        ; 00000011         **
+                                        ; 01001110    *  *** 
+                                        ; 11111000   *****   
+                                        ; 11111000   *****   
+                                        ; 01001110    *  *** 
+                                        ; 00000011         **
+                                        ; 00000000           
+
+.BYTE	$00,$00,$00,$18,$18,$00,$00,$00 ; CHARACTER 13
+                                        ; $0d
+                                        ; 00000000           
+                                        ; 00000000           
+                                        ; 00000000           
+                                        ; 00011000      **   
+                                        ; 00011000      **   
+                                        ; 00000000           
+                                        ; 00000000           
+                                        ; 00000000           
+
+.BYTE	$00,$00,$18,$3C,$3C,$18,$00,$00 ; CHARACTER 14
+                                        ; $0e
+                                        ; 00000000           
+                                        ; 00000000           
+                                        ; 00011000      **   
+                                        ; 00111100     ****  
+                                        ; 00111100     ****  
+                                        ; 00011000      **   
+                                        ; 00000000           
+                                        ; 00000000           
+
+.BYTE	$18,$24,$5A,$BD,$BD,$5A,$24,$18 ; CHARACTER 15
+                                        ; $0f
+                                        ; 00011000      **   
+                                        ; 00100100     *  *  
+                                        ; 01011010    * ** * 
+                                        ; 10111101   * **** *
+                                        ; 10111101   * **** *
+                                        ; 01011010    * ** * 
+                                        ; 00100100     *  *  
+                                        ; 00011000      **   
+
+.BYTE	$99,$7E,$5A,$FF,$FF,$5A,$7E,$99 ; CHARACTER 16
+                                        ; $10
+                                        ; 10011001   *  **  *
+                                        ; 01111110    ****** 
+                                        ; 01011010    * ** * 
+                                        ; 11111111   ********
+                                        ; 11111111   ********
+                                        ; 01011010    * ** * 
+                                        ; 01111110    ****** 
+                                        ; 10011001   *  **  *
+
+.BYTE	$66,$99,$BD,$5A,$5A,$BD,$99,$66 ; CHARACTER 17
+                                        ; $11
+                                        ; 01100110    **  ** 
+                                        ; 10011001   *  **  *
+                                        ; 10111101   * **** *
+                                        ; 01011010    * ** * 
+                                        ; 01011010    * ** * 
+                                        ; 10111101   * **** *
+                                        ; 10011001   *  **  *
+                                        ; 01100110    **  ** 
+
+.BYTE	$24,$42,$A5,$00,$00,$A5,$42,$24 ; CHARACTER 18
+                                        ; $12
+                                        ; 00100100     *  *  
+                                        ; 01000010    *    * 
+                                        ; 10100101   * *  * *
+                                        ; 00000000           
+                                        ; 00000000           
+                                        ; 10100101   * *  * *
+                                        ; 01000010    *    * 
+                                        ; 00100100     *  *  
+
+.BYTE	$30,$46,$48,$FF,$FF,$12,$62,$0C ; CHARACTER 19
+                                        ; $13
+                                        ; 00110000     **    
+                                        ; 01000110    *   ** 
+                                        ; 01001000    *  *   
+                                        ; 11111111   ********
+                                        ; 11111111   ********
+                                        ; 00010010      *  * 
+                                        ; 01100010    **   * 
+                                        ; 00001100       **  
+
+.BYTE	$C0,$FC,$72,$F8,$1F,$4E,$3F,$03 ; CHARACTER 20
+                                        ; $14
+                                        ; 11000000   **      
+                                        ; 11111100   ******  
+                                        ; 01110010    ***  * 
+                                        ; 11111000   *****   
+                                        ; 00011111      *****
+                                        ; 01001110    *  *** 
+                                        ; 00111111     ******
+                                        ; 00000011         **
+
+.BYTE	$0B,$2F,$4E,$5E,$7A,$72,$F4,$D0 ; CHARACTER 21
+                                        ; $15
+                                        ; 00001011       * **
+                                        ; 00101111     * ****
+                                        ; 01001110    *  *** 
+                                        ; 01011110    * **** 
+                                        ; 01111010    **** * 
+                                        ; 01110010    ***  * 
+                                        ; 11110100   **** *  
+                                        ; 11010000   ** *    
+
+.BYTE	$00,$46,$28,$80,$16,$08,$20,$42 ; CHARACTER 22
+                                        ; $16
+                                        ; 00000000           
+                                        ; 01000110    *   ** 
+                                        ; 00101000     * *   
+                                        ; 10000000   *       
+                                        ; 00010110      * ** 
+                                        ; 00001000       *   
+                                        ; 00100000     *     
+                                        ; 01000010    *    * 
+
+.BYTE	$40,$21,$06,$00,$00,$60,$82,$01 ; CHARACTER 23
+                                        ; $17
+                                        ; 01000000    *      
+                                        ; 00100001     *    *
+                                        ; 00000110        ** 
+                                        ; 00000000           
+                                        ; 00000000           
+                                        ; 01100000    **     
+                                        ; 10000010   *     * 
+                                        ; 00000001          *
+
+.BYTE	$02,$80,$00,$00,$00,$00,$01,$40 ; CHARACTER 24
+                                        ; $18
+                                        ; 00000010         * 
+                                        ; 10000000   *       
+                                        ; 00000000           
+                                        ; 00000000           
+                                        ; 00000000           
+                                        ; 00000000           
+                                        ; 00000001          *
+                                        ; 01000000    *      
+
+.BYTE	$00,$F3,$DB,$F3,$C3,$C3,$00,$00 ; CHARACTER 25
+                                        ; $19
+                                        ; 00000000           
+                                        ; 11110011   ****  **
+                                        ; 11011011   ** ** **
+                                        ; 11110011   ****  **
+                                        ; 11000011   **    **
+                                        ; 11000011   **    **
+                                        ; 00000000           
+                                        ; 00000000           
+
+.BYTE	$00,$03,$03,$03,$03,$DB,$00,$00 ; CHARACTER 26
+                                        ; $1a
+                                        ; 00000000           
+                                        ; 00000011         **
+                                        ; 00000011         **
+                                        ; 00000011         **
+                                        ; 00000011         **
+                                        ; 11011011   ** ** **
+                                        ; 00000000           
+                                        ; 00000000           
+
+.BYTE	$C6,$C6,$00,$7C,$38,$38,$38,$38 ; CHARACTER 27
+                                        ; $1b
+                                        ; 11000110   **   ** 
+                                        ; 11000110   **   ** 
+                                        ; 00000000           
+                                        ; 01111100    *****  
+                                        ; 00111000     ***   
+                                        ; 00111000     ***   
+                                        ; 00111000     ***   
+                                        ; 00111000     ***   
+
+.BYTE	$C6,$C6,$00,$7C,$38,$38,$38,$38 ; CHARACTER 28
+                                        ; $1c
+                                        ; 11000110   **   ** 
+                                        ; 11000110   **   ** 
+                                        ; 00000000           
+                                        ; 01111100    *****  
+                                        ; 00111000     ***   
+                                        ; 00111000     ***   
+                                        ; 00111000     ***   
+                                        ; 00111000     ***   
+
+.BYTE	$00,$CC,$CC,$FC,$CC,$CC,$00,$00 ; CHARACTER 29
+                                        ; $1d
+                                        ; 00000000           
+                                        ; 11001100   **  **  
+                                        ; 11001100   **  **  
+                                        ; 11111100   ******  
+                                        ; 11001100   **  **  
+                                        ; 11001100   **  **  
+                                        ; 00000000           
+                                        ; 00000000           
+
+.BYTE	$00,$F0,$66,$60,$66,$F0,$00,$00 ; CHARACTER 30
+                                        ; $1e
+                                        ; 00000000           
+                                        ; 11110000   ****    
+                                        ; 01100110    **  ** 
+                                        ; 01100000    **     
+                                        ; 01100110    **  ** 
+                                        ; 11110000   ****    
+                                        ; 00000000           
+                                        ; 00000000           
+
+.BYTE	$00,$10,$08,$7C,$08,$10,$00,$00 ; CHARACTER 31
+                                        ; $1f
+                                        ; 00000000           
+                                        ; 00010000      *    
+                                        ; 00001000       *   
+                                        ; 01111100    *****  
+                                        ; 00001000       *   
+                                        ; 00010000      *    
+                                        ; 00000000           
+                                        ; 00000000           
+
+.BYTE	$00,$00,$00,$00,$00,$00,$00,$00 ; CHARACTER 32
+                                        ; $20
+                                        ; 00000000           
+                                        ; 00000000           
+                                        ; 00000000           
+                                        ; 00000000           
+                                        ; 00000000           
+                                        ; 00000000           
+                                        ; 00000000           
+                                        ; 00000000           
+
+;CharSet2
+.BYTE	$7C,$FE,$00,$C0,$DE,$C6,$C6,$7C ; CHARACTER 33
+                                        ; $21
+                                        ; 01111100    *****  
+                                        ; 11111110   ******* 
+                                        ; 00000000           
+                                        ; 11000000   **      
+                                        ; 11011110   ** **** 
+                                        ; 11000110   **   ** 
+                                        ; 11000110   **   ** 
+                                        ; 01111100    *****  
+
+.BYTE	$FC,$FE,$00,$C6,$FC,$D0,$C8,$C6 ; CHARACTER 34
+                                        ; $22
+                                        ; 11111100   ******  
+                                        ; 11111110   ******* 
+                                        ; 00000000           
+                                        ; 11000110   **   ** 
+                                        ; 11111100   ******  
+                                        ; 11010000   ** *    
+                                        ; 11001000   **  *   
+                                        ; 11000110   **   ** 
+
+.BYTE	$C6,$C6,$00,$C6,$C6,$C6,$FE,$7C ; CHARACTER 35
+                                        ; $23
+                                        ; 11000110   **   ** 
+                                        ; 11000110   **   ** 
+                                        ; 00000000           
+                                        ; 11000110   **   ** 
+                                        ; 11000110   **   ** 
+                                        ; 11000110   **   ** 
+                                        ; 11111110   ******* 
+                                        ; 01111100    *****  
+
+.BYTE	$FC,$FC,$00,$30,$30,$30,$FC,$FC ; CHARACTER 36
+                                        ; $24
+                                        ; 11111100   ******  
+                                        ; 11111100   ******  
+                                        ; 00000000           
+                                        ; 00110000     **    
+                                        ; 00110000     **    
+                                        ; 00110000     **    
+                                        ; 11111100   ******  
+                                        ; 11111100   ******  
+
+.BYTE	$FC,$FE,$00,$C6,$C6,$C6,$FE,$FC ; CHARACTER 37
+                                        ; $25
+                                        ; 11111100   ******  
+                                        ; 11111110   ******* 
+                                        ; 00000000           
+                                        ; 11000110   **   ** 
+                                        ; 11000110   **   ** 
+                                        ; 11000110   **   ** 
+                                        ; 11111110   ******* 
+                                        ; 11111100   ******  
+
+.BYTE	$C6,$C6,$00,$E6,$F6,$DE,$CE,$C6 ; CHARACTER 38
+                                        ; $26
+                                        ; 11000110   **   ** 
+                                        ; 11000110   **   ** 
+                                        ; 00000000           
+                                        ; 11100110   ***  ** 
+                                        ; 11110110   **** ** 
+                                        ; 11011110   ** **** 
+                                        ; 11001110   **  *** 
+                                        ; 11000110   **   ** 
+
+.BYTE	$FE,$FE,$00,$F0,$F0,$C0,$FE,$FE ; CHARACTER 39
+                                        ; $27
+                                        ; 11111110   ******* 
+                                        ; 11111110   ******* 
+                                        ; 00000000           
+                                        ; 11110000   ****    
+                                        ; 11110000   ****    
+                                        ; 11000000   **      
+                                        ; 11111110   ******* 
+                                        ; 11111110   ******* 
+
+.BYTE	$FE,$FE,$00,$C6,$FE,$C6,$C6,$C6 ; CHARACTER 40
+                                        ; $28
+                                        ; 11111110   ******* 
+                                        ; 11111110   ******* 
+                                        ; 00000000           
+                                        ; 11000110   **   ** 
+                                        ; 11111110   ******* 
+                                        ; 11000110   **   ** 
+                                        ; 11000110   **   ** 
+                                        ; 11000110   **   ** 
+
+.BYTE	$FC,$FE,$00,$C6,$FC,$C6,$C6,$FC ; CHARACTER 41
+                                        ; $29
+                                        ; 11111100   ******  
+                                        ; 11111110   ******* 
+                                        ; 00000000           
+                                        ; 11000110   **   ** 
+                                        ; 11111100   ******  
+                                        ; 11000110   **   ** 
+                                        ; 11000110   **   ** 
+                                        ; 11111100   ******  
+
+.BYTE	$FE,$FE,$00,$F0,$F0,$C0,$C0,$C0 ; CHARACTER 42
+                                        ; $2a
+                                        ; 11111110   ******* 
+                                        ; 11111110   ******* 
+                                        ; 00000000           
+                                        ; 11110000   ****    
+                                        ; 11110000   ****    
+                                        ; 11000000   **      
+                                        ; 11000000   **      
+                                        ; 11000000   **      
+
+.BYTE	$C6,$C6,$00,$C6,$FE,$C6,$C6,$C6 ; CHARACTER 43
+                                        ; $2b
+                                        ; 11000110   **   ** 
+                                        ; 11000110   **   ** 
+                                        ; 00000000           
+                                        ; 11000110   **   ** 
+                                        ; 11111110   ******* 
+                                        ; 11000110   **   ** 
+                                        ; 11000110   **   ** 
+                                        ; 11000110   **   ** 
+
+.BYTE	$06,$06,$00,$06,$06,$C6,$FE,$7C ; CHARACTER 44
+                                        ; $2c
+                                        ; 00000110        ** 
+                                        ; 00000110        ** 
+                                        ; 00000000           
+                                        ; 00000110        ** 
+                                        ; 00000110        ** 
+                                        ; 11000110   **   ** 
+                                        ; 11111110   ******* 
+                                        ; 01111100    *****  
+
+.BYTE	$C6,$EE,$00,$FE,$C6,$C6,$C6,$C6 ; CHARACTER 45
+                                        ; $2d
+                                        ; 11000110   **   ** 
+                                        ; 11101110   *** *** 
+                                        ; 00000000           
+                                        ; 11111110   ******* 
+                                        ; 11000110   **   ** 
+                                        ; 11000110   **   ** 
+                                        ; 11000110   **   ** 
+                                        ; 11000110   **   ** 
+
+.BYTE	$FE,$FE,$00,$C6,$FE,$C0,$C0,$C0 ; CHARACTER 46
+                                        ; $2e
+                                        ; 11111110   ******* 
+                                        ; 11111110   ******* 
+                                        ; 00000000           
+                                        ; 11000110   **   ** 
+                                        ; 11111110   ******* 
+                                        ; 11000000   **      
+                                        ; 11000000   **      
+                                        ; 11000000   **      
+
+.BYTE	$FE,$FE,$00,$C0,$FE,$06,$C6,$FE ; CHARACTER 47
+                                        ; $2f
+                                        ; 11111110   ******* 
+                                        ; 11111110   ******* 
+                                        ; 00000000           
+                                        ; 11000000   **      
+                                        ; 11111110   ******* 
+                                        ; 00000110        ** 
+                                        ; 11000110   **   ** 
+                                        ; 11111110   ******* 
+
+.BYTE	$FE,$FE,$00,$C6,$C6,$C6,$FE,$FE ; CHARACTER 48
+                                        ; $30
+                                        ; 11111110   ******* 
+                                        ; 11111110   ******* 
+                                        ; 00000000           
+                                        ; 11000110   **   ** 
+                                        ; 11000110   **   ** 
+                                        ; 11000110   **   ** 
+                                        ; 11111110   ******* 
+                                        ; 11111110   ******* 
+
+.BYTE	$18,$18,$00,$18,$38,$38,$38,$38 ; CHARACTER 49
+                                        ; $31
+                                        ; 00011000      **   
+                                        ; 00011000      **   
+                                        ; 00000000           
+                                        ; 00011000      **   
+                                        ; 00111000     ***   
+                                        ; 00111000     ***   
+                                        ; 00111000     ***   
+                                        ; 00111000     ***   
+
+.BYTE	$7C,$FE,$00,$06,$0C,$38,$FE,$FE ; CHARACTER 50
+                                        ; $32
+                                        ; 01111100    *****  
+                                        ; 11111110   ******* 
+                                        ; 00000000           
+                                        ; 00000110        ** 
+                                        ; 00001100       **  
+                                        ; 00111000     ***   
+                                        ; 11111110   ******* 
+                                        ; 11111110   ******* 
+
+.BYTE	$7C,$FE,$00,$1E,$1E,$06,$FE,$7C ; CHARACTER 51
+                                        ; $33
+                                        ; 01111100    *****  
+                                        ; 11111110   ******* 
+                                        ; 00000000           
+                                        ; 00011110      **** 
+                                        ; 00011110      **** 
+                                        ; 00000110        ** 
+                                        ; 11111110   ******* 
+                                        ; 01111100    *****  
+
+.BYTE	$60,$60,$00,$EC,$FE,$0C,$0C,$0C ; CHARACTER 52
+                                        ; $34
+                                        ; 01100000    **     
+                                        ; 01100000    **     
+                                        ; 00000000           
+                                        ; 11101100   *** **  
+                                        ; 11111110   ******* 
+                                        ; 00001100       **  
+                                        ; 00001100       **  
+                                        ; 00001100       **  
+
+.BYTE	$FE,$FE,$00,$E0,$7C,$06,$FE,$7C ; CHARACTER 53
+                                        ; $35
+                                        ; 11111110   ******* 
+                                        ; 11111110   ******* 
+                                        ; 00000000           
+                                        ; 11100000   ***     
+                                        ; 01111100    *****  
+                                        ; 00000110        ** 
+                                        ; 11111110   ******* 
+                                        ; 01111100    *****  
+
+.BYTE	$7C,$FE,$00,$C0,$FC,$C6,$C6,$7C ; CHARACTER 54
+                                        ; $36
+                                        ; 01111100    *****  
+                                        ; 11111110   ******* 
+                                        ; 00000000           
+                                        ; 11000000   **      
+                                        ; 11111100   ******  
+                                        ; 11000110   **   ** 
+                                        ; 11000110   **   ** 
+                                        ; 01111100    *****  
+
+.BYTE	$FE,$FE,$00,$0C,$18,$30,$30,$70 ; CHARACTER 55
+                                        ; $37
+                                        ; 11111110   ******* 
+                                        ; 11111110   ******* 
+                                        ; 00000000           
+                                        ; 00001100       **  
+                                        ; 00011000      **   
+                                        ; 00110000     **    
+                                        ; 00110000     **    
+                                        ; 01110000    ***    
+
+.BYTE	$7C,$FE,$00,$C6,$7C,$C6,$C6,$7C ; CHARACTER 56
+                                        ; $38
+                                        ; 01111100    *****  
+                                        ; 11111110   ******* 
+                                        ; 00000000           
+                                        ; 11000110   **   ** 
+                                        ; 01111100    *****  
+                                        ; 11000110   **   ** 
+                                        ; 11000110   **   ** 
+                                        ; 01111100    *****  
+
+.BYTE	$7C,$FE,$00,$C6,$7E,$06,$FE,$7C ; CHARACTER 57
+                                        ; $39
+                                        ; 01111100    *****  
+                                        ; 11111110   ******* 
+                                        ; 00000000           
+                                        ; 11000110   **   ** 
+                                        ; 01111110    ****** 
+                                        ; 00000110        ** 
+                                        ; 11111110   ******* 
+                                        ; 01111100    *****  
+
+.BYTE	$FC,$FC,$00,$30,$30,$30,$30,$30 ; CHARACTER 58
+                                        ; $3a
+                                        ; 11111100   ******  
+                                        ; 11111100   ******  
+                                        ; 00000000           
+                                        ; 00110000     **    
+                                        ; 00110000     **    
+                                        ; 00110000     **    
+                                        ; 00110000     **    
+                                        ; 00110000     **    
+
+.BYTE	$C6,$C6,$00,$C6,$6C,$6C,$38,$38 ; CHARACTER 59
+                                        ; $3b
+                                        ; 11000110   **   ** 
+                                        ; 11000110   **   ** 
+                                        ; 00000000           
+                                        ; 11000110   **   ** 
+                                        ; 01101100    ** **  
+                                        ; 01101100    ** **  
+                                        ; 00111000     ***   
+                                        ; 00111000     ***   
+
+.BYTE	$1F,$30,$67,$CC,$CC,$67,$30,$1F ; CHARACTER 60
+                                        ; $3c
+                                        ; 00011111      *****
+                                        ; 00110000     **    
+                                        ; 01100111    **  ***
+                                        ; 11001100   **  **  
+                                        ; 11001100   **  **  
+                                        ; 01100111    **  ***
+                                        ; 00110000     **    
+                                        ; 00011111      *****
+
+.BYTE	$80,$C0,$60,$30,$30,$60,$C0,$80 ; CHARACTER 61
+                                        ; $3d
+                                        ; 10000000   *       
+                                        ; 11000000   **      
+                                        ; 01100000    **     
+                                        ; 00110000     **    
+                                        ; 00110000     **    
+                                        ; 01100000    **     
+                                        ; 11000000   **      
+                                        ; 10000000   *       
+
+.BYTE	$C0,$C0,$00,$C0,$C0,$C0,$FE,$FE ; CHARACTER 62
+                                        ; $3e
+                                        ; 11000000   **      
+                                        ; 11000000   **      
+                                        ; 00000000           
+                                        ; 11000000   **      
+                                        ; 11000000   **      
+                                        ; 11000000   **      
+                                        ; 11111110   ******* 
+                                        ; 11111110   ******* 
+
+.BYTE	$18,$18,$18,$18,$18,$18,$18,$18 ; CHARACTER 63
+                                        ; $3f
+                                        ; 00011000      **   
+                                        ; 00011000      **   
+                                        ; 00011000      **   
+                                        ; 00011000      **   
+                                        ; 00011000      **   
+                                        ; 00011000      **   
+                                        ; 00011000      **   
+                                        ; 00011000      **   
+
+.BYTE	$C1,$83,$E2,$83,$C3,$C2,$CD,$38 ; CHARACTER 64
+                                        ; $40
+                                        ; 11000001   **     *
+                                        ; 10000011   *     **
+                                        ; 11100010   ***   * 
+                                        ; 10000011   *     **
+                                        ; 11000011   **    **
+                                        ; 11000010   **    * 
+                                        ; 11001101   **  ** *
+                                        ; 00111000     ***   
+
+.BYTE	$30,$00,$8F,$9D,$00,$21,$CA,$D0 ; CHARACTER 65
+                                        ; $41
+                                        ; 00110000     **    
+                                        ; 00000000           
+                                        ; 10001111   *   ****
+                                        ; 10011101   *  *** *
+                                        ; 00000000           
+                                        ; 00100001     *    *
+                                        ; 11001010   **  * * 
+                                        ; 11010000   ** *    
+
+.BYTE $F1
         JMP InitializeGame
 .include "padding.asm"; This appears to be redundant, duplicated data
 
