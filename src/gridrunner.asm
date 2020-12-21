@@ -28,8 +28,8 @@ zpHi3 = $07
 a08 = $08
 a09 = $09
 a0A = $0A
-a0B = $0B
-a0C = $0C
+ShipPreviousXPosition = $0B
+ShipPreviousYPosition = $0C
 SomeCounter = $0D
 InputJoy = $0E
 GameTimer = $0F
@@ -54,14 +54,12 @@ a22 = $22
 a23 = $23
 a24 = $24
 a25 = $25
-a26 = $26
+Snake = $26
 a27 = $27
 a28 = $28
 a29 = $29
 a2A = $2A
 a2B = $2B
-a2D = $2D
-a33 = $33
 a34 = $34
 SelectedLevel = $35
 aA5 = $A5
@@ -105,16 +103,16 @@ LBLUE                   = 14
 LGREY                   = 15
 
 CopyrightLine = $807F
-f871F = $871F
+PodDecaySequence_CA = $871F
 ScreenHeaderText = $881F
 ScreenHeaderColors = $8847
 f8BC0 = $8BC0
 f8BC8 = $8BC8
 BattleStations = $8C50
 EnterGridArea = $8C62
-f8CB4 = $8CB4
-f8CD4 = $8CD4
-f8CF4 = $8CF4
+LevelData1 = $8CB4
+LevelData2 = $8CD4
+LevelData3 = $8CF4
 ByJeffMinter = $8DE0
 EnterLevelText = $8DF0
 CharSet1 = $8E00
@@ -189,17 +187,17 @@ e8450 = $8450
 UpdateShipPosition = $8470
 Game_DecrementTimer = $84F8
 MaybePlayPulse = $8573
-UpdateShipPosition2 = $859B
+UpdateXYZappers = $859B
 e85F8 = $85F8
 e85FD = $85FD
 e862F = $862F
 UpdateScreen = $8635
 e86D0 = $86D0
-e86D7 = $86D7
+UpdatePods = $86D7
 e86EE = $86EE
 e8728 = $8728
 e8748 = $8748
-e8753 = $8753
+DrawUpdatedPods = $8753
 e876C = $876C
 e87CB = $87CB
 e8801 = $8801
@@ -207,13 +205,13 @@ Menu_DisplayHeader = $8806
 SetUpMenu = $8818
 IncrementPlayerScore = $8870
 e888A = $888A
-e889A = $889A
-e88C9 = $88C9
+PlayBackgroundSounds = $889A
+DrawSnake = $88C9
 e8924 = $8924
 e896A = $896A
 e8995 = $8995
 MaybeResetSomeCounter = $89A0
-e89AB = $89AB
+CheckIfBlockedByPod_CA = $89AB
 e89C1 = $89C1
 e8A11 = $8A11
 e8A53 = $8A53
@@ -221,24 +219,24 @@ e8A99 = $8A99
 e8AA4 = $8AA4
 e8AC1 = $8AC1
 e8AC8 = $8AC8
-e8ADE = $8ADE
+DrawGridCharAtOldPos = $8ADE
 e8AE9 = $8AE9
 e8AF8 = $8AF8
-e8B24 = $8B24
+PlayFadeSound = $8B24
 e8B60 = $8B60
-e8BB1 = $8BB1
-e8BBB = $8BBB
+PlayExplosionAndStartNewLevel = $8BB1
+CTG_GetCurrentChar = $8BBB
 e8BD2 = $8BD2
-e8BEC = $8BEC
+ReturnIfBulletOrGrid = $8BEC
 ClearScreen = $8BFC
-e8C17 = $8C17
+ClearScreenAndRestartLevel = $8C17
 DisplayNewLevelInterstitial = $8C2D
 IncrementLives = $8C75
 PlayNewLevelMusic = $8D16
 JumpToDisplayTitleScreen = $8D57
-UpdateLivesAndStartNewLevel = $8D5E
+UpdateLivesAndRestartLevel = $8D5E
 SetSoundVolumeToMax = $8D70
-e8D78 = $8D78
+DrawGridCharAtOldPosImpl = $8D78
 DisplayTitleScreen = $8D8E
 e8DC0 = $8DC0
 Start_Game = $8DC6
@@ -262,7 +260,8 @@ ROM_CHROUT = $FFD2
         .BYTE $00,$00
 ;------------------------------------------------------------------------------------
 ; Copies the game code from $0900 to $8000 and starts executing code
-; at $8000.
+; at $8000. This is the address of the cartridge ROM and is where the code will
+; be executed when the game is loaded from a cartridge.
 ;------------------------------------------------------------------------------------
 * = $080d
 Start
@@ -286,9 +285,11 @@ CopyDataLoop
         SEI 
         JMP (InitializeDataAndGame)
 
+;------------------------------------------------------------------------------------
+; Cartridge File System (?)
+; This must be something to do with the cartridge rom.
+;------------------------------------------------------------------------------------
         .TEXT "        PRG   ", $00
-; This is later loaded to $04 in the zero-page address space.
-Progs
         .TEXT $5F, $08, $0F, $00, "  ", $22,"C-64 BACKUP.BANK",$22," PRG   ", $00
         .TEXT $7F, $08, $09, $00, "   ",$22,"LOPAGE $4 $48",$22,"    PRG  ", $00
         .TEXT $9F, $08, $11, $00, "  ", $22,"WEDGE",$22,"            PRG   ", $00
@@ -326,7 +327,7 @@ b0902   .byte $E2,$83,$00,$00,$00,$00,$00,$00,$8F
         RTS 
 
 ;e8028
-        JMP e8ADE
+        JMP DrawGridCharAtOldPos
         NOP 
         NOP 
         NOP 
@@ -337,10 +338,10 @@ b0902   .byte $E2,$83,$00,$00,$00,$00,$00,$00,$8F
         CMP #$18
         BPL b093A
 ;e8035
-        STA f1600,X
+        STA LevelData3FromLevel13,X
         RTS 
 
-b093A   LDA a0C
+b093A   LDA ShipPreviousYPosition
         JMP e8036
         NOP 
 ;e8040
@@ -352,13 +353,13 @@ b093A   LDA a0C
         STA f1500,X
         RTS 
 
-b0950   LDA a0B
+b0950   LDA ShipPreviousXPosition
         STA f1500,X
         RTS 
 
 ;e8056
-        DEC f1600,X
-        LDA f1600,X
+        DEC LevelData3FromLevel13,X
+        LDA LevelData3FromLevel13,X
         JMP e8030
         NOP 
 
@@ -560,9 +561,9 @@ NextRow
 ;-------------------------------------------------------------
         LDA #$02
         STA a08
-        LDA #>Progs
+        LDA #ORANGE
         STA colourToPlot
-        LDA #<Progs
+        LDA #GRID_BAR_CHR
         STA charToPlot
 b0AAE   LDA #$00
         STA $D412    ;Voice 3: Control Register
@@ -761,9 +762,9 @@ LCS_LOOP
         JSR MaterializeShip
 
         LDA #<p1514
-        STA a0B
+        STA ShipPreviousXPosition
         LDA #>p1514
-        STA a0C
+        STA ShipPreviousYPosition
         LDA #$FF
         STA a11
         LDA #>p0102
@@ -782,7 +783,7 @@ LCS_LOOP
         STA a23
         STA a24
         LDA #$13
-        STA a26
+        STA Snake
         LDA #$20
         STA a28
         LDA a2B
@@ -794,21 +795,9 @@ LCS_LOOP
         STA a29
         LDA #$0F
         STA $D418    ;Select Filter Mode and Volume
-        NOP 
-        NOP 
-        NOP 
-        NOP 
-        NOP 
-        NOP 
-        NOP 
-        NOP 
-        NOP 
-        NOP 
-        NOP 
-        NOP 
-        NOP 
-        NOP 
-        NOP 
+
+        .BYTE $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA ; NOPs
+
         JMP JumpToMainGameLoop
 
 ;-----------------------------------------------------------
@@ -856,16 +845,17 @@ SC_RETURN
 
 ;GameLoopBody
         JSR Game_DecrementTimer
-        JSR UpdateShipPosition2
+        JSR UpdateXYZappers
         JSR UpdateScreen
-        JSR e86D7
-        JSR e8753
-        JSR e889A
-        JSR e88C9
+        JSR UpdatePods
+        JSR DrawUpdatedPods
+        JSR PlayBackgroundSounds
+        JSR DrawSnake
         JSR MaybeResetSomeCounter
         JSR e8AC8
         JMP StartWaitLoop
 
+;*************************************************************************************
         SEI                                                            ; Never Reached
         CLD                                                            ; Never Reached
         LDA #$05                                                       ; Never Reached
@@ -889,6 +879,7 @@ SC_RETURN
         TAX                               ; Never Reached
         PLA                               ; Never Reached
         RTI                               ; Never Reached
+;*************************************************************************************
 
 ; StartWaitLoop
         LDX #$15
@@ -899,9 +890,7 @@ WaitLoop
 
         .BYTE $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA ; NOPs
         JMP JumpToMainGameLoop            
-        NOP                               
-        NOP                               
-        NOP                               
+        .BYTE $EA, $EA, $EA ; NOPs
 
 ;--------------------------------------------------------------
 ; DrawMaterializeShip
@@ -970,15 +959,15 @@ b0D65   JSR SpinForCyclesIn0A
         RTS 
 
 b0D75   JSR CheckJoy
-        LDA a0B
+        LDA ShipPreviousXPosition
         STA ShipXPosition
-        LDA a0C
+        LDA ShipPreviousYPosition
         STA ShipYPosition
         JSR GetCurrentChar
-        CMP #$07
-        BEQ b0D8A
-        JSR e8BEC
-b0D8A   LDA #<p0800
+        CMP #$07                   ; Ship
+        BEQ IsShip
+        JSR ReturnIfBulletOrGrid
+IsShip   LDA #<p0800
         STA charToPlot
         LDA #>p0800
         STA colourToPlot
@@ -1024,11 +1013,11 @@ CheckJoyRight
         STA ShipXPosition
 b0DDD   JSR GetCurrentChar
         BEQ b0DE5
-        JSR e89AB
+        JSR CheckIfBlockedByPod_CA
 b0DE5   LDA ShipXPosition
-        STA a0B
+        STA ShipPreviousXPosition
         LDA ShipYPosition
-        STA a0C
+        STA ShipPreviousYPosition
         LDA #>p0D07
         STA colourToPlot
         LDA #<p0D07
@@ -1054,9 +1043,9 @@ p0E02   =*+$01
         LDA InputJoy
         AND #$10
         BEQ b0DFC
-        LDA a0B
+        LDA ShipPreviousXPosition
         STA a10
-        LDA a0C
+        LDA ShipPreviousYPosition
         STA a11
         DEC a11
         LDA #<p4008
@@ -1126,7 +1115,7 @@ PlayPulse
         RTS 
 
 ;-------------------------------------------------------------------------------
-; UpdateShipPosition2
+; UpdateXYZappers
 ;-------------------------------------------------------------------------------
         LDA SomeCounter
         CMP #$01
@@ -1152,9 +1141,9 @@ b0EA2   DEC a14
         STA a15
 b0EC5   LDA a15
         STA ShipYPosition
-        LDA #>p0101
+        LDA #WHITE                 
         STA colourToPlot
-        LDA #<p0101
+        LDA #$01                 ; Y Zapper
         STA charToPlot
         JSR Screen_Plot
         LDA #$16
@@ -1171,7 +1160,7 @@ b0EC5   LDA a15
         STA a16
 b0EED   LDA a16
         STA ShipXPosition
-        LDA #$02
+        LDA #$02                ; X Zapper
         STA charToPlot
         JMP e85FD
 ;e85F8
@@ -1295,7 +1284,7 @@ b0FB2   JSR Screen_Plot
         RTS 
 
 ;------------------------------------------------------------
-;e86D7
+;UpdatePods
 ;------------------------------------------------------------
         LDA a17
         CMP #$05
@@ -1303,9 +1292,9 @@ b0FB2   JSR Screen_Plot
         RTS 
 
 b0FDE   DEC a17
-        LDA #>p0450
+        LDA #$04
         STA a20
-        LDA #<p0450
+        LDA #$50
         STA a1F
         LDY #$00
 b0FEA   LDA (p1F),Y
@@ -1323,7 +1312,7 @@ b0FEE   INC a1F
 b0FFB   CMP #$20
         BEQ b0FEE
 f0FFF   LDX #$07
-b1001   CMP f871F,X
+b1001   CMP PodDecaySequence_CA,X
         BEQ b100C
         DEX 
         BNE b1001
@@ -1332,23 +1321,24 @@ b1001   CMP f871F,X
 b100C   CPX #$07
         BEQ b1019
         INX 
-        LDA f871F,X
+        LDA PodDecaySequence_CA,X
         STA (p1F),Y
         JMP e86EE
 
 b1019   JSR e8728
         JMP e86EE
 
-f101F   NOP 
-        CLC 
-        ORA a0F0E
-        BPL b1037
-        .BYTE $12,$13
+; This is the sequence in which the yellow pods decay before exploding.
+; Each byte is a char representing a stage of decay, working from left to right.
+;PodDecaySequence_CA
+PodDecaySequence
+        .BYTE $EA,$18,$0D,$0E,$0F,$10,$11,$12,$13
+
 ;e8728
         LDA #$0A
         STA (p1F),Y
         LDX #$18
-b102E   LDA f101F,X
+b102E   LDA PodDecaySequence,X
         CMP #$FF
         BEQ b103D
         DEX 
@@ -1361,7 +1351,7 @@ b1037   =*+$01
 b103D   LDA a1F
         STA f0FFF,X
         LDA a20
-        STA f101F,X
+        STA PodDecaySequence,X
         RTS 
 
 ;--------------------------------------------------------------
@@ -1369,13 +1359,13 @@ b103D   LDA a1F
 ;--------------------------------------------------------------
         LDX #$20
         LDA #$FF
-b104C   STA f101F,X
+b104C   STA PodDecaySequence,X
         DEX 
         BNE b104C
         RTS 
 
 ;--------------------------------------------------------------
-;e8753
+;DrawUpdatedPods
 ;--------------------------------------------------------------
         DEC a21
         BEQ b1058
@@ -1383,7 +1373,7 @@ b104C   STA f101F,X
 b1058   LDA #$40
         STA a21
         LDX #$18
-b105E   LDA f101F,X
+b105E   LDA PodDecaySequence,X
         CMP #$FF
         BEQ b1068
         JSR e876C
@@ -1394,13 +1384,13 @@ b1068   DEX
 ;e876C
         LDA f0FFF,X
         STA ShipXPosition
-        LDA f101F,X
+        LDA PodDecaySequence,X
         STA ShipYPosition
         LDY #$00
         LDA (ShipXPosition),Y
         CMP #$07
         BNE b1081
-        JMP e8ADE
+        JMP DrawGridCharAtOldPos
 
 b1081   LDA #$00
         STA (ShipXPosition),Y
@@ -1414,9 +1404,9 @@ b1081   LDA #$00
         CLC 
         ADC #$28
         STA f0FFF,X
-        LDA f101F,X
+        LDA PodDecaySequence,X
         ADC #$00
-        STA f101F,X
+        STA PodDecaySequence,X
         STA ShipYPosition
         LDA f0FFF,X
         STA ShipXPosition
@@ -1424,12 +1414,12 @@ b1081   LDA #$00
         CMP #$20
         BNE b10B4
         LDA #$FF
-        STA f101F,X
+        STA PodDecaySequence,X
         RTS 
 
 b10B4   CMP #$07
         BNE b10BB
-        JMP e8ADE
+        JMP DrawGridCharAtOldPos
 
 b10BB   LDA #$0A
         STA (ShipXPosition),Y
@@ -1442,7 +1432,7 @@ b10BB   LDA #$0A
         RTS 
 ;e87CB
         LDX #$07
-b10CD   CMP f871F,X
+b10CD   CMP PodDecaySequence_CA,X
         BEQ b10D9
         DEX 
         BNE b10CD
@@ -1451,7 +1441,7 @@ b10CD   CMP f871F,X
 
 b10D9   DEX 
         BEQ b10EC
-        LDA f871F,X
+        LDA PodDecaySequence_CA,X
         STA charToPlot
         LDA #$07
         STA colourToPlot
@@ -1475,6 +1465,7 @@ f1100   RTS
         PLA 
         PLA 
         JMP Screen_Plot
+
 ;---------------------------------------------------------------
 ; Menu_DisplayHeader
 ; Writes the text for the top of the title screen to the screen.
@@ -1540,7 +1531,7 @@ b1184   PLA
 b1199   RTS 
 
 ;--------------------------------------------------------------
-;e889A
+;PlayBackgroundSounds
 ;--------------------------------------------------------------
         LDA SomeCounter
         AND #$01
@@ -1569,7 +1560,7 @@ b11C3   LDA #$04
         RTS 
 
 ;--------------------------------------------------------------
-;e88C9
+;DrawSnake
 ;--------------------------------------------------------------
         DEC a25
         BEQ b11CE
@@ -1581,12 +1572,12 @@ b11CE   LDA #$80
         LDA a24
         BEQ b11CD
         TAX 
-        INC a26
-        LDA a26
+        INC Snake ; Animating the head of the snake
+        LDA Snake
         CMP #$16
         BNE b11E6
-        LDA #$13
-        STA a26
+        LDA #$13 ; Snake Head initial state
+        STA Snake
 b11E6   STX a27
         LDA f10FF,X
         STA ShipXPosition
@@ -1610,9 +1601,11 @@ f11FF   LDA f12FF,X
         STA ShipYPosition
         LDA f10FF,X
         STA ShipXPosition
-        LDA #>p0313
+
+        ; Paint the snake
+        LDA #CYAN
         STA colourToPlot
-        LDA #<p0313
+        LDA #$13 ; Snake
         STA charToPlot
         JSR Screen_Plot
 ;e8924
@@ -1656,14 +1649,14 @@ b1262   LDA f12FF,X
         STA f11FF,X
         LDA #$03
         STA colourToPlot
-        LDA a26
+        LDA Snake
         STA charToPlot
         JSR Screen_Plot
         LDX a27
         JMP e8924
 
         LDX #$01
-        INC a26
+        INC Snake
         RTS 
         LDX a27
         INX 
@@ -1692,18 +1685,18 @@ b129F   RTS
         RTS 
 
 ;-------------------------------------------------------------------------------
-;e89AB
+;CheckIfBlockedByPod_CA
 ;-------------------------------------------------------------------------------
         LDX #$07
-b12AD   CMP f871F,X
+b12AD   CMP PodDecaySequence_CA,X
         BEQ b12B8
         DEX 
         BNE b12AD
-        JMP e8BEC
+        JMP ReturnIfBulletOrGrid
 
-b12B8   LDA a0B
+b12B8   LDA ShipPreviousXPosition
         STA ShipXPosition
-        LDA a0C
+        LDA ShipPreviousYPosition
         STA ShipYPosition
         RTS 
 
@@ -1863,17 +1856,18 @@ b13CD   LDA a24
         BNE b13CC
         JMP DisplayNewLevelInterstitial
         JSR GetCurrentChar
-        CMP #$07
-        BEQ b13DE
+        CMP #SHIP_CHR
+        BEQ DrawGridChrAtOldPos
         JMP Screen_Plot
 
-;e8ADE
-b13DE   LDX #$F6
+;DrawGridCharAtOldPos
+DrawGridChrAtOldPos
+        LDX #$F6
         TXS 
         NOP 
         NOP 
         NOP 
-        JMP e8D78
+        JMP DrawGridCharAtOldPosImpl
         RTS 
 
         NOP 
@@ -1881,72 +1875,95 @@ b13DE   LDX #$F6
 ;--------------------------------------------------------------
 ;e8AE9
 ;--------------------------------------------------------------
-        CMP #$07
-        BEQ b13DE
+        CMP #SHIP_CHR
+        BEQ DrawGridChrAtOldPos
         LDA f10FF,X
 b13F0   RTS 
 
-        CMP #$20
-        BEQ b13F0
-        JMP e8ADE
+        CMP #SPACE                ; Never Reached
+        BEQ b13F0                 ; Never Reached
+        JMP DrawGridCharAtOldPos  ; Never Reached
 
+;--------------------------------------------------------------
 ;e8AF8
+;--------------------------------------------------------------
+; Set the volume for sounds played, this will be used to create a
+; fade-out effect.
         LDA #$0F
-        STA a33
-        LDA a0B
-        LDX #$08
-b1400   STA f1500,X
+        SND_VOLUME = $33
+        STA SND_VOLUME
+
+; Store ShipPreviousXPosition at 8 positions (?)
+        CHRS_TO_DRAW = $08
+        LDA ShipPreviousXPosition
+        LDX #CHRS_TO_DRAW
+CTD_XLOOP
+        STA f1500,X
         DEX 
-        BNE b1400
-        LDA a0C
-        LDX #$08
-b140A   STA f1600,X
+        BNE CTD_XLOOP
+
+; Store ShipPreviousYPosition at 8 positions (?)
+        LDA ShipPreviousYPosition
+        LDX #CHRS_TO_DRAW
+CTD_YLOOP
+        STA LevelData3FromLevel13,X
         DEX 
-        BNE b140A
+        BNE CTD_YLOOP
+
+; Play Sounds
         LDA #$00
         STA $D404    ;Voice 1: Control Register
         STA $D40B    ;Voice 2: Control Register
         STA $D412    ;Voice 3: Control Register
         LDA #$03
         STA $D401    ;Voice 1: Frequency Control - High-Byte
+
+        CTR_22 = $2D
         LDA #$16
-        STA a2D
-;e8B24
+        STA CTR_22
+
+;PlayFadeSound
         LDA #$00
         STA $D404    ;Voice 1: Control Register
         LDA #$81
         STA $D404    ;Voice 1: Control Register
-        LDA a33
+        LDA SND_VOLUME
         STA $D418    ;Select Filter Mode and Volume
-        LDX #$08
-        LDA #>p0800
+
+; Draw the Grid character across 8 positions
+        GRID_CHRS_TO_DRAW = $27
+        LDX #CHRS_TO_DRAW
+        LDA #ORANGE
         STA colourToPlot
-        LDA #<p0800
+        LDA #GRID_CHR
         STA charToPlot
-b143D   LDA f1500,X
+GCD_DRAW_X
+        LDA f1500,X
         STA ShipXPosition
-        LDA f1600,X
+        LDA LevelData3FromLevel13,X
         STA ShipYPosition
-        STX a27
+        STX GRID_CHRS_TO_DRAW
         JSR GetCurrentChar
-        CMP a2D
-        BNE b1453
+        CMP CTR_22
+        BNE GCD_DRAW_NEXT
         JSR Screen_Plot
-b1453   LDX a27
+GCD_DRAW_NEXT
+        LDX GRID_CHRS_TO_DRAW
         DEX 
-        BNE b143D
+        BNE GCD_DRAW_X
+
         LDA #$14
 b145A   JMP e8B60
         DEX 
         BNE b145A
 
 ;e8B60
-        INC a2D
-        LDA a2D
+        INC CTR_22
+        LDA CTR_22
         CMP #$19
         BNE b146C
         LDA #$16
-        STA a2D
+        STA CTR_22
 b146C   LDX #$08
 b146E   LDA f8BC0,X
         CMP #$80
@@ -1960,70 +1977,79 @@ b147F   JSR e8040
         BEQ b148E
         CMP #$80
         BEQ b1491
-        INC f1600,X
-b148E   INC f1600,X
+        INC LevelData3FromLevel13,X
+b148E   INC LevelData3FromLevel13,X
 b1491   JSR e8056
         LDA f1500,X
         STA ShipXPosition
-        LDA f1600,X
+        LDA LevelData3FromLevel13,X
         STA ShipYPosition
         LDA #$01
         STA colourToPlot
-        LDA a2D
+        LDA CTR_22
         STA charToPlot
-        JSR e8BBB
+        JSR CTG_GetCurrentChar
         BNE b14AE
         JSR Screen_Plot
 b14AE   JMP e8BD2
 
-;e8BB1
-        DEC a33
-        BMI b14B8
-        JMP e8B24
+;PlayExplosionAndStartNewLevel
+        DEC SND_VOLUME
+        BMI ClrScrAndRestartLvl
+        JMP PlayFadeSound
+ClrScrAndRestartLvl
+        JMP ClearScreenAndRestartLevel
 
-b14B8   JMP e8C17
-
-;e8BBB
+;CTG_GetCurrentChar
         STX a27
-        JMP GetCurrentChar
-        NOP 
-        BRK #$01
-        ORA (p01,X)
-        BRK #$80
-        .BYTE $80,$80 ;NOP #$80
-        .BYTE $80,$80 ;NOP #$80
-        BRK #$01
-        ORA (p01,X)
-        BRK #$80
-        NOP 
+        JMP GetCurrentChar ; And Return
+
+;********************************************** 
+        NOP                       ; Not Reached
+        BRK #$01                  ; Not Reached
+        ORA (p01,X)               ; Not Reached
+        BRK #$80                  ; Not Reached
+        .BYTE $80,$80 ;NOP #$80   ; Not Reached
+        .BYTE $80,$80 ;NOP #$80   ; Not Reached
+        BRK #$01                  ; Not Reached
+        ORA (p01,X)               ; Not Reached
+        BRK #$80                  ; Not Reached
+        NOP                       ; Not Reached
+;********************************************** 
 
 ;e8BD2
         LDX a27
         DEX 
         BNE b146E
+
+; Play Explosion Sounds?
         LDX #$10
-b14D9   JSR SpinFor255Cycles
+PES_LOOP
+        JSR SpinFor255Cycles
         DEX 
-        BNE b14D9
+        BNE PES_LOOP
         LDA #$00
         STA $D404    ;Voice 1: Control Register
         LDA #$81
         STA $D404    ;Voice 1: Control Register
-        JMP e8BB1
+        JMP PlayExplosionAndStartNewLevel
 
-;e8BEC
-        CMP #$08
+;-------------------------------------------------
+;ReturnIfBulletOrGrid
+;-------------------------------------------------
+        CMP #$08 ; Bullet
         BEQ b14FB
-        CMP #$09
+        CMP #$09 ; Bullet
         BEQ b14FB
-        CMP #$00
+        CMP #$00 ; Grid
         BEQ b14FB
-        JMP e8ADE
-
+        JMP DrawGridCharAtOldPos
 ;e8BFB
 b14FB   RTS 
 
+;-------------------------------------------------
 ;ClearScreen
+;-------------------------------------------------
         LDA #<p0450
         STA zpHi3
 f1500   LDA #>p0450
@@ -2039,8 +2065,10 @@ b1508   STA (zpHi3),Y
 p1514   BNE b1506
         RTS 
 
-ZERO = $30
-;e8C17
+
+;-------------------------------------------------
+;ClearScreenAndRestartLevel
+;-------------------------------------------------
         JSR ClearScreen
         NOP 
         NOP 
@@ -2049,7 +2077,7 @@ ZERO = $30
         LDA LivesDisplay
         CMP #ZERO
         BEQ GameOver
-        JMP UpdateLivesAndStartNewLevel
+        JMP UpdateLivesAndRestartLevel
 
 GameOver
         JMP ClearScore
@@ -2088,15 +2116,16 @@ CopyLevelTextLoop
         DEC LivesDisplay
 b1582   INC SelectedLevel
         LDA SelectedLevel
-        CMP #$20
-        BNE b158C
+        CMP #$20             ; There are only 31 levels.
+        BNE LoadNextLevel
         DEC SelectedLevel
-b158C   LDX SelectedLevel
-        LDA f8CB4,X
+LoadNextLevel
+        LDX SelectedLevel
+        LDA LevelData1,X
         STA a2A
-        LDA f8CD4,X
+        LDA LevelData2,X
         STA a2B
-        LDA f8CF4,X
+        LDA LevelData3,X
         STA a34
 
 ; Increment the level displayed in 'ENTER GRID AREA XX'
@@ -2113,18 +2142,22 @@ IL_ADJUST
         BNE IncrementLevel
         JMP SetSoundVolumeToMax ; Which then jumps below to PlayNewLevelMusic
 
-        ORA (ShipXPosition,X)
-        .BYTE $02,$03,$03,$03,$04,$04,$04,$04
-        .BYTE $05,$05,$10,$06,$06,$06,$06,$06
+;LevelData1 - actually starts at the '8D' byte in the previous instruction!
+;             FIXME: Is this deliberate or an off by one error?
+        .BYTE $01,$02,$02,$03,$03,$03,$04,$04
+        .BYTE $04,$04,$05,$05,$10,$06,$06,$06
         .BYTE $06,$06,$06,$06,$06,$06,$06,$06
-        .BYTE $07,$07,$07,$07,$07,$07,$06,$06
-        .BYTE $06,$07,$07,$08,$08,$09,$0C,$0C
-        .BYTE $0A,$0A,$03,$0F,$10,$10,$11,$12
-        .BYTE $13,$14,$14,$14,$15,$15,$16,$16
-        .BYTE $16,$17,$03,$18,$18,$19,$10,$10
-        .BYTE $10,$0F,$0E,$0D,$0C,$0B,$0A,$09
-        .BYTE $09
-f1600   .BYTE $09,$09,$09,$09,$09,$08,$08,$08
+        .BYTE $06,$06,$07,$07,$07,$07,$07
+;LevelData2
+        .BYTE $07,$06,$06,$06,$07,$07,$08,$08
+        .BYTE $09,$0C,$0C,$0A,$0A,$03,$0F,$10
+        .BYTE $10,$11,$12,$13,$14,$14,$14,$15
+        .BYTE $15,$16,$16,$16,$17,$03,$18,$18
+;LevelData3
+        .BYTE $19,$10,$10,$10,$0F,$0E,$0D,$0C
+        .BYTE $0B,$0A,$09,$09
+LevelData3FromLevel13
+        .BYTE $09,$09,$09,$09,$09,$08,$08,$08
         .BYTE $08,$07,$07,$07,$07,$07,$07,$07
         .BYTE $07,$07,$06
         ASL colourToPlot
@@ -2175,7 +2208,7 @@ NewLevelSoundLoop             ; Play the level sounds
         STA SelectedLevel
         JMP DisplayTitleScreen
 
-;UpdateLivesAndStartNewLevel
+;UpdateLivesAndRestartLevel
         DEC LivesDisplay
         DEC SelectedLevel
         JMP DisplayNewLevelInterstitial
@@ -2192,14 +2225,14 @@ NewLevelSoundLoop             ; Play the level sounds
         STA $D418    ;Select Filter Mode and Volume
         JMP PlayNewLevelMusic
 
-;e8D78
-        LDA #<p0800
+;DrawGridCharAtOldPosImpl
+        LDA #$00 ; Grid character
         STA charToPlot
-        LDA #>p0800
+        LDA #ORANGE
         STA colourToPlot
-        LDA a0B
+        LDA ShipPreviousXPosition
         STA ShipXPosition
-        LDA a0C
+        LDA ShipPreviousYPosition
         STA ShipYPosition
         JSR Screen_Plot
         JMP e8AF8
@@ -2262,6 +2295,7 @@ b16BA   CMP #JOY1_UP
 ;-----------------------------------------------------
 ;CharSet1
 ;-----------------------------------------------------
+        GRID_CHR = $00
         .BYTE $18,$18,$18,$18,$FF,$18,$18,$18 ; CHARACTER 0
                                                 ; $00
                                                 ; 00011000      **   
@@ -2339,6 +2373,7 @@ b16BA   CMP #JOY1_UP
                                                 ; 00000010         * 
                                                 ; 00000100        *  
 
+        SHIP_CHR = $07
         .BYTE $18,$3C,$66,$18,$7E,$FF,$E7,$C3 ; CHARACTER 7
                                                 ; $07
                                                 ; 00011000      **   
@@ -2614,6 +2649,7 @@ b16BA   CMP #JOY1_UP
                                                 ; 00000000           
                                                 ; 00000000           
 
+        SPACE = $20
         .BYTE $00,$00,$00,$00,$00,$00,$00,$00 ; CHARACTER 32
                                                 ; $20
                                                 ; 00000000           
@@ -2791,6 +2827,7 @@ b16BA   CMP #JOY1_UP
                                                 ; 11000110   **   ** 
                                                 ; 11111110   ******* 
 
+        ZERO = $30
         .BYTE $FE,$FE,$00,$C6,$C6,$C6,$FE,$FE ; CHARACTER 48
                                                 ; $30
                                                 ; 11111110   ******* 
@@ -2956,6 +2993,7 @@ b16BA   CMP #JOY1_UP
                                                 ; 11111110   ******* 
                                                 ; 11111110   ******* 
 
+        GRID_BAR_CHR = $3F
         .BYTE $18,$18,$18,$18,$18,$18,$18,$18 ; CHARACTER 63
                                                 ; $3f
                                                 ; 00011000      **   
