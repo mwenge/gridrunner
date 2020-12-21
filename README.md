@@ -1,7 +1,11 @@
 # Gridrunner by Jeff Minter
 
+<img src="https://www.mobygames.com/images/covers/l/34991-gridrunner-commodore-64-front-cover.jpg" width=200>
+
+
 This is the disassembled and [commented source code] for the 1982 Commodore 64 port of Gridrunner by Jeff Minter. 
-A version of the game you can play in your browser can be found at [gridrunner.xyz].
+
+A version of the game you can play in your browser can be found at [https://gridrunner.xyz].
 
 ## Requirements
 
@@ -10,7 +14,7 @@ A version of the game you can play in your browser can be found at [gridrunner.x
 
 [64tass]: http://tass64.sourceforge.net/
 [vice]: http://vice-emu.sourceforge.net/
-[gridrunner.xyz]: https://mwenge.github.io/gridrunner.xyz
+[https://gridrunner.xyz]: https://mwenge.github.io/gridrunner.xyz
 [commented source code]:https://github.com/mwenge/gridrunner/blob/master/src/gridrunner.asm
 To compile and run it do:
 
