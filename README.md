@@ -41,8 +41,11 @@ Other than that, outright step-by-step documentation of how to disassemble a C64
 [Attack of the Mutant Camels]: https://github.com/C64-Mark/Attack-of-the-Mutant-Camels
 
 ## History of Gridrunner
-The game circulates in many forms since it's original release in 1982. This disassembled version is derived from the version made available by Jeff Minter in `Llamasoft1.d64`.
+The game circulates in many forms since it's original release on the VIC 20 in 1982. This disassembled version is derived from the version made available by Jeff Minter in `Llamasoft1.d64`. Presumably Minter ported it himself, and presumably it was a largely copy and paste job. Obviously, the disassembled code will only superficially resemble the 'real' source code, if such a thing still exists. This is 'obvious', because the disassembly will include lots of artefacts to do with loading the game and moving memory around to cope with the fact that is going to be loaded from a cartridge (as we will see later). In the main though, it does seem to be possible to reverse engineer the code enough to get a sense of the coding style. The game was coded by a 20 year old Minter in a single week: "the best week of work I've ever done" according to [this interview with Beta].
 
+Gridrunner went on to become a Llamasoft franchise. Minter reimagined the game on multiple platforms including the ATari ST, the Amiga, Windows (Gridrunner++ and Gridrunner Revolution). So given its distinguished subsequent history it seems worthwhile to dig up the source of the C64/VIC20 version and see what it looks like. Of course, if I was doing this again I would disassemble the actual VIC20 version rather than the C64 port, but it's too late now!
+
+[this interview with Beta]: https://b3ta.com/interview/jeffminter/
 ## Starting the Disassembly
 A guiding principle in the disassembly effort is to ensure the disaseembled and commented source we create can be complied to a byte-for-byte copy of the original `gridrunner.prg` binary in the `orig` folder. So when we compile it we always ensure that the md5sums of the compiled binary and the original match. Doing this greatly simplifies the disassembly process, ensuring any false steps in the disassembly process are found quickly!
 
@@ -387,6 +390,91 @@ And here's the iconic Gridrunner ship:
                                         ; 11000011   **    ** 
 ```
 I used a simple [Python script] to create this commented version of each character.
+
+## Identifying other Data
+
+With the character sets identified, it became much easier to pick through the disassembly and identify other game data.
+
+For example, the text on the title menu:
+
+```asm
+;CopyrightLine                                            
+        .BYTE $3C,$3D,$20,$31,$39,$38,$32,$20 ; (c) 1982  
+        .BYTE $2B,$27,$2F,$20,$20,$2E,$22,$27 ; HES  PRE  
+        .BYTE $2F,$2F,$20,$2A,$24,$22,$27,$20 ; SS FIRE   
+        .BYTE $3A,$30,$20,$29,$27,$21,$24,$26 ; TO BEGIN  
+ByJeffMinter                                                                                 
+       .BYTE $29,$1B,$20,$2C,$27,$2A,$2A,$20,$2D,$24,$26,$3A,$27,$22,$20 ; "BY JEFF MINTER " 
+       NOP                                                                                   
+EnterLevelText                                                                               
+       .BYTE $27,$26,$3A,$27,$22,$20,$3E,$27,$3B,$27,$3E,$20,$30,$30,$20 ; "ENTER LEVEL 00 " 
+```
+You can see that each of the byte values corresponds to the character's index in the character set. So this isn't ASCII text being used to display the title screen text, it's character set bytes.
+
+Now I could start to identify sections of the code relating to recognizable sequences in the game play, such as the interstitial displayed between levels:
+
+```asm
+;--------------------------------------------------------------                                                       
+; DisplayNewLevelInterstitial                                                                                         
+;--------------------------------------------------------------                                                       
+        LDX #$F6                                                                                                      
+        TXS                                                                                                           
+        JSR ClearScreen                                                                                               
+        LDX #$12                                                                                                      
+                                                                                                                      
+CopyLevelTextLoop                                                                                                     
+        LDA BattleStations,X                                                                                          
+        STA SCREENRAM + $FD,X                                                                                         
+        LDA #$0E                                                                                                      
+        STA COLOURRAM + $FD,X                                                                                         
+        LDA EnterGridArea,X                                                                                           
+        STA SCREENRAM + $014D,X                                                                                       
+        LDA #$01                                                                                                      
+        STA COLOURRAM + $014D,X                                                                                       
+        DEX                                                                                                           
+        BNE CopyLevelTextLoop                                                                                         
+        JMP IncrementLives                                                                                            
+                                                                                                                      
+;BattleStations                                                                                                       
+        .BYTE $20,$29,$28,$3A,$3A,$3E,$27,$20,$20,$2F,$3A,$28,$3A,$24,$30,$26,$2F ; "BATTLE  STATIONS"                
+;EnterGridArea                                                                                                        
+        .BYTE $20,$27,$26,$3A,$27,$22,$20,$21,$22,$24,$25,$20,$28,$22,$27,$28,$20,$30,$30 ; "ENTER GRID AREA 00"      
+                                                                                                                      
+;IncrementLives                                                                                                       
+        INC LivesDisplay                                                                                              
+        LDA LivesDisplay                                                                                              
+        CMP #$3A                                                                                                      
+        BNE b1582                                                                                                     
+        DEC LivesDisplay                                                                                              
+b1582   INC SelectedLevel                                                                                             
+        LDA SelectedLevel                                                                                             
+        CMP #$20             ; There are only 31 levels.                                                              
+        BNE LoadNextLevel                                                                                             
+        DEC SelectedLevel                                                                                             
+LoadNextLevel                                                                                                         
+        LDX SelectedLevel                                                                                             
+        LDA LevelData1,X                                                                                              
+        STA a2A                                                                                                       
+        LDA LevelData2,X                                                                                              
+        STA a2B                                                                                                       
+        LDA LevelData3,X                                                                                              
+        STA a34                                                                                                       
+                                                                                                                      
+; Increment the level displayed in 'ENTER GRID AREA XX'                                                               
+IncrementLevel                                                                                                        
+        INC LevelDisplayByte2                                                                                         
+        LDA LevelDisplayByte2                                                                                         
+        CMP #$3A  ; Has the byte overflowed from 9 to 0? If so increment to '10'.                                     
+        BNE IL_ADJUST                                                                                                 
+        LDA #$30 ; "0"                                                                                                
+
+```
+
+![image](https://user-images.githubusercontent.com/58846/102816326-c0f78f80-43c5-11eb-9574-6776343b95b7.png)
+
+
+## Starting to Understand the Code
+
 
 [Python script]:https://github.com/mwenge/gridrunner/blob/master/ConvertCharSetToBinary.py
 [C64 CharSet]:https://www.c64-wiki.com/wiki/Character_set
