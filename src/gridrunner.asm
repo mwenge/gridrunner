@@ -19,8 +19,8 @@ fC9 = $C9
 ;
 ; **** ZP ABSOLUTE ADRESSES **** 
 ;
-ShipXPosition = $02
-ShipYPosition = $03
+zpLo2 = $02
+zpHi2 = $03
 charToPlot = $04
 colourToPlot = $05
 zpLo3 = $06
@@ -220,8 +220,8 @@ e8AA4 = $8AA4
 e8AC1 = $8AC1
 e8AC8 = $8AC8
 DrawGridCharAtOldPos = $8ADE
-e8AE9 = $8AE9
-e8AF8 = $8AF8
+CheckForShipCollision = $8AE9
+CheckForCollisions = $8AF8
 PlayFadeSound = $8B24
 e8B60 = $8B60
 PlayExplosionAndStartNewLevel = $8BB1
@@ -236,7 +236,7 @@ PlayNewLevelMusic = $8D16
 JumpToDisplayTitleScreen = $8D57
 UpdateLivesAndRestartLevel = $8D5E
 SetSoundVolumeToMax = $8D70
-DrawGridCharAtOldPosImpl = $8D78
+DrawGridCharAtOldPosAndCheckCollisionsImpl = $8D78
 DisplayTitleScreen = $8D8E
 e8DC0 = $8DC0
 Start_Game = $8DC6
@@ -253,10 +253,10 @@ ROM_CHROUT = $FFD2
 
 ;------------------------------------------------------------------------------------
 ; 10 SYS 2061
-; Used to execute the code at address $080d (2061).
+; Used to execute the code at address $080d (2061 in hex).
 ;------------------------------------------------------------------------------------
         .BYTE $0B,$08 ;ANC #$08
-        .BYTE $0A,$00,$9E,$32,$30,$36,$31,$00 ; SYS 2061
+        .BYTE $0A,$00,$9E,$32,$30,$36,$31,$00 ; 10 SYS 2061
         .BYTE $00,$00
 ;------------------------------------------------------------------------------------
 ; Copies the game code from $0900 to $8000 and starts executing code
@@ -300,14 +300,18 @@ CopyDataLoop
 
 ;------------------------------------------------------------------------------------
 ; InitializeDataAndGame
-; Copies more data to $2100. This is the site of some duplicated code and game data.
-; Not sure what's going on here.
+; Initialize the bytes at $2100. Part of the character set will later get loaded at
+; that address.
 ;------------------------------------------------------------------------------------
+
+; I think X is 00 here, so this will copy the value in A to the first 256 bytes after
+; $2100.
         CMP (p83,X)
-b0902   .byte $E2,$83,$00,$00,$00,$00,$00,$00,$8F
+IDG_LOOP
+       .byte $E2,$83,$00,$00,$00,$00,$00,$00,$8F ; Not sure how this data is skipped.
         STA $2100,X 
         DEX 
-        BNE b0902
+        BNE IDG_LOOP
         JMP InitializeGame
         NOP 
 
@@ -316,9 +320,7 @@ b0902   .byte $E2,$83,$00,$00,$00,$00,$00,$00,$8F
         CPX #$07                ; The score is 7 characters long
         BNE UpdateScore
         JMP DisplayTitleScreen
-        NOP 
-        NOP 
-        NOP 
+        .BYTE $EA,$EA,$EA ; NOPs
 
 ; e8020
         JSR GetCurrentChar
@@ -328,11 +330,7 @@ b0902   .byte $E2,$83,$00,$00,$00,$00,$00,$00,$8F
 
 ;e8028
         JMP DrawGridCharAtOldPos
-        NOP 
-        NOP 
-        NOP 
-        NOP 
-        NOP 
+        .BYTE $EA,$EA,$EA,$EA,$EA ;NOPs
 ;e8030
         AND #$1F
         CMP #$18
@@ -459,18 +457,23 @@ b09F7   LDA SysKeyCode_C5
 ;--------------------------------------------------------------
 ;InitializeGame
 ;--------------------------------------------------------------
-        LDA #>pD000
-        STA ShipYPosition
-        LDA #<pD000
-        STA ShipXPosition
+
+; Init_Chars
+; $D018 must be set to point to the address of the custom character
+; set that we loaded to $2000. So do that.
+        LDA #$D0
+        STA zpHi2
+        LDA #$00
+        STA zpLo2
         LDY #$18
         TYA 
-        STA (ShipXPosition),Y
+        STA (zpLo2),Y
         LDY #$20
         LDA #$00
-        STA (ShipXPosition),Y
+        STA (zpLo2),Y
         INY 
-        STA (ShipXPosition),Y
+        STA (zpLo2),Y
+
         LDA #$0A
         STA $D401    ;Voice 1: Frequency Control - High-Byte
         STA $D405    ;Voice 1: Attack / Decay Cycle Control
@@ -482,28 +485,28 @@ b09F7   LDA SysKeyCode_C5
         STA $D408    ;Voice 2: Frequency Control - High-Byte
         LDX #$00
         LDA #<SCREENRAM
-        STA ShipXPosition
+        STA zpLo2
         LDA #>SCREENRAM
-        STA ShipYPosition
+        STA zpHi2
 SetScreenPointersLoop
-        LDA ShipXPosition
+        LDA zpLo2
         STA SCREEN_PTR_LO,X
-        LDA ShipYPosition
+        LDA zpHi2
         STA SCREEN_PTR_HI,X
         LDY #$00
         LDA #$20
 NextRow
-        STA (ShipXPosition),Y
+        STA (zpLo2),Y
         INY 
         CPY #$28
         BNE NextRow
-        LDA ShipXPosition
+        LDA zpLo2
         CLC 
         ADC #$28
-        STA ShipXPosition
-        LDA ShipYPosition
+        STA zpLo2
+        LDA zpHi2
         ADC #$00
-        STA ShipYPosition
+        STA zpHi2
         INX 
         CPX #$18
         BNE SetScreenPointersLoop
@@ -513,10 +516,10 @@ NextRow
 ;-------------------------------------------------------------------------------
 ; Screen_GetPointer
 ; Uses the screen pointer array to fetch screen address based on an X and Y 
-; value stored in ShipYPosition and ShipXPosition before the routine is called
+; value stored in zpHi2 and zpLo2 before the routine is called
 ;-------------------------------------------------------------------------------
-        LDX ShipYPosition
-        LDY ShipXPosition
+        LDX zpHi2
+        LDY zpLo2
         LDA SCREEN_PTR_LO,X
         STA zpLo3
         LDA SCREEN_PTR_HI,X
@@ -572,9 +575,9 @@ b0AAE   LDA #$00
         LDA #$02
         STA a09
 b0ABC   LDA a09
-        STA ShipYPosition
+        STA zpHi2
         LDA a08
-        STA ShipXPosition
+        STA zpLo2
         JSR Screen_Plot
         JSR PlaySomeSound
         INC a09
@@ -598,9 +601,9 @@ b0ADA   DEX
 b0AED   LDA #$01
         STA a09
 b0AF1   LDA a09
-        STA ShipXPosition
+        STA zpLo2
         LDA a08
-        STA ShipYPosition
+        STA zpHi2
         JSR Screen_Plot
         JSR PlaySomeSound
         INC a09
@@ -673,28 +676,28 @@ b0B40   LDA a08
         LDA #$81
         STA $D40B    ;Voice 2: Control Register
         LDA #$15
-        STA ShipYPosition
+        STA zpHi2
         LDA #$14
         CLC 
         SBC a0A
-        STA ShipXPosition
+        STA zpLo2
         JSR Screen_Plot
         LDA #$14
         CLC 
         ADC a0A
-        STA ShipXPosition
+        STA zpLo2
         JSR Screen_Plot
-        LDA ShipYPosition
+        LDA zpHi2
         CLC 
         SBC a0A
-        STA ShipYPosition
+        STA zpHi2
         JSR Screen_Plot
         LDA #$14
-        STA ShipXPosition
+        STA zpLo2
         JSR Screen_Plot
         LDA #$14
         SBC a0A
-        STA ShipXPosition
+        STA zpLo2
         JSR Screen_Plot
         INC charToPlot
         LDA charToPlot
@@ -711,25 +714,25 @@ b0BB2   JSR SpinForCyclesIn0A
         LDA #>p0800
         STA colourToPlot
         LDA #$14
-        STA ShipXPosition
+        STA zpLo2
         JSR Screen_Plot
         LDA #$14
         CLC 
         SBC a0A
-        STA ShipXPosition
+        STA zpLo2
         JSR Screen_Plot
         LDA #$14
         CLC 
         ADC a0A
-        STA ShipXPosition
+        STA zpLo2
         JSR Screen_Plot
         LDA #$15
-        STA ShipYPosition
+        STA zpHi2
         JSR Screen_Plot
         LDA #$14
         CLC 
         SBC a0A
-        STA ShipXPosition
+        STA zpLo2
         JMP DrawMaterializeShip ; Jumps to MaterializeShipLoop
         ; This will eventually RTS from DrawMaterializeShip
 
@@ -913,9 +916,9 @@ b0D1A   LDA #<p0D07
         LDA #>p0D07
         STA colourToPlot
         LDA #>p1514
-        STA ShipYPosition
+        STA zpHi2
         LDA #<p1514
-        STA ShipXPosition
+        STA zpLo2
         JSR Screen_Plot
         LDA #$0F
         STA $D418    ;Select Filter Mode and Volume
@@ -960,9 +963,9 @@ b0D65   JSR SpinForCyclesIn0A
 
 b0D75   JSR CheckJoy
         LDA ShipPreviousXPosition
-        STA ShipXPosition
+        STA zpLo2
         LDA ShipPreviousYPosition
-        STA ShipYPosition
+        STA zpHi2
         JSR GetCurrentChar
         CMP #$07                   ; Ship
         BEQ IsShip
@@ -975,48 +978,48 @@ IsShip   LDA #<p0800
         LDA InputJoy
         AND #JOY_UP
         BEQ CheckJoyDown
-        DEC ShipYPosition
-        LDA ShipYPosition
+        DEC zpHi2
+        LDA zpHi2
         CMP #$0E
         BNE CheckJoyDown
         LDA #$0F
-        STA ShipYPosition
+        STA zpHi2
 CheckJoyDown
         LDA InputJoy
         AND #JOY_DOWN
         BEQ CheckJoyLeft
-        INC ShipYPosition
-        LDA ShipYPosition
+        INC zpHi2
+        LDA zpHi2
         CMP #$16
         BNE CheckJoyLeft
         LDA #$15
-        STA ShipYPosition
+        STA zpHi2
 CheckJoyLeft
          LDA InputJoy
         AND #JOY_LEFT
         BEQ CheckJoyRight
-        DEC ShipXPosition
-        LDA ShipXPosition
+        DEC zpLo2
+        LDA zpLo2
         CMP #$00
         BNE CheckJoyRight
         LDA #$01
-        STA ShipXPosition
+        STA zpLo2
 CheckJoyRight
         LDA InputJoy
         AND #JOY_RIGHT
         BEQ b0DDD
-        INC ShipXPosition
-        LDA ShipXPosition
+        INC zpLo2
+        LDA zpLo2
         CMP #$27
         BNE b0DDD
         LDA #$26
-        STA ShipXPosition
+        STA zpLo2
 b0DDD   JSR GetCurrentChar
         BEQ b0DE5
         JSR CheckIfBlockedByPod_CA
-b0DE5   LDA ShipXPosition
+b0DE5   LDA zpLo2
         STA ShipPreviousXPosition
-        LDA ShipYPosition
+        LDA zpHi2
         STA ShipPreviousYPosition
         LDA #>p0D07
         STA colourToPlot
@@ -1053,9 +1056,9 @@ p0E02   =*+$01
         LDA #>p4008
         STA a13
 b0E22   LDA a10
-        STA ShipXPosition
+        STA zpLo2
         LDA a11
-        STA ShipYPosition
+        STA zpHi2
         JSR GetCurrentChar
         CMP a12
         BEQ b0E38
@@ -1082,7 +1085,7 @@ b0E38   LDA #>p0800
 b0E58   LDA #$08
         STA a12
 b0E5C   LDA a11
-        STA ShipYPosition
+        STA zpHi2
         JSR GetCurrentChar
         BEQ b0E68
         JSR e87CB
@@ -1127,9 +1130,9 @@ b0EA2   DEC a14
         LDA #$02
         STA a14
         LDA #$00
-        STA ShipXPosition
+        STA zpLo2
         LDA a15
-        STA ShipYPosition
+        STA zpHi2
         LDA #$20
         STA charToPlot
         JSR Screen_Plot
@@ -1140,16 +1143,16 @@ b0EA2   DEC a14
         LDA #$03
         STA a15
 b0EC5   LDA a15
-        STA ShipYPosition
+        STA zpHi2
         LDA #WHITE                 
         STA colourToPlot
         LDA #$01                 ; Y Zapper
         STA charToPlot
         JSR Screen_Plot
         LDA #$16
-        STA ShipYPosition
+        STA zpHi2
         LDA a16
-        STA ShipXPosition
+        STA zpLo2
         LDA #$20
         JSR e85F8
         INC a16
@@ -1159,7 +1162,7 @@ b0EC5   LDA a15
         LDA #$01
         STA a16
 b0EED   LDA a16
-        STA ShipXPosition
+        STA zpLo2
         LDA #$02                ; X Zapper
         STA charToPlot
         JMP e85FD
@@ -1221,18 +1224,18 @@ b0F4E   LDA #$01
         LDA #$15
         STA a1D
 b0F5A   LDA a1D
-        STA ShipYPosition
+        STA zpHi2
         LDA a1C
-        STA ShipXPosition
+        STA zpLo2
         JSR Screen_Plot
         DEC a1D
         LDA a1D
         CMP #$02
         BNE b0F5A
         LDA a1A
-        STA ShipYPosition
+        STA zpHi2
         LDA a1B
-        STA ShipXPosition
+        STA zpLo2
         JSR GetCurrentChar
         CMP a19
         BEQ b0FA2
@@ -1243,7 +1246,7 @@ b0F5A   LDA a1D
         JSR Screen_Plot
         INC a1B
         LDA a1B
-        STA ShipXPosition
+        STA zpLo2
         JSR e8020
         CMP a19
         BEQ b0FA2
@@ -1256,20 +1259,20 @@ b0F5A   LDA a1D
         JMP Screen_Plot
 
 b0FA2   LDA #$15
-        STA ShipYPosition
+        STA zpHi2
         LDA a1C
-        STA ShipXPosition
+        STA zpLo2
         LDA #>p0800
         STA colourToPlot
         LDA #<p0800
         STA charToPlot
 b0FB2   JSR Screen_Plot
-        DEC ShipYPosition
-        LDA ShipYPosition
+        DEC zpHi2
+        LDA zpHi2
         CMP #$02
         BNE b0FB2
         LDA a1A
-        STA ShipYPosition
+        STA zpHi2
         LDA #>p070F
         STA colourToPlot
         LDA #<p070F
@@ -1383,23 +1386,23 @@ b1068   DEX
 
 ;e876C
         LDA f0FFF,X
-        STA ShipXPosition
+        STA zpLo2
         LDA PodDecaySequence,X
-        STA ShipYPosition
+        STA zpHi2
         LDY #$00
-        LDA (ShipXPosition),Y
+        LDA (zpLo2),Y
         CMP #$07
         BNE b1081
         JMP DrawGridCharAtOldPos
 
 b1081   LDA #$00
-        STA (ShipXPosition),Y
-        LDA ShipYPosition
+        STA (zpLo2),Y
+        LDA zpHi2
         CLC 
         ADC #$D4
-        STA ShipYPosition
+        STA zpHi2
         LDA #$08
-        STA (ShipXPosition),Y
+        STA (zpLo2),Y
         LDA f0FFF,X
         CLC 
         ADC #$28
@@ -1407,10 +1410,10 @@ b1081   LDA #$00
         LDA PodDecaySequence,X
         ADC #$00
         STA PodDecaySequence,X
-        STA ShipYPosition
+        STA zpHi2
         LDA f0FFF,X
-        STA ShipXPosition
-        LDA (ShipXPosition),Y
+        STA zpLo2
+        LDA (zpLo2),Y
         CMP #$20
         BNE b10B4
         LDA #$FF
@@ -1422,13 +1425,13 @@ b10B4   CMP #$07
         JMP DrawGridCharAtOldPos
 
 b10BB   LDA #$0A
-        STA (ShipXPosition),Y
-        LDA ShipYPosition
+        STA (zpLo2),Y
+        LDA zpHi2
         CLC 
         ADC #$D4
-        STA ShipYPosition
+        STA zpHi2
         LDA #$01
-        STA (ShipXPosition),Y
+        STA (zpLo2),Y
         RTS 
 ;e87CB
         LDX #$07
@@ -1580,9 +1583,9 @@ b11CE   LDA #$80
         STA Snake
 b11E6   STX a27
         LDA f10FF,X
-        STA ShipXPosition
+        STA zpLo2
         LDA f11FF,X
-        STA ShipYPosition
+        STA zpHi2
         LDA #<p0800
         STA charToPlot
         LDA #>p0800
@@ -1598,9 +1601,9 @@ f11FF   LDA f12FF,X
         STA f10FF,X
         LDA f11FE,X
         STA f11FF,X
-        STA ShipYPosition
+        STA zpHi2
         LDA f10FF,X
-        STA ShipXPosition
+        STA zpLo2
 
         ; Paint the snake
         LDA #CYAN
@@ -1617,16 +1620,16 @@ f11FF   LDA f12FF,X
 b122A   LDA f12FF,X
         AND #$02
         BNE b1235
-        INC ShipXPosition
-        INC ShipXPosition
-b1235   DEC ShipXPosition
+        INC zpLo2
+        INC zpLo2
+b1235   DEC zpLo2
         JSR GetCurrentChar
         BEQ b1290
         LDX a27
-        JSR e8AE9
-        STA ShipXPosition
-        INC ShipYPosition
-        LDA ShipYPosition
+        JSR CheckForShipCollision
+        STA zpLo2
+        INC zpHi2
+        LDA zpHi2
         CMP #$16
         BNE b1262
         LDA f12FF,X
@@ -1643,9 +1646,9 @@ b1262   LDA f12FF,X
         EOR #$03
         STA f12FF,X
 ;e896A
-        LDA ShipXPosition
+        LDA zpLo2
         STA f10FF,X
-        LDA ShipYPosition
+        LDA zpHi2
         STA f11FF,X
         LDA #$03
         STA colourToPlot
@@ -1695,9 +1698,9 @@ b12AD   CMP PodDecaySequence_CA,X
         JMP ReturnIfBulletOrGrid
 
 b12B8   LDA ShipPreviousXPosition
-        STA ShipXPosition
+        STA zpLo2
         LDA ShipPreviousYPosition
-        STA ShipYPosition
+        STA zpHi2
         RTS 
 
 ;-------------------------------------------------------------------------------
@@ -1772,14 +1775,14 @@ b1328   LDX #$04
         PLA 
         LDX a24
 b1337   LDA f10FF,X
-        CMP ShipXPosition
+        CMP zpLo2
         BEQ b1342
 b133E   DEX 
         BNE b1337
         RTS 
 
 b1342   LDA f11FF,X
-        CMP ShipYPosition
+        CMP zpHi2
         BNE b133E
         LDA f12FF,X
         AND #$C0
@@ -1857,26 +1860,26 @@ b13CD   LDA a24
         JMP DisplayNewLevelInterstitial
         JSR GetCurrentChar
         CMP #SHIP_CHR
-        BEQ DrawGridChrAtOldPos
+        BEQ DrawGridChrAtOldPosAndCheckCollisions
         JMP Screen_Plot
 
 ;DrawGridCharAtOldPos
-DrawGridChrAtOldPos
+DrawGridChrAtOldPosAndCheckCollisions
         LDX #$F6
         TXS 
         NOP 
         NOP 
         NOP 
-        JMP DrawGridCharAtOldPosImpl
+        JMP DrawGridCharAtOldPosAndCheckCollisionsImpl
         RTS 
 
         NOP 
 
 ;--------------------------------------------------------------
-;e8AE9
+;CheckForShipCollision
 ;--------------------------------------------------------------
         CMP #SHIP_CHR
-        BEQ DrawGridChrAtOldPos
+        BEQ DrawGridChrAtOldPosAndCheckCollisions
         LDA f10FF,X
 b13F0   RTS 
 
@@ -1885,7 +1888,7 @@ b13F0   RTS
         JMP DrawGridCharAtOldPos  ; Never Reached
 
 ;--------------------------------------------------------------
-;e8AF8
+;CheckForCollisions
 ;--------------------------------------------------------------
 ; Set the volume for sounds played, this will be used to create a
 ; fade-out effect.
@@ -1939,9 +1942,9 @@ CTD_YLOOP
         STA charToPlot
 GCD_DRAW_X
         LDA f1500,X
-        STA ShipXPosition
+        STA zpLo2
         LDA LevelData3FromLevel13,X
-        STA ShipYPosition
+        STA zpHi2
         STX GRID_CHRS_TO_DRAW
         JSR GetCurrentChar
         CMP CTR_22
@@ -1981,9 +1984,9 @@ b147F   JSR e8040
 b148E   INC LevelData3FromLevel13,X
 b1491   JSR e8056
         LDA f1500,X
-        STA ShipXPosition
+        STA zpLo2
         LDA LevelData3FromLevel13,X
-        STA ShipYPosition
+        STA zpHi2
         LDA #$01
         STA colourToPlot
         LDA CTR_22
@@ -2225,17 +2228,17 @@ NewLevelSoundLoop             ; Play the level sounds
         STA $D418    ;Select Filter Mode and Volume
         JMP PlayNewLevelMusic
 
-;DrawGridCharAtOldPosImpl
+;DrawGridCharAtOldPosAndCheckCollisionsImpl
         LDA #$00 ; Grid character
         STA charToPlot
         LDA #ORANGE
         STA colourToPlot
         LDA ShipPreviousXPosition
-        STA ShipXPosition
+        STA zpLo2
         LDA ShipPreviousYPosition
-        STA ShipYPosition
+        STA zpHi2
         JSR Screen_Plot
-        JMP e8AF8
+        JMP CheckForCollisions
 
 ;-----------------------------------------------------
 ; DisplayTitleScreen
@@ -2293,8 +2296,9 @@ b16BA   CMP #JOY1_UP
         .BYTE $27,$26,$3A,$27,$22,$20,$3E,$27,$3B,$27,$3E,$20,$30,$30,$20 ; "ENTER LEVEL 00 "
 
 ;-----------------------------------------------------
-;CharSet1
+; The character set data for the game!
 ;-----------------------------------------------------
+        ;CharSet1
         GRID_CHR = $00
         .BYTE $18,$18,$18,$18,$FF,$18,$18,$18 ; CHARACTER 0
                                                 ; $00
