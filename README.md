@@ -374,7 +374,7 @@ Once I had a list of byte statements I read up on how the character set values a
 
 And here's the iconic Gridrunner ship:
 
-``asm
+```asm
 .BYTE $18,$3C,$66,$18,$7E,$FF,$E7,$C3 ; CHARACTER 7           
                                         ; $07                 
                                         ; 00011000      **    
