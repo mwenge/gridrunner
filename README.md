@@ -1,6 +1,6 @@
 # Gridrunner by Jeff Minter
 
-This is the disassembled and commented source code for the 1982 Commodore 64 port of Gridrunner by Jeff Minter. 
+This is the disassembled and [commented source code] for the 1982 Commodore 64 port of Gridrunner by Jeff Minter. 
 A version of the game you can play in your browser can be found at [gridrunner.xyz].
 
 ## Requirements
@@ -11,7 +11,7 @@ A version of the game you can play in your browser can be found at [gridrunner.x
 [64tass]: http://tass64.sourceforge.net/
 [vice]: http://vice-emu.sourceforge.net/
 [gridrunner.xyz]: https://mwenge.github.io/gridrunner.xyz
-
+[commented source code]:https://github.com/mwenge/gridrunner/blob/master/src/gridrunner.asm
 To compile and run it do:
 
 ```sh
@@ -29,7 +29,9 @@ $ make gridrunner
 # Disassembling the Game
 
 ## Introduction
-A quick glance at the disassembled source will tell you that I haven't untangled everything in there yet. Maybe I will get bored and stop chipping away at it, however the bones of the disasssembled code are well defined and it is possible to follow the high-level game flow. So before I lose interest in it and move onto the next thing I'm writing up the disassembly process while it is still fresh in my mind.
+A quick glance at the [disassembled source] will tell you that I haven't untangled everything in there yet. Maybe I will get bored and stop chipping away at it, however the bones of the disasssembled code are well defined and it is possible to follow the high-level game flow. So before I lose interest in it and move onto the next thing I'm writing up the disassembly process while it is still fresh in my mind.
+
+[disassembled source]:https://github.com/mwenge/gridrunner/blob/master/src/gridrunner.asm
 
 I came here because I tried to disassemble one of Minter's other games, Iridis Alpha, with no knowledge of 6502 assembly or the Commodore 64 architecture, and quickly realized I need to try something smaller (and presumably less complex) first.
 
@@ -43,7 +45,7 @@ Other than that, outright step-by-step documentation of how to disassemble a C64
 ## History of Gridrunner
 The game circulates in many forms since it's original release on the VIC 20 in 1982. This disassembled version is derived from the version made available by Jeff Minter in `Llamasoft1.d64`. Presumably Minter ported it himself, and presumably it was a largely copy and paste job. Obviously, the disassembled code will only superficially resemble the 'real' source code, if such a thing still exists. This is 'obvious', because the disassembly will include lots of artefacts to do with loading the game and moving memory around to cope with the fact that is going to be loaded from a cartridge (as we will see later). In the main though, it does seem to be possible to reverse engineer the code enough to get a sense of the coding style. The game was coded by a 20 year old Minter in a single week: "the best week of work I've ever done" according to [this interview with Beta].
 
-Gridrunner went on to become a Llamasoft franchise. Minter reimagined the game on multiple platforms including the ATari ST, the Amiga, Windows (Gridrunner++ and Gridrunner Revolution). So given its distinguished subsequent history it seems worthwhile to dig up the source of the C64/VIC20 version and see what it looks like. Of course, if I was doing this again I would disassemble the actual VIC20 version rather than the C64 port, but it's too late now!
+Gridrunner went on to become something of a Llamasoft franchise. Minter reimagined the game on multiple platforms including the ATari ST, the Amiga, Windows (Gridrunner++ and Gridrunner Revolution). So given its distinguished subsequent history it seems worthwhile to dig up the source of the C64/VIC20 version and see what it looks like. Of course, if I was doing this again I would disassemble the actual VIC20 version rather than the C64 port, but that would have required knowledge and forethought.
 
 [this interview with Beta]: https://b3ta.com/interview/jeffminter/
 ## Starting the Disassembly
@@ -153,7 +155,7 @@ The clue here is the frequent occurence of '.BYTE' sequences in the disassembly 
                                                                                     
 ```
 
-As the comment says, I later guessed that this section must have something to do with the cartridge the game was distributed on. Poking around the [C64 wiki] I found that Cartridge ROM lives at $8000, so a previous section in the disassembled code started to make sense:
+As the comment says, I later guessed that this section must have something to do with the cartridge the game was distributed on. Poking around the [C64 wiki] I found that Cartridge ROM lives at `$8000`, so a previous section in the disassembled code started to make sense:
 
 ```asm
 ;------------------------------------------------------------------------------------   
@@ -184,7 +186,7 @@ CopyDataLoop
         JMP (InitializeDataAndGame)                                                     
 ```                                                                                        
 
-It's reasonable to ask what I mean by 'at $8000'. The remarkable thing about the C64 is its simplicity. When programs run they have access to the 64K (65,532 bytes) of memory. This entire memory map 'lives' in the address space $0000 to $FFFF. So $0001 is the second byte in the memory bank ($0000 is the first), while $0010 is the 17th byte in the memory bank. Each address stores a single byte. Throughout the disassembly process and while attempting to rewrite the `gridrunner.prg` binary we are going to get very used to thinking of everything in hexadecimal so you just have to imagine that at each of the 65,532 locations a single byte can stored and retrieved. 
+It's reasonable to ask what I mean by 'at `$8000`'. The remarkable thing about the C64 is its simplicity. When programs run they have access to the 64K (65,532 bytes) of memory. This entire memory map 'lives' in the address space `$0000` to `$FFFF`. So `$0001` is the second byte in the memory bank (`$0000` is the first), while `$0010` is the 17th byte in the memory bank. Each address stores a single byte. Throughout the disassembly process and while attempting to rewrite the `gridrunner.prg` binary we are going to get very used to thinking of everything in hexadecimal so you just have to imagine that at each of the 65,532 locations a single byte can stored and retrieved. 
 
 The first two bytes in `gridrunner.prg` give the address it should be loaded at. You can see this when you load the file in a hex editor:
 
@@ -199,9 +201,9 @@ The first two bytes in `gridrunner.prg` give the address it should be loaded at.
 00000070: 3420 2434 3822 2020 2020 5052 4720 2000  4 $48"    PRG  .
 ```
 
-That '0108' is the little-endian (lo-hi, wrong-way round) expression for $0801. Telling the C64 to load all the data that follows in the prg from $0801 onwards in its memory map.
+That `0108` is the little-endian (lo-hi, wrong-way round) expression for `$0801`. Telling the C64 to load all the data that follows in the prg from `$0801` onwards in its memory map.
 
-The ASCII rendering of the first few bytes gives us a clue that some of it is 'text'. The '2061' is another clue. It turns out that in order to execute the program first few instructions are a BASIC instruction: '10 SYS 2061'. 2061 is decimal for $080D. So what this instruction means is: execute the code at address $080D.
+The ASCII rendering of the first few bytes gives us a clue that some of it is 'text'. The '2061' is another clue. It turns out that in order to execute the program first few instructions are a BASIC instruction: '10 SYS 2061'. 2061 is decimal for `$080D`. So what this instruction means is: execute the code at address `$080D`.
 
 ```asm
 * = $0801                                                                             
@@ -293,7 +295,7 @@ The loop is much longer and jumps around a bit in the code before circling back 
 
 What I would have done next though, had I known how to do it, is identify the game's character set data. For a game like Gridrunner, which doesn't have any sprites, this character set data unlocks a lot of the games mechanics once you have extracted it and know what to look for elsewhere in the program. For example, once you know that the Gridrunner itself (i.e. the player's ship) is stored at index $07 in the character set you can look for lines in the disassembly where it is referenced and see if this is where the ship is being moved.
 
-The way to go about identifying where the character set data is in the disassembly is to look for lines that set the address at $D018 to point to the place where the character set has been loaded. If a program has a custom character set, $D018 must contain the address where that set was loaded to memory. In the case of Gridrunner we see that the address where the character set was loaded is $2000:
+The way to go about identifying where the character set data is in the disassembly is to look for lines that set the address at `$D018` to point to the place where the character set has been loaded. If a program has a custom character set, `$D018` must contain the address where that set was loaded to memory. In the case of Gridrunner we see that the address where the character set was loaded is `$2000`:
 
 ```asm
  Init_Chars                                                       
@@ -313,7 +315,7 @@ The way to go about identifying where the character set data is in the disassemb
        STA (zpLo2),Y                                              
 ```
 
-Searching the raw disassembly we find where it was loaded to $2000 from:
+Searching the raw disassembly we find where it was loaded to `$2000` from:
 
 ```asm
 1BEC: A2 00               LDX #$00      
@@ -326,7 +328,7 @@ Searching the raw disassembly we find where it was loaded to $2000 from:
 1BFD: 4C 00 81            JMP e8100     
 ```
 
-So $8E00 and $8F00. Now, given that the program was copied from $0900 to $8000 when the game was loaded we have to apply an offset to find the appropriate spot in the raw disassmbly of `gridrunner.prg`. This offset in the raw disassembly is $1700:
+So `$8E00` and `$8F00`. Now, given that the program was copied from `$0900` to `$8000` when the game was loaded we have to apply an offset to find the appropriate spot in the raw disassmbly of `gridrunner.prg`. This offset in the raw disassembly is `$1700`:
 
 ```asm
 $16FF: 20 18 18            JSR s1818                          
