@@ -196,15 +196,203 @@ The first two bytes in `gridrunner.prg` give the address it should be loaded at.
 00000070: 3420 2434 3822 2020 2020 5052 4720 2000  4 $48"    PRG  .
 ```
 
-That '0108' is the little-endian expression for $0801. Telling the C64 to load all the data that follows from $0801 onwards.
+That '0108' is the little-endian (lo-hi, wrong-way round) expression for $0801. Telling the C64 to load all the data that follows in the prg from $0801 onwards in its memory map.
 
-When a program is loaded it is stored at $0800 and execution starts at $0801. So when we look at the raw disassembly in [Regenerator] for `gridrunner.prg` we see:
+The ASCII rendering of the first few bytes gives us a clue that some of it is 'text'. The '2061' is another clue. It turns out that in order to execute the program first few instructions are a BASIC instruction: '10 SYS 2061'. 2061 is decimal for $080D. So what this instruction means is: execute the code at address $080D.
 
 ```asm
+* = $0801                                                                             
+                                                                                     
+;------------------------------------------------------------------------------------ 
+; 10 SYS 2061                                                                         
+; Used to execute the code at address $080d (2061 in hex).                            
+;------------------------------------------------------------------------------------ 
+        .BYTE $0B,$08 ;ANC #$08                                                       
+        .BYTE $0A,$00,$9E,$32,$30,$36,$31,$00 ; 10 SYS 2061                           
+        .BYTE $00,$00                                                                 
+;------------------------------------------------------------------------------------ 
+; Copies the game code from $0900 to $8000 and starts executing code                  
+; at $8000. This is the address of the cartridge ROM and is where the code will       
+; be executed when the game is loaded from a cartridge.                               
+;------------------------------------------------------------------------------------ 
+* = $080d                                                                             
+Start                                                                                 
+        LDY #$00                                                                      
+        LDA #$09                                                                      
+        STA aFD                                                                       
+        LDA #$80                                                                      
+        STA aFF                                                                       
+        STY aFC                                                                       
+        STY aFE                                                                       
+CopyDataLoop                                                                          
+        LDA (pFC),Y                                                                   
+        STA (pFE),Y                                                                   
+        INY                                                                           
+        BNE CopyDataLoop                                                              
+        INC aFD                                                                       
+        INC aFF                                                                       
+        LDA #$A0                                                                      
+        CMP aFF                                                                       
+        BNE CopyDataLoop                                                              
+        SEI                                                                           
+        JMP (InitializeDataAndGame)                                                   
+```
+I was now at the point where I needed to get a basic handle on what the different assembly instructions mean. This [6502 tutorial] and this reference at [6502 opcodes] were perfectly adequate for getting the hang of things. 
 
+At this point I started to try unpicking some routines in the program, with not very rapid results. 
+
+One potential avenue in to the game, is to look for the game's main loop. This should be a sequence of JSR (Jump to Subroutine) instructions. Basically a series of functions called over and over again. Sure enough, scrolling through the raw disassembly you find this:
+
+```asm
+$0CA3: 20 F8 84            JSR e84F8  
+$0CA6: 20 9B 85            JSR e859B  
+$0CA9: 20 35 86            JSR e8635  
+$0CAC: 20 D7 86            JSR e86D7  
+$0CAF: 20 53 87            JSR e8753  
+$0CB2: 20 9A 88            JSR e889A  
+$0CB5: 20 C9 88            JSR e88C9  
+$0CB8: 20 A0 89            JSR e89A0  
+$0CBB: 20 C8 8A            JSR e8AC8  
+$0CBE: 4C E8 83            JMP e83E8  
 ```
 
+My current reading of this is:
 
+```asm
+-------------------------------------------------------------------------------    
+Main_GameLoop                                                                      
+-------------------------------------------------------------------------------    
+       JSR UpdateShipPosition                                                      
+       JSR CheckPause                                                              
+       JMP GameLoopBody                                                            
+                                                                                   
+       .BYTE $EA, $EA, $EA, $EA ; NOPs                                             
+                                                                                   
+JumpToMainGameLoop                                                                 
+       JMP Main_GameLoop                                                           
+                                                                                   
+GameLoopBody                                                                       
+       JSR Game_DecrementTimer                                                     
+       JSR UpdateXYZappers                                                         
+       JSR UpdateScreen                                                            
+       JSR UpdatePods                                                              
+       JSR DrawUpdatedPods                                                         
+       JSR PlayBackgroundSounds                                                    
+       JSR DrawSnake                                                               
+       JSR MaybeResetSomeCounter                                                   
+       JSR e8AC8                                                                   
+       JMP StartWaitLoop                                                           
+```
+
+The loop is much longer and jumps around a bit in the code before circling back to 'Main_GameLoop', but you get the idea and can see how this would be a useful method of picking your outwards into the rest of the program.
+
+## Identifying the Game's Data
+
+What I would have done next though, had I known how to do it, is identify the game's character set data. For a game like Gridrunner, which doesn't have any sprites, this character set data unlocks a lot of the games mechanics once you have extracted it and know what to look for elsewhere in the program. For example, once you know that the Gridrunner itself (i.e. the player's ship) is stored at index $07 in the character set you can look for lines in the disassembly where it is referenced and see if this is where the ship is being moved.
+
+The way to go about identifying where the character set data is in the disassembly is to look for lines that set the address at $D018 to point to the place where the character set has been loaded. If a program has a custom character set, $D018 must contain the address where that set was loaded to memory. In the case of Gridrunner we see that the address where the character set was loaded is $2000:
+
+```asm
+ Init_Chars                                                       
+ $D018 must be set to point to the address of the custom character
+ set that we loaded to $2000. So do that.                         
+       LDA #$D0                                                   
+       STA zpHi2                                                  
+       LDA #$00                                                   
+       STA zpLo2                                                  
+       LDY #$18                                                   
+       TYA                                                        
+       STA (zpLo2),Y                                              
+       LDY #$20   ; $2000!                                                
+       LDA #$00                                                   
+       STA (zpLo2),Y                                              
+       INY                                                        
+       STA (zpLo2),Y                                              
+```
+
+Searching the raw disassembly we find where it was loaded to $2000 from:
+
+```asm
+1BEC: A2 00               LDX #$00      
+1BEE: BD 00 8E    b1BEE   LDA f8E00,X   
+1BF1: 9D 00 20            STA f2000,X   
+1BF4: BD 00 8F            LDA f8F00,X   
+1BF7: 9D 00 21            STA f2100,X   
+1BFA: CA                  DEX           
+1BFB: D0 F1               BNE b1BEE     
+1BFD: 4C 00 81            JMP e8100     
+```
+
+So $8E00 and $8F00. Now, given that the program was copied from $0900 to $8000 when the game was loaded we have to apply an offset to find the appropriate spot in the raw disassmbly of `gridrunner.prg`. This offset in the raw disassembly is $1700:
+
+```asm
+$16FF: 20 18 18            JSR s1818                          
+$1702: 18                  CLC                                
+$1703: 18                  CLC                                
+$1704: FF 18 18            .BYTE $FF,$18,$18 ;ISC s1818,X     
+$1707: 18                  CLC                                
+$1708: F0 20               BEQ b172A                          
+$170A: 10 1F               BPL b172B                          
+$170C: 1F 10 20            .BYTE $1F,$10,$20 ;SLO $2010,X     
+$170F: F0 18               BEQ b1729                          
+$1711: 18                  CLC                                
+$1712: 18                  CLC                                
+$1713: 18                  CLC                                
+$1714: BD C3 81            LDA f81C3,X                        
+$1717: 81 00               STA (p00,X)                        
+$1719: 20 60 A3            JSR eA360                          
+$171C: 2C 30 00            BIT ai0030                         
+$171F: 00 00               BRK #$00                           
+```
+
+The jumble of opcodes and bytes tell us that this is probably the place. What we want to do now is extract this data as a series of byte statements, one line for each character in the character set, like so:
+
+```asm
+.BYTE $18,$18,$18,$18,$FF,$18,$18,$18 ; CHARACTER 0           
+.BYTE $F0,$20,$10,$1F,$1F,$10,$20,$F0 ; CHARACTER 1           
+.BYTE $18,$18,$18,$18,$BD,$C3,$81,$81 ; CHARACTER 2           
+.BYTE $00,$20,$60,$A3,$2C,$30,$00,$00 ; CHARACTER 3           
+.BYTE $00,$02,$05,$C8,$30,$00,$00,$00 ; CHARACTER 4           
+.BYTE $08,$04,$3E,$20,$10,$10,$08,$08 ; CHARACTER 5           
+```
+You can achieve this in [Regenerator]. (While working this out what I actually did was use [Infiltrator] to export the range of bytes to a raw binary file. I then used [CBM Prg Studio] to import the file and view the character sets. This started to give me an idea of what each character was.)
+
+Once I had a list of byte statements I read up on how the character set values are constructed in [C64 CharSet]. They are simply bitmaps. Each byte is taken as a string of 1s and 0s, where a 1 represents a pixel. So for example we can visualize 'Character 0' above as:
+
+```asm
+.BYTE $18,$18,$18,$18,$FF,$18,$18,$18 ; CHARACTER 0            
+                                        ; $00                  
+                                        ; 00011000      **     
+                                        ; 00011000      **     
+                                        ; 00011000      **     
+                                        ; 00011000      **     
+                                        ; 11111111   ********  
+                                        ; 00011000      **     
+                                        ; 00011000      **     
+                                        ; 00011000      **     
+```
+
+And here's the iconic Gridrunner ship:
+
+``asm
+.BYTE $18,$3C,$66,$18,$7E,$FF,$E7,$C3 ; CHARACTER 7           
+                                        ; $07                 
+                                        ; 00011000      **    
+                                        ; 00111100     ****   
+                                        ; 01100110    **  **  
+                                        ; 00011000      **    
+                                        ; 01111110    ******  
+                                        ; 11111111   ******** 
+                                        ; 11100111   ***  *** 
+                                        ; 11000011   **    ** 
+```
+I used a simple [Python script] to create this commented version of each character.
+
+[Python script]:https://github.com/mwenge/gridrunner/blob/master/ConvertCharSetToBinary.py
+[C64 CharSet]:https://www.c64-wiki.com/wiki/Character_set
+[CBM Prg Studio]:https://www.ajordison.co.uk/
+[6502 tutorial]:https://skilldrick.github.io/easy6502/
+[6502 opcodes]:http://www.6502.org/tutorials/6502opcodes.html
 [C64 memory map]:https://www.c64-wiki.com/wiki/Memory_Map
 [C64 wiki]:https://www.c64-wiki.com/wiki/Memory_Map#Cartridge_ROM
 [Infiltrator]:https://csdb.dk/release/?id=100129
