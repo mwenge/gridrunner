@@ -5,7 +5,7 @@
 
 This is the disassembled and [commented source code] for the 1982 Commodore 64 port of Gridrunner by Jeff Minter. 
 
-A version of the game you can play in your browser can be found at [https://gridrunner.xyz].
+You can play Gridrunner in your browser at [https://gridrunner.xyz]. (Ctrl key is 'Fire', Arrow Keys to move.)
 
 ## Requirements
 
@@ -481,6 +481,170 @@ IncrementLevel
 
 ## Starting to Understand the Code
 
+A common pattern, which can be easy to pick out, is the assembler equivalent of a 'for' loop. Here is the raw disassembly of an example, produced by [Regenerator]. The loop happens between the label `b1535` and the instruction `BNE b1535`. In there, values are repeatedly loaded into the 'A' register and then passed from there to two memory locations `$04FD` and `$054D`:
+
+```asm
+$1533: A2 12               LDX #$12     ; Set X to 18
+$1535: BD 50 8C    b1535   LDA f8C50,X  ; Start of Loop, load byte at $8C50 + X to A
+$1538: 9D FD 04            STA f04FD,X  ; Load byte to $04FD + X
+$153B: A9 0E               LDA #$0E     
+$153D: 9D FD D8            STA fD8FD,X  
+$1540: BD 62 8C            LDA f8C62,X  
+$1543: 9D 4D 05            STA f054D,X  
+$1546: A9 01               LDA #$01     
+$1548: 9D 4D D9            STA fD94D,X  
+$154B: CA                  DEX          <-- Decrement X
+$154C: D0 E7               BNE b1535    <-- Keep looping (i.e. go back to b1535 above) as long as X is not zero
+$154E: 4C 75 8C            JMP e8C75    
+```
+What this loop is doing is writing two sets of 18 bytes from one memory location to another. So what are these values at `$8C50` and `$8C62`? Well remember that one of the first things the program did was to copy itself to `$8000`, so really this is a reference to whatever is at `$1550`. Instead of doing this mental arithmetic every time though, I found it useful to save a snapshot of the running game in [Vice], load that into [Infiltrator], disassemble it and save it as a separate file. That gave me a full disassembly of everything from `$0000` to `$FFFF`, including the code that hat been copied to `$8000`. So looking up these reference to the `$8000` address space became a simple matter of searching for the offset in that file, e.g.:
+
+```asm
+$8C51  20 29 28  JSR L_JSR_($2829)_($8C51) OK 
+$8C54            .byte $3A,$3A                
+$8C56  3E 27 20  ROL $2027,X                  
+$8C59  20 2F 3A  JSR L_JSR_($3A2F)_($8C59) JAM
+$8C5C  28        PLP                          
+$8C5D            .byte $3A                    
+$8C5E  24 30     BIT $30                      
+$8C60  26 2F     ROL $2F                      
+$8C62  20 27 26  JSR L_JSR_($2627)_($8C62) OK 
+$8C65            .byte $3A,$27,$22            
+$8C68  20 21 22  JSR L_JSR_($2221)_($8C68) OK 
+$8C6B  24 25     BIT $25                      
+$8C6D  20 28 22  JSR L_JSR_($2228)_($8C6D) BAD
+$8C70            .byte $27                    
+$8C71  28        PLP                          
+$8C72  20 30 30  JSR L_JSR_($3030)_($8C72) JAM
+```
+
+It turns out this data at `$8C50` and `$8C62` looks like a bunch of text:
+
+```asm
+;BattleStations                                                                                                   
+        .BYTE $20,$29,$28,$3A,$3A,$3E,$27,$20,$20,$2F,$3A,$28,$3A,$24,$30,$26,$2F ; "BATTLE  STATIONS"            
+;EnterGridArea                                                                                                    
+        .BYTE $20,$27,$26,$3A,$27,$22,$20,$21,$22,$24,$25,$20,$28,$22,$27,$28,$20,$30,$30 ; "ENTER GRID AREA 00"  
+```
+So what our loop is doing is copying the first 18 bytes of each text segment to somewhere that will cause it to be displayed. And if we look up [C64 memory map] we do indeed find that 'Screen RAM' starts at `$0400`: the text is being copied to `$04FD` and `$054D`, i.e. offsets with the 'Screen Ram'.
+
+Conveniently, Minter has made both lines of text the same length so he is only copying the first 18 bytes of both. In the second one he is leaving out the '00' and updating that later.
+
+### Labelling
+
+Now that we know what a loop looks like and have enough information to be able to interpret jumps to the `$8000` address space as offsets within the programs original `$0800` address space we can start giving the labels in the disassembly more meaningful names. In practice this means transforming the loop above into something more readable like:
+
+```asm
+CopyLevelTextLoop                                                                                                 
+        LDA BattleStations,X                                                                                      
+        STA SCREENRAM + $FD,X                                                                                     
+        LDA #$0E                                                                                                  
+        STA COLOURRAM + $FD,X                                                                                     
+        LDA EnterGridArea,X                                                                                       
+        STA SCREENRAM + $014D,X                                                                                   
+        LDA #$01                                                                                                  
+        STA COLOURRAM + $014D,X                                                                                   
+        DEX                                                                                                       
+        BNE CopyLevelTextLoop                                                                                     
+        JMP IncrementLives                                                                                        
+                                                                                                                  
+;BattleStations                                                                                                   
+        .BYTE $20,$29,$28,$3A,$3A,$3E,$27,$20,$20,$2F,$3A,$28,$3A,$24,$30,$26,$2F ; "BATTLE  STATIONS"            
+;EnterGridArea                                                                                                    
+        .BYTE $20,$27,$26,$3A,$27,$22,$20,$21,$22,$24,$25,$20,$28,$22,$27,$28,$20,$30,$30 ; "ENTER GRID AREA 00"  
+```
+
+The rest of the disassembly process is simply a matter of applying these steps iteratively throughout the code. This is 'simple' but painstaking and requires slowly building up an understanding of the language patterns in 6502 assembler. 
+
+The `LDA`/`STA` pattern is a common one: take a value from one place in memory and store it another. Since there are three registers: A, X, and Y, you will see this patternw with all three. If a value needs to be manipulated it will have to be stored in one of them so that it can be incremented (e.g. INX) or decremented (DECX).
+
+'Routines' serve as functions. To execute a routine you call it with a `JSR` instruction and when the routine wants to 'return' it executes an `RTS` call.
+```asm
+JSR PlaySomeSound
+
+;PlaySomeSound                                   
+; This plays a sound using the Sound device managed at $D400
+        LDA #$00                                 
+        STA $D404    ;Voice 1: Control Register  
+        STA $D40B    ;Voice 2: Control Register  
+        LDA #$81                                 
+        STA $D404    ;Voice 1: Control Register  
+        STA $D40B    ;Voice 2: Control Register  
+        RTS                                      
+```
+
+`JMP` acts like a `GOTO` and moves execution to an arbitary address in memory. Unlike `JSR` there's no concept of returning in a `JMP`, execution just proceeds a the provide address. This practice can make execution difficult to follow - very often you find that a 'function' (one that has been entered with a `JSR` moves all around the code listing and it can be hard to figure out at what point it ends up returning - which won't happen until it eventually hits an `RTS`. For example, here is the routine that draws the ship materializing at the start of each level:
+
+```asm
+;-------------------------------------------------------------------------------
+;MaterializeShip
+;-------------------------------------------------------------------------------
+        LDA #$0F
+        STA a0A
+        LDA #$02
+        STA $D408    ;Voice 2: Frequency Control - High-Byte
+        LDA #$00
+        STA $D404    ;Voice 1: Control Register
+        STA $D40B    ;Voice 2: Control Register
+        LDA #$16
+        STA charToPlot
+;MaterializeShipLoop
+        LDA #>p0116
+        STA colourToPlot
+        LDA #$00
+        .... ; Code omitted for brevity
+        LDA #$14
+        CLC 
+        SBC a0A
+        STA zpLo2
+        JMP DrawMaterializeShip ; Jumps to MaterializeShipLoop
+        ; This will eventually RTS from DrawMaterializeShip
+```
+The code jumps to the address labelled `DrawMaterializeShip` (`$8400`). There it jumps into `MaterializeShipLoop`, finishes it and eventually hits an `RTS`. This returns it from the `MaterializeShip` sub-routine and not just the `DrawMaterializeShip` segment (which if you are used to reading functions in other languages, is where you would be inclined to think you are returning from).
+
+```asm
+;--------------------------------------------------------------
+; DrawMaterializeShip                                          
+;--------------------------------------------------------------
+        JSR Screen_Plot                                        
+        LDA a09                                                
+        STA charToPlot                                         
+p0D07   DEC a0A                                                
+        LDA a0A                                                
+        CMP #$FF                                               
+        BEQ b0D1A                                              
+        LDA #$0F                                               
+        CLC                                                    
+        SBC a0A                                                
+        STA $D418    ;Select Filter Mode and Volume            
+        JMP MaterializeShipLoop                                
+                                                               
+b0D1A   LDA #<p0D07                                            
+        STA charToPlot                                         
+        LDA #>p0D07                                            
+        STA colourToPlot                                       
+        LDA #>p1514                                            
+        STA zpHi2                                              
+        LDA #<p1514                                            
+        STA zpLo2                                              
+        JSR Screen_Plot                                        
+        LDA #$0F                                               
+        STA $D418    ;Select Filter Mode and Volume            
+        JSR e8450                                              
+        LDA #$08                                               
+        STA $D418    ;Select Filter Mode and Volume            
+        JSR e8450                                              
+        LDA #$02                                               
+        STA $D418    ;Select Filter Mode and Volume            
+        JSR e8450                                              
+        LDA #$00                                               
+        STA $D40B    ;Voice 2: Control Register                
+        LDA #$0F                                               
+        STA $D418    ;Select Filter Mode and Volume            
+        RTS                                                                                                                
+```
+
+There's more to add as I figure it out, but hopefully what I have so far serves as a useful primer for anyone considering disassembling a C64 game!
 
 [Python script]:https://github.com/mwenge/gridrunner/blob/master/ConvertCharSetToBinary.py
 [C64 CharSet]:https://www.c64-wiki.com/wiki/Character_set
