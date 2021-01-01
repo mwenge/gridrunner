@@ -1,6 +1,6 @@
 # Gridrunner by Jeff Minter
 
-<img src="https://www.mobygames.com/images/covers/l/34991-gridrunner-commodore-64-front-cover.jpg" width=200>
+<img src="https://www.mobygames.com/images/covers/l/34991-gridrunner-commodore-64-front-cover.jpg" height=300><img src="https://user-images.githubusercontent.com/58846/103443482-9fb16180-4c57-11eb-9403-4968bd16287f.gif" height=300>
 
 
 This is the disassembled and [commented source code] for the 1982 Commodore 64 port of Gridrunner by Jeff Minter. 
