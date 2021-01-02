@@ -309,14 +309,14 @@ The way to go about identifying where the character set data is in the disassemb
        STA zpHi2                                                  
        LDA #$00                                                   
        STA zpLo2                                                  
-       LDY #$18                                                   
+       LDY #$18        ; bits 1-3 == %100 -> char set @ $2000; bits 4-7 == %0001 -> screen mem @$0400 (default)                                                 
        TYA                                                        
-       STA (zpLo2),Y                                              
-       LDY #$20   ; $2000!                                                
-       LDA #$00                                                   
-       STA (zpLo2),Y                                              
+       STA (zpLo2),Y   ; store $18 to $d018                                           
+       LDY #$20                                                
+       LDA #$00        ; black                                                 
+       STA (zpLo2),Y   ; $d020 (border color)                                           
        INY                                                        
-       STA (zpLo2),Y                                              
+       STA (zpLo2),Y   ; $d021 (background color)                                           
 ```
 
 Searching the raw disassembly we find where it was loaded to `$2000` from:
