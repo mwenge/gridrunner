@@ -60,17 +60,7 @@ f0FFD = $0FFD
 f0FFE = $0FFE
 f0FFF = $0FFF
 f1000 = $1000
-f1E00 = $1E00
-f1E0E = $1E0E
-f1E0F = $1E0F
-f1E16 = $1E16
-f1E48 = $1E48
-f1E4A = $1E4A
-f1E8A = $1E8A
-f1E9F = $1E9F
-f1F00 = $1F00
-f1F16 = $1F16
-f1F2C = $1F2C
+SCREEN_RAM = $1E00
 f3B39 = $3B39
 f6A76 = $6A76
 f95FF = $95FF
@@ -191,8 +181,8 @@ j1100   LDA #$08
 
 s1120   LDY #$00
         LDA #$20
-b1124   STA f1E00,Y
-        STA f1F00,Y
+b1124   STA SCREEN_RAM + $0000,Y
+        STA SCREEN_RAM + $0100,Y
         INY 
         BNE b1124
         RTS 
@@ -204,9 +194,9 @@ b1130   LDA f113F,Y
         STA f95FF,Y
         DEY 
         BNE b1130
-f113F   .BYTE $60,$20,$21,$22,$24,$25,$22,$23
-        .BYTE $26,$26,$27,$22,$20,$19,$1A,$20
-        .BYTE $B0,$B0,$B0,$B0,$B0,$B0
+f113F   .BYTE $60,$20,$21,$22,$24,$25,$22,$23,$26,$26,$27,$22,$20 ; "GRIDRUNNER"
+        .BYTE $19,$1A,$20 ; "SCORE"
+        .BYTE $B0,$B0,$B0,$B0,$B0,$B0 ; "000000"
 f1155   .BYTE $B0,$00,$03,$03,$03,$03,$04,$04
         .BYTE $04,$04,$04,$04,$00,$07,$07,$00
         .BYTE $01,$01,$01,$01,$01,$01,$01,$01
@@ -317,9 +307,9 @@ j1226   LDA #$13
         BNE j1208
         RTS 
 
-s1236   LDA #>f1E00
+s1236   LDA #>SCREEN_RAM + $0000
         STA a01
-        LDA #<f1E00
+        LDA #<SCREEN_RAM + $0000
         STA a00
         LDX a03
 b1240   LDA a00
@@ -782,12 +772,12 @@ s157F   LDA a0E
 
 b1586   TXA 
         PHA 
-b1588   INC f1E0E,X
-        LDA f1E0E,X
+b1588   INC SCREEN_RAM + $000E,X
+        LDA SCREEN_RAM + $000E,X
         CMP #$BA
         BNE b159A
         LDA #$B0
-        STA f1E0E,X
+        STA SCREEN_RAM + $000E,X
         DEX 
         BNE b1588
 b159A   PLA 
@@ -814,10 +804,10 @@ b15B4   LDA p1E2C,Y
         STA p1E2C,Y
 b15BF   INY 
         BNE b15B4
-b15C2   LDA f1F2C,Y
+b15C2   LDA SCREEN_RAM + $012C,Y
         BEQ b15CD
         JSR s15D3
-        STA f1F2C,Y
+        STA SCREEN_RAM + $012C,Y
 b15CD   INY 
         CPY #$8A
         BNE b15C2
@@ -1541,12 +1531,12 @@ j1B07   LDA a07
 s1B1D   LDY #$00
         LDA #$20
 b1B21   STA p1E2C,Y
-        STA f1F00,Y
+        STA SCREEN_RAM + $0100,Y
         DEY 
         BNE b1B21
 j1B2A   LDY #$04
 b1B2C   LDA f1B70,Y
-        STA f1E4A,Y
+        STA SCREEN_RAM + $004A,Y
         LDA #$01
         STA f964A,Y
         DEY 
@@ -1611,28 +1601,28 @@ b1BA7   LDA #$02
         STA VIA1IER  ;$911E - interrupt enable register (IER)
         LDY #$00
         LDA #$20
-b1BB0   STA f1E16,Y
-        STA f1F16,Y
+b1BB0   STA SCREEN_RAM + $0016,Y
+        STA SCREEN_RAM + $0116,Y
         DEY 
         BNE b1BB0
         LDY #$00
 b1BBB   LDA f1D46,Y
-        CMP f1E0F,Y
+        CMP SCREEN_RAM + $000F,Y
         JMP j10D0
 
 j1BC4   CPY #$07
         BNE b1BBB
         BEQ j1BD5
 j1BCA   LDY #$07
-b1BCC   LDA f1E0E,Y
+b1BCC   LDA SCREEN_RAM + $000E,Y
         STA f1D45,Y
         DEY 
         BNE b1BCC
 j1BD5   LDY #$0A
 b1BD7   LDA f1D42,Y
-        STA f1E48,Y
+        STA SCREEN_RAM + $0048,Y
         LDA f10EF,Y
-        STA f1E8A,Y
+        STA SCREEN_RAM + $008A,Y
         LDA #$01
         STA f9648,Y
         STA f968A,Y
@@ -2089,9 +2079,9 @@ b1BEE   JSR s11D0
                                                 ; 11111110   ******* 
 
         .BYTE $00,$00
-f1D42   .BYTE $00,$1D,$1E
-f1D45   .BYTE $1F
-f1D46   .BYTE $B0,$B0,$B0,$B0,$B0,$B0,$B0,$B0
+f1D42   .BYTE $00,$1D,$1E ; "HIGH"
+f1D45   .BYTE $1F ;"->"
+f1D46   .BYTE $B0,$B0,$B0,$B0,$B0,$B0,$B0,$B0 ; "0000000" (High Score)
         .BYTE $B0,$B0
 f1D50   .BYTE $00,$01,$02,$06,$04,$06,$07,$04
         .BYTE $05,$0B,$07,$08,$09,$07,$06,$06
@@ -2114,7 +2104,7 @@ b1D9A   STA p1E2C,Y
 
 j1DA0   LDY #$0B
 b1DA2   LDA f1DF0,Y
-        STA f1E9F,Y
+        STA SCREEN_RAM + $009F,Y
         LDA #$03
         STA f969F,Y
         DEY 
@@ -2135,7 +2125,7 @@ b1DBF   PLA
         JSR s1DD0
         JMP j1226
 
-j1DC7   STA f1F2C,Y
+j1DC7   STA SCREEN_RAM + $012C,Y
         DEY 
         BNE b1D9A
         JMP j1DA0
