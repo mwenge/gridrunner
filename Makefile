@@ -12,7 +12,7 @@ vic: clean vic runvic
 
 gridrunner.prg: src/c64/gridrunner.asm
 	64tass -Wall -Wno-implied-reg --cbm-prg -o bin/gridrunner.prg -L bin/list-co1.txt -l bin/labels.txt src/c64/gridrunner.asm
-	md5sum bin/gridrunner.prg orig/gridrunner.prg
+	md5sum bin/gridrunner.prg bin/gridrunner-bench.prg
 
 gridrunner-vic20.prg: src/vic20/gridrunner.asm
 	64tass -Wall -Wno-implied-reg --cbm-prg -o bin/gridrunner-vic20.prg -L bin/list-co1.txt -l bin/labels.txt src/vic20/gridrunner.asm

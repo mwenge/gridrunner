@@ -1,38 +1,20 @@
-;Input
-JOY_UP                          = $01
-JOY_DOWN                        = $02
-JOY_LEFT                        = $04
-JOY_RIGHT                       = $08
-JOY_LEFTRIGHT                   = 12
-JOY_FIRE                        = 16
-JOY1_FIRE                       = 239
-JOY1_UP                         = 254
-KEY_F1                          = 4
-KEY_F3                          = 5
-KEY_F5                          = 6
-KEY_NONE                        = 64
-
-;
-; **** ZP FIELDS **** 
-;
-fC9 = $C9
 ;
 ; **** ZP ABSOLUTE ADRESSES **** 
 ;
-zpLo2 = $02
-zpHi2 = $03
-charToPlot = $04
-colourToPlot = $05
-zpLo3 = $06
-zpHi3 = $07
+a02 = $02
+a03 = $03
+a04 = $04
+a05 = $05
+a06 = $06
+a07 = $07
 a08 = $08
 a09 = $09
 a0A = $0A
-ShipPreviousXPosition = $0B
-ShipPreviousYPosition = $0C
-SomeCounter = $0D
-InputJoy = $0E
-GameTimer = $0F
+a0B = $0B
+a0C = $0C
+a0D = $0D
+a0E = $0E
+a0F = $0F
 a10 = $10
 a11 = $11
 a12 = $12
@@ -54,16 +36,19 @@ a22 = $22
 a23 = $23
 a24 = $24
 a25 = $25
-Snake = $26
+a26 = $26
 a27 = $27
 a28 = $28
 a29 = $29
 a2A = $2A
 a2B = $2B
+a2D = $2D
+a30 = $30
+a33 = $33
 a34 = $34
-SelectedLevel = $35
-aA5 = $A5
-SysKeyCode_C5 = $C5
+a35 = $35
+a36 = $36
+aC5 = $C5
 aFC = $FC
 aFD = $FD
 aFE = $FE
@@ -71,64 +56,65 @@ aFF = $FF
 ;
 ; **** ZP POINTERS **** 
 ;
-p01 = $01
+p02 = $02
+p06 = $06
+p07 = $07
 p1F = $1F
-p24 = $24
 p83 = $83
 pCA = $CA
 pFC = $FC
 pFE = $FE
 ;
+sE518 = $E518
+;
 ; **** FIELDS **** 
 ;
-SCREEN_PTR_LO = $0340
-SCREEN_PTR_HI = $0360
-SCREENRAM = $0400
-COLOURRAM = $D800
-
-;Colours
-BLACK                   = 0
-WHITE                   = 1
-RED                     = 2
-CYAN                    = 3
-PURPLE                  = 4
-BLUE                    = 6
-YELLOW                  = 7
-ORANGE                  = 8
-BROWN                   = 9
-PINK                    = 10
-GREY1                   = 11
-LGREEN                  = 13
-LBLUE                   = 14
-LGREY                   = 15
-
-CopyrightLine = $807F
-PodDecaySequence_CA = $871F
-ScreenHeaderText = $881F
-ScreenHeaderColors = $8847
-f8BC0 = $8BC0
-f8BC8 = $8BC8
-BattleStations = $8C50
-EnterGridArea = $8C62
-LevelData1 = $8CB4
-LevelData2 = $8CD4
-LevelData3 = $8CF4
-ByJeffMinter = $8DE0
-EnterLevelText = $8DF0
-CharSet1 = $8E00
-CharSet2 = $8F00
-
+f0340 = $0340
+f0360 = $0360
+f03FF = $03FF
+f040E = $040E
+f040F = $040F
+f041B = $041B
+f04FA = $04FA
+f04FD = $04FD
+f054A = $054A
+f054D = $054D
+f0592 = $0592
+f0FFF = $0FFF
+f101F = $101F
+f10FE = $10FE
+f10FF = $10FF
+f1100 = $1100
+f11FE = $11FE
+f11FF = $11FF
+f1200 = $1200
+f12FE = $12FE
+f12FF = $12FF
+f1300 = $1300
+f1500 = $1500
+f1600 = $1600
+f2000 = $2000
+f2100 = $2100
+fD7FF = $D7FF
+fD8FA = $D8FA
+fD8FD = $D8FD
+fD94A = $D94A
+fD94D = $D94D
+fD992 = $D992
 ;
 ; **** ABSOLUTE ADRESSES **** 
 ;
 a0002 = $0002
 a0003 = $0003
-LivesDisplay = $0427
+a0427 = $0427
 a0557 = $0557
 a0558 = $0558
-LevelDisplayByte1 = $055E
-LevelDisplayByte2 = $055F
-JOY1 = $DC11
+a055E = $055E
+a055F = $055F
+a0F0E = $0F0E
+aD95E = $D95E
+aD95F = $D95F
+aDC11 = $DC11
 ;
 ; **** POINTERS **** 
 ;
@@ -137,110 +123,16 @@ p0102 = $0102
 p0116 = $0116
 p0313 = $0313
 p03F0 = $03F0
+p0400 = $0400
 p0450 = $0450
 p05FF = $05FF
 p070F = $070F
-p0800 = $0800
+p083F = $083F
+p0D07 = $0D07
+p0E02 = $0E02
+p1514 = $1514
 p4008 = $4008
-InitializeDataAndGame = $8000
 pD000 = $D000
-;
-; **** EXTERNAL JUMPS **** 
-;
-e3030 = $3030
-UpdateRestOfScore = $8015
-e8020 = $8020
-e8030 = $8030
-e8036 = $8036
-e8040 = $8040
-e8056 = $8056
-ClearScore = $8060
-IncrementSelectedLevel = $80A0
-e8028 = $8028
-WriteCopyrightLine = $80D2
-StartLevel = $80E5
-CheckInputAgain = $80F7
-InitializeGame = $8100
-Screen_GetPointer = $8163
-Screen_Plot = $8172
-GetCurrentChar = $818B
-PlaySomeSound = $8191
-DrawGrid = $81A2
-CheckPause = $821B
-e8230 = $8230
-e8233 = $8233
-e8237 = $8237
-MaterializeShip = $824F
-MaterializeShipLoop = $8264
-LoadCharSetData = $82EC
-DrawNewLevelScreen = $8300
-CheckJoy = $8373
-SpinForCyclesIn0A = $8380
-SpinFor255Cycles = $8386
-DecrementAccumToZero = $8388
-Main_GameLoop = $8393
-JumpToMainGameLoop = $83A0
-GameLoopBody = $83A3
-StartWaitLoop = $83E8
-DrawMaterializeShip = $8400
-e8450 = $8450
-UpdateShipPosition = $8470
-Game_DecrementTimer = $84F8
-MaybePlayPulse = $8573
-UpdateXYZappers = $859B
-e85F8 = $85F8
-e85FD = $85FD
-e862F = $862F
-UpdateScreen = $8635
-e86D0 = $86D0
-UpdatePods = $86D7
-e86EE = $86EE
-e8728 = $8728
-e8748 = $8748
-DrawUpdatedPods = $8753
-e876C = $876C
-e87CB = $87CB
-e8801 = $8801
-Menu_DisplayHeader = $8806
-SetUpMenu = $8818
-IncrementPlayerScore = $8870
-e888A = $888A
-PlayBackgroundSounds = $889A
-DrawSnake = $88C9
-e8924 = $8924
-e896A = $896A
-e8995 = $8995
-MaybeResetSomeCounter = $89A0
-CheckIfBlockedByPod_CA = $89AB
-e89C1 = $89C1
-e8A11 = $8A11
-e8A53 = $8A53
-e8A99 = $8A99
-e8AA4 = $8AA4
-e8AC1 = $8AC1
-e8AC8 = $8AC8
-DrawGridCharAtOldPos = $8ADE
-CheckForShipCollision = $8AE9
-CheckForCollisions = $8AF8
-PlayFadeSound = $8B24
-e8B60 = $8B60
-PlayExplosionAndStartNewLevel = $8BB1
-CTG_GetCurrentChar = $8BBB
-e8BD2 = $8BD2
-ReturnIfBulletOrGrid = $8BEC
-ClearScreen = $8BFC
-ClearScreenAndRestartLevel = $8C17
-DisplayNewLevelInterstitial = $8C2D
-IncrementLives = $8C75
-PlayNewLevelMusic = $8D16
-JumpToDisplayTitleScreen = $8D57
-UpdateLivesAndRestartLevel = $8D5E
-SetSoundVolumeToMax = $8D70
-DrawGridCharAtOldPosAndCheckCollisionsImpl = $8D78
-DisplayTitleScreen = $8D8E
-e8DC0 = $8DC0
-Start_Game = $8DC6
-eE518 = $E518
 ;
 ; **** PREDEFINED LABELS **** 
 ;
@@ -249,231 +141,170 @@ ROM_RAMTASj = $FD50
 ROM_IOINITj = $FDA3
 ROM_CHROUT = $FFD2
 
-* = $0801
+* = $0800
 
-;------------------------------------------------------------------------------------
-; 10 SYS 2061
-; Used to execute the code at address $080d (2061 in hex).
-;------------------------------------------------------------------------------------
-        .BYTE $0B,$08 ;ANC #$08
-        .BYTE $0A,$00,$9E,$32,$30,$36,$31,$00 ; 10 SYS 2061
-        .BYTE $00,$00
-;------------------------------------------------------------------------------------
-; Copies the game code from $0900 to $8000 and starts executing code
-; at $8000. This is the address of the cartridge ROM and is where the code will
-; be executed when the game is loaded from a cartridge.
-;------------------------------------------------------------------------------------
-* = $080d
-Start
-        LDY #$00
-        LDA #$09
-        STA aFD
-        LDA #$80
-        STA aFF
-        STY aFC
-        STY aFE
-CopyDataLoop
-        LDA (pFC),Y
-        STA (pFE),Y
-        INY 
-        BNE CopyDataLoop
-        INC aFD
-        INC aFF
-        LDA #$A0
-        CMP aFF
-        BNE CopyDataLoop
+p0800   .BYTE $00,$0B,$08,$0A,$00,$9E,$32,$30,$36,$31,$00,$00,$00
         SEI 
-        JMP (InitializeDataAndGame)
+        JMP (p8000)
 
-;------------------------------------------------------------------------------------
-; Cartridge File System (?)
-; This must be something to do with the cartridge rom.
-;------------------------------------------------------------------------------------
-        .TEXT "        PRG   ", $00
-        .TEXT $5F, $08, $0F, $00, "  ", $22,"C-64 BACKUP.BANK",$22," PRG   ", $00
-        .TEXT $7F, $08, $09, $00, "   ",$22,"LOPAGE $4 $48",$22,"    PRG  ", $00
-        .TEXT $9F, $08, $11, $00, "  ", $22,"WEDGE",$22,"            PRG   ", $00
-        .TEXT $BF, $08, $02, $00, "   ",$22,"SYSTEM SET",$22,"       PRG  ", $00
-        .TEXT $DF, $08, $05, $00, "   ",$22,"UNSCRATCH",$22,"        PRG  ", $00
-        .TEXT $FF, $08, $07, $00, "   ",$22,"LODATA",$22,"           PRG  "
-        BRK #$1F
+        * = $8000
 
-;------------------------------------------------------------------------------------
-; InitializeDataAndGame
-; Initialize the bytes at $2100. Part of the character set will later get loaded at
-; that address.
-;------------------------------------------------------------------------------------
+p8000   CMP (p83,X)
+b8002   .BYTE $E2,$83 ;NOP #$83
+        BRK #$00
+        BRK #$00
+        BRK #$00
+        .BYTE $8F,$9D,$00 ;SAX $009D
+        AND (pCA,X)
+        BNE b8002
+        JMP j8100
 
-; I think X is 00 here, so this will copy the value in A to the first 256 bytes after
-; $2100.
-        CMP (p83,X)
-IDG_LOOP
-       .byte $E2,$83,$00,$00,$00,$00,$00,$00,$8F ; Not sure how this data is skipped.
-        STA $2100,X 
-        DEX 
-        BNE IDG_LOOP
-        JMP InitializeGame
         NOP 
+j8015   INX 
+        CPX #$07
+        BNE b8062
+        JMP j8D8E
 
-; UpdateRestOfScore
-        INX 
-        CPX #$07                ; The score is 7 characters long
-        BNE UpdateScore
-        JMP DisplayTitleScreen
-        .BYTE $EA,$EA,$EA ; NOPs
-
-; e8020
-        JSR GetCurrentChar
+        NOP 
+        NOP 
+        NOP 
+;-------------------------------------------------------------------------
+; s8020
+;-------------------------------------------------------------------------
+s8020
+        JSR s818B
         CMP #$07
-        .BYTE $F0,$01 ;BEQ e8028
+        BEQ b8028
         RTS 
 
-;e8028
-        JMP DrawGridCharAtOldPos
-        .BYTE $EA,$EA,$EA,$EA,$EA ;NOPs
-;e8030
-        AND #$1F
-        CMP #$18
-        BPL b093A
-;e8035
-        STA LevelData3FromLevel13,X
-        RTS 
+b8028   JMP j8ADE
 
-b093A   LDA ShipPreviousYPosition
-        JMP e8036
         NOP 
-;e8040
+        NOP 
+        NOP 
+        NOP 
+        NOP 
+j8030   AND #$1F
+        CMP #$18
+        BPL b803A
+j8036   STA f1600,X
+        RTS 
+
+b803A   LDA a0C
+        JMP j8036
+
+        NOP 
+;-------------------------------------------------------------------------
+; s8040
+;-------------------------------------------------------------------------
+s8040
         DEC f1500,X
         LDA f1500,X
         AND #$3F
         CMP #$27
-        BPL b0950
+        BPL b8050
         STA f1500,X
         RTS 
 
-b0950   LDA ShipPreviousXPosition
+b8050   LDA a0B
         STA f1500,X
         RTS 
 
-;e8056
-        DEC LevelData3FromLevel13,X
-        LDA LevelData3FromLevel13,X
-        JMP e8030
+;-------------------------------------------------------------------------
+; s8056
+;-------------------------------------------------------------------------
+s8056
+        DEC f1600,X
+        LDA f1600,X
+        JMP j8030
+
         NOP 
+j8060   LDX #$00
+b8062   LDA f040F,X
+        CMP f041B,X
+        BNE b8070
+        JMP j8015
 
-SCREEN_PL1_SCORE = SCREENRAM+15
-SCREEN_PL1_HISCORE = SCREENRAM+27
+b806D   JMP j8D8E
 
-;ClearScore
-        LDX #$00
-UpdateScore
-        LDA SCREEN_PL1_SCORE,X
-        CMP SCREEN_PL1_HISCORE,X
-        BNE UpdateHiScore
-        JMP UpdateRestOfScore
-
-b096D   JMP DisplayTitleScreen
-
-UpdateHiScore
-        BMI b096D
-b0972   LDA SCREEN_PL1_SCORE,X
-        STA SCREEN_PL1_HISCORE,X
+b8070   BMI b806D
+b8072   LDA f040F,X
+        STA f041B,X
         INX 
         CPX #$07
-        BNE b0972
-        JMP DisplayTitleScreen
+        BNE b8072
+f807F   =*+$02
+        JMP j8D8E
 
-;CopyrightLine
-        .BYTE $3C,$3D,$20,$31,$39,$38,$32,$20 ; (c) 1982
-        .BYTE $2B,$27,$2F,$20,$20,$2E,$22,$27 ; HES  PRE
-        .BYTE $2F,$2F,$20,$2A,$24,$22,$27,$20 ; SS FIRE 
-        .BYTE $3A,$30,$20,$29,$27,$21,$24,$26 ; TO BEGIN
-
-;-----------------------------------------------------------
-;IncrementSelectedLevel
-;-----------------------------------------------------------
-        LDA SelectedLevel
+        .BYTE $3C,$3D,$20,$31,$39,$38,$32,$20
+        .BYTE $2B,$27,$2F,$20,$20,$2E,$22,$27
+        .BYTE $2F,$2F,$20,$2A,$24,$22,$27,$20
+        .BYTE $3A,$30,$20,$29,$27,$21,$24,$26
+;-------------------------------------------------------------------------
+; s80A0
+;-------------------------------------------------------------------------
+s80A0
+        LDA a35
         CMP #$20
-        BNE b09AA
+        BNE b80AA
         LDA #$01
-        STA SelectedLevel
-b09AA   LDA #$30 ; "0"
+        STA a35
+b80AA   LDA #$30
         STA a0557
         STA a0558
-        LDX SelectedLevel
-b09B4   INC a0558
+        LDX a35
+b80B4   INC a0558
         LDA a0558
-b09BB   =*+$01
         CMP #$3A
-        BNE b09C6
-        LDA #$30 ; "0"
+        BNE b80C6
+        LDA #$30
         STA a0558
         INC a0557
-b09C6   DEX 
-        BNE b09B4
+b80C6   DEX 
+        BNE b80B4
         LDX #$30
-b09CB   JSR SpinFor255Cycles
+b80CB   JSR s8386
         DEX 
-        BNE b09CB
+        BNE b80CB
         RTS 
 
-;-----------------------------------------------------------
-;WriteCopyrightLine
-;-----------------------------------------------------------
-        LDX #$20
-CopyrightLineLoop
-        LDA CopyrightLine,X
-        STA SCREENRAM + $0192,X
-        LDA #YELLOW
-        STA COLOURRAM + $0192,X
+j80D2   LDX #$20
+b80D4   LDA f807F,X
+        STA f0592,X
+        LDA #$07
+        STA fD992,X
         DEX 
-        BNE CopyrightLineLoop
-        JMP e8DC0
+        BNE b80D4
+        JMP j8DC0
 
-;--------------------------------------------------------------
-;StartLevel
-;--------------------------------------------------------------
-        LDA #$34 ; '4' is the inital number of lives
-        STA LivesDisplay
-        LDX #$07 ; The score is 7 digits long
-        LDA #$30 ; "0"
-ILS_LOOP
-        STA SCREEN_PL1_SCORE-1,X
+j80E5   LDA #$34
+        STA a0427
+        LDX #$07
+        LDA #$30
+b80EE   STA f040E,X
         DEX 
-        BNE ILS_LOOP
-        JMP DisplayNewLevelInterstitial
+        BNE b80EE
+        JMP j8C2D
 
-;--------------------------------------------------------------
-;CheckInputAgain
-;--------------------------------------------------------------
-b09F7   LDA SysKeyCode_C5
+b80F7   LDA aC5
         CMP #$29
-        BEQ b09F7
+        BEQ b80F7
         RTS 
 
         NOP 
         NOP 
-
-;--------------------------------------------------------------
-;InitializeGame
-;--------------------------------------------------------------
-
-; Init_Chars
-; $D018 must be set to point to the address of the custom character
-; set that we loaded to $2000. So do that.
-        LDA #$D0
-        STA zpHi2
-        LDA #$00
-        STA zpLo2
+j8100   LDA #>pD000
+        STA a03
+        LDA #<pD000
+        STA a02
         LDY #$18
         TYA 
-        STA (zpLo2),Y
+        STA (p02),Y
         LDY #$20
         LDA #$00
-        STA (zpLo2),Y
+        STA (p02),Y
         INY 
-        STA (zpLo2),Y
-
+        STA (p02),Y
         LDA #$0A
         STA $D401    ;Voice 1: Frequency Control - High-Byte
         STA $D405    ;Voice 1: Attack / Decay Cycle Control
@@ -484,73 +315,76 @@ b09F7   LDA SysKeyCode_C5
         LDA #$05
         STA $D408    ;Voice 2: Frequency Control - High-Byte
         LDX #$00
-        LDA #<SCREENRAM
-        STA zpLo2
-        LDA #>SCREENRAM
-        STA zpHi2
-SetScreenPointersLoop
-        LDA zpLo2
-        STA SCREEN_PTR_LO,X
-        LDA zpHi2
-        STA SCREEN_PTR_HI,X
+        LDA #<p0400
+        STA a02
+        LDA #>p0400
+        STA a03
+b8138   LDA a02
+        STA f0340,X
+        LDA a03
+        STA f0360,X
         LDY #$00
         LDA #$20
-NextRow
-        STA (zpLo2),Y
+b8146   STA (p02),Y
         INY 
         CPY #$28
-        BNE NextRow
-        LDA zpLo2
+        BNE b8146
+        LDA a02
         CLC 
         ADC #$28
-        STA zpLo2
-        LDA zpHi2
+        STA a02
+        LDA a03
         ADC #$00
-        STA zpHi2
+        STA a03
         INX 
         CPX #$18
-        BNE SetScreenPointersLoop
-        JMP SetUpMenu
+        BNE b8138
+        JMP j8818
+
         RTS 
 
-;-------------------------------------------------------------------------------
-; Screen_GetPointer
-; Uses the screen pointer array to fetch screen address based on an X and Y 
-; value stored in zpHi2 and zpLo2 before the routine is called
-;-------------------------------------------------------------------------------
-        LDX zpHi2
-        LDY zpLo2
-        LDA SCREEN_PTR_LO,X
-        STA zpLo3
-        LDA SCREEN_PTR_HI,X
-        STA zpHi3
+;-------------------------------------------------------------------------
+; s8163
+;-------------------------------------------------------------------------
+s8163
+        LDX a03
+        LDY a02
+        LDA f0340,X
+        STA a06
+        LDA f0360,X
+        STA a07
         RTS 
 
-;-------------------------------------------------------------------------------
-; Screen_Plot
-; Plots a char to the screen and sets its colour. Char is stored in charToPlot
-; and colour in colourToPlot before routine is called.
-;-------------------------------------------------------------------------------
-        JSR Screen_GetPointer
-        LDA charToPlot
-        STA (zpLo3),Y
-        LDA zpHi3
+;-------------------------------------------------------------------------
+; s8172
+;-------------------------------------------------------------------------
+s8172
+        JSR s8163
+        LDA a04
+        STA (p06),Y
+        LDA a07
         CLC 
         ADC #$D4
-        STA zpHi3
-        LDA zpHi3
-        LDA zpHi3
-        STA zpHi3
-        LDA colourToPlot
-        STA (zpLo3),Y
+        STA a07
+        LDA a07
+        LDA a07
+        STA a07
+        LDA a05
+        STA (p06),Y
         RTS 
 
-;GetCurrentChar
-        JSR Screen_GetPointer
-        LDA (zpLo3),Y
+;-------------------------------------------------------------------------
+; s818B
+;-------------------------------------------------------------------------
+s818B
+        JSR s8163
+        LDA (p06),Y
         RTS 
 
-;PlaySomeSound
+;-------------------------------------------------------------------------
+; s8191
+;-------------------------------------------------------------------------
+s8191
         LDA #$00
         STA $D404    ;Voice 1: Control Register
         STA $D40B    ;Voice 2: Control Register
@@ -559,106 +393,110 @@ NextRow
         STA $D40B    ;Voice 2: Control Register
         RTS 
 
-;-------------------------------------------------------------
-; DrawGrid
-;-------------------------------------------------------------
+;-------------------------------------------------------------------------
+; s81A2
+;-------------------------------------------------------------------------
+s81A2
         LDA #$02
         STA a08
-        LDA #ORANGE
-        STA colourToPlot
-        LDA #GRID_BAR_CHR
-        STA charToPlot
-b0AAE   LDA #$00
+        LDA #>p083F
+        STA a05
+        LDA #<p083F
+        STA a04
+b81AE   LDA #$00
         STA $D412    ;Voice 3: Control Register
         LDA #$00
         STA $D412    ;Voice 3: Control Register
         LDA #$02
         STA a09
-b0ABC   LDA a09
-        STA zpHi2
+b81BC   LDA a09
+        STA a03
         LDA a08
-        STA zpLo2
-        JSR Screen_Plot
-        JSR PlaySomeSound
+        STA a02
+        JSR s8172
+        JSR s8191
         INC a09
         LDA a09
         CMP #$16
-        BNE b0ABC
+        BNE b81BC
         LDX #$01
-b0AD4   JSR e8230
+b81D4   JSR s8230
         DEY 
-        BNE b0ADA
-b0ADA   DEX 
-        BNE b0AD4
+        BNE b81DA
+b81DA   DEX 
+        BNE b81D4
         INC a08
         LDA a08
         CMP #$27
-        BNE b0AAE
+        BNE b81AE
         LDA #$02
         STA a08
         LDA #$00
-        STA charToPlot
-b0AED   LDA #$01
+        STA a04
+b81ED   LDA #$01
         STA a09
-b0AF1   LDA a09
-        STA zpLo2
+b81F1   LDA a09
+        STA a02
         LDA a08
-        STA zpHi2
-        JSR Screen_Plot
-        JSR PlaySomeSound
+        STA a03
+        JSR s8172
+        JSR s8191
         INC a09
         LDA a09
         CMP #$27
-        BNE b0AF1
+        BNE b81F1
         LDX #$01
-b0B09   JSR e8230
+b8209   JSR s8230
         DEY 
-        BNE b0B0F
-b0B0F   DEX 
-        BNE b0B09
+        BNE b820F
+b820F   DEX 
+        BNE b8209
         INC a08
         LDA a08
         CMP #$16
-        BNE b0AED
-b0B1A   RTS 
+        BNE b81ED
+b821A   RTS 
 
-;-------------------------------------------------------------------------------
-;CheckPause
-;-------------------------------------------------------------------------------
-        LDA SysKeyCode_C5
+;-------------------------------------------------------------------------
+; s821B
+;-------------------------------------------------------------------------
+s821B
+        LDA aC5
         CMP #$29
-        BNE b0B1A
-b0B21   LDA SysKeyCode_C5
+        BNE b821A
+b8221   LDA aC5
         CMP #$29
-        BEQ b0B21
-b0B27   LDA SysKeyCode_C5
+        BEQ b8221
+b8227   LDA aC5
         CMP #$29
-        BNE b0B27
-        JMP CheckInputAgain
-        ;RTS
+        BNE b8227
+        JMP b80F7
 
-;e8230
-        JMP e8233
-;e8233
-        LDA #$04
+;-------------------------------------------------------------------------
+; s8230
+;-------------------------------------------------------------------------
+s8230
+        JMP j8233
+
+j8233   LDA #$04
         STA a0A
-;e8237
-        INC a0A
+j8237   INC a0A
         LDA a0A
         CMP #$04
-        BNE b0B40
+        BNE b8240
         RTS 
 
-b0B40   LDA a08
+b8240   LDA a08
         STA $D401    ;Voice 1: Frequency Control - High-Byte
         LDA a08
         ADC #$01
         STA $D408    ;Voice 2: Frequency Control - High-Byte
-        JMP e8237
+        JMP j8237
 
-;-------------------------------------------------------------------------------
-;MaterializeShip
-;-------------------------------------------------------------------------------
+;-------------------------------------------------------------------------
+; s824F
+;-------------------------------------------------------------------------
+s824F
         LDA #$0F
         STA a0A
         LDA #$02
@@ -666,93 +504,84 @@ b0B40   LDA a08
         LDA #$00
         STA $D404    ;Voice 1: Control Register
         STA $D40B    ;Voice 2: Control Register
-        LDA #$16
-        STA charToPlot
-;MaterializeShipLoop
-        LDA #>p0116
-        STA colourToPlot
+        LDA #<p0116
+        STA a04
+j8264   LDA #>p0116
+        STA a05
         LDA #$00
         STA $D40B    ;Voice 2: Control Register
         LDA #$81
         STA $D40B    ;Voice 2: Control Register
         LDA #$15
-        STA zpHi2
+        STA a03
         LDA #$14
         CLC 
         SBC a0A
-        STA zpLo2
-        JSR Screen_Plot
+        STA a02
+        JSR s8172
         LDA #$14
         CLC 
         ADC a0A
-        STA zpLo2
-        JSR Screen_Plot
-        LDA zpHi2
+        STA a02
+        JSR s8172
+        LDA a03
         CLC 
         SBC a0A
-        STA zpHi2
-        JSR Screen_Plot
+        STA a03
+        JSR s8172
         LDA #$14
-        STA zpLo2
-        JSR Screen_Plot
+        STA a02
+        JSR s8172
         LDA #$14
         SBC a0A
-        STA zpLo2
-        JSR Screen_Plot
-        INC charToPlot
-        LDA charToPlot
+        STA a02
+        JSR s8172
+        INC a04
+        LDA a04
         CMP #$19
-        BNE b0BAE
+        BNE b82AE
         LDA #$16
-b0BAE   STA a09
+b82AE   STA a09
         LDX a0A
-b0BB2   JSR SpinForCyclesIn0A
+b82B2   JSR s8380
         DEX 
-        BNE b0BB2
+        BNE b82B2
         LDA #<p0800
-        STA charToPlot
+        STA a04
         LDA #>p0800
-        STA colourToPlot
+        STA a05
         LDA #$14
-        STA zpLo2
-        JSR Screen_Plot
+        STA a02
+        JSR s8172
         LDA #$14
         CLC 
         SBC a0A
-        STA zpLo2
-        JSR Screen_Plot
+        STA a02
+        JSR s8172
         LDA #$14
         CLC 
         ADC a0A
-        STA zpLo2
-        JSR Screen_Plot
+        STA a02
+        JSR s8172
         LDA #$15
-        STA zpHi2
-        JSR Screen_Plot
+        STA a03
+        JSR s8172
         LDA #$14
         CLC 
         SBC a0A
-        STA zpLo2
-        JMP DrawMaterializeShip ; Jumps to MaterializeShipLoop
-        ; This will eventually RTS from DrawMaterializeShip
+        STA a02
+        JMP j8400
 
-;-----------------------------------------------------------
-; LoadCharSetData
-;-----------------------------------------------------------
-        LDX #$00
-LCS_LOOP
-        LDA CharSet1,X
+j82EC   LDX #$00
+b82EE   LDA f8E00,X
         STA f2000,X
-        LDA CharSet2,X
+        LDA f8F00,X
         STA f2100,X
         DEX 
-        BNE LCS_LOOP
-        JMP InitializeGame
+        BNE b82EE
+        JMP j8100
 
-;-----------------------------------------------------------
-; DrawNewLevelScreen
-;-----------------------------------------------------------
-        LDA #$0F
+j8300   LDA #$0F
         STA $D418    ;Select Filter Mode and Volume
         LDA #$A0
         STA $D40F    ;Voice 3: Frequency Control - High-Byte
@@ -760,14 +589,12 @@ LCS_LOOP
         STA $D413    ;Voice 3: Attack / Decay Cycle Control
         LDA #$00
         STA $D414    ;Voice 3: Sustain / Release Cycle Control
-
-        JSR DrawGrid
-        JSR MaterializeShip
-
+        JSR s81A2
+        JSR s824F
         LDA #<p1514
-        STA ShipPreviousXPosition
+        STA a0B
         LDA #>p1514
-        STA ShipPreviousYPosition
+        STA a0C
         LDA #$FF
         STA a11
         LDA #>p0102
@@ -780,13 +607,13 @@ LCS_LOOP
         STA a17
         STA $D413    ;Voice 3: Attack / Decay Cycle Control
         STA a18
-        JSR e8748
+        JSR s8748
         LDA #$00
         STA a22
         STA a23
         STA a24
         LDA #$13
-        STA Snake
+        STA a26
         LDA #$20
         STA a28
         LDA a2B
@@ -798,310 +625,310 @@ LCS_LOOP
         STA a29
         LDA #$0F
         STA $D418    ;Select Filter Mode and Volume
+        .BYTE $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+        JMP j83A0
 
-        .BYTE $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA ; NOPs
-
-        JMP JumpToMainGameLoop
-
-;-----------------------------------------------------------
-;CheckJoy
-;-----------------------------------------------------------
-        LDA JOY1
+;-------------------------------------------------------------------------
+; s8373
+;-------------------------------------------------------------------------
+s8373
+        LDA aDC11
         EOR #$FF
-        STA InputJoy
+        STA a0E
         RTS 
 
-        .BYTE $EA,$EA,$EA,$EA,$EA ; Bunch No-Ops
-
-;-----------------------------------------------------------
-;SpinForCyclesIn0A
-;-----------------------------------------------------------
+        .BYTE $EA,$EA,$EA,$EA,$EA
+;-------------------------------------------------------------------------
+; s8380
+;-------------------------------------------------------------------------
+s8380
         LDA a0A
         CMP #$00
-        BEQ SC_RETURN
-
-;SpinFor255Cycles
+        BEQ b8392
+;-------------------------------------------------------------------------
+; s8386
+;-------------------------------------------------------------------------
+s8386
         LDA #$00
-        ; Fall through to DecrementAccumToZero
+j8388   STA a30
+b838A   DEC a30
+        BNE b838A
+b838E   DEC a30
+        BNE b838E
+b8392   RTS 
 
-a30 = $30
-;DecrementAccumToZero
-        STA a30
-b0C8A   DEC a30
-        BNE b0C8A
-b0C8E   DEC a30
-        BNE b0C8E
-SC_RETURN
-        RTS 
+j8393   JSR s8470
+        JSR s821B
+        JMP j83A3
 
-;-------------------------------------------------------------------------------
-;Main_GameLoop
-;-------------------------------------------------------------------------------
-        JSR UpdateShipPosition
-        JSR CheckPause
-        JMP GameLoopBody
+        NOP 
+        NOP 
+        NOP 
+        NOP 
+j83A0   JMP j8393
 
-        .BYTE $EA, $EA, $EA, $EA ; NOPs
+j83A3   JSR s84F8
+        JSR s859B
+        JSR s8635
+        JSR s86D7
+        JSR s8753
+        JSR s889A
+        JSR s88C9
+        JSR s89A0
+        JSR s8AC8
+        JMP j83E8
 
-;JumpToMainGameLoop
-        JMP Main_GameLoop
+;---------------------------------------------------------------------------------
+; s83C1   
+;---------------------------------------------------------------------------------
+s83C1   
+        SEI 
+        CLD 
+        LDA #$05
+        STA $D016    ;VIC Control Register 2
+        JSR ROM_IOINITj ;$FDA3 (jmp) - initialize CIA & IRQ             
+        JSR ROM_RAMTASj ;$FD50 (jmp) - RAM test & search RAM end        
+        JSR ROM_RESTORj ;$FD15 (jmp) - restore default I/O vectors      
+        JSR sE518
+        CLI 
+        LDA #$08
+        JSR ROM_CHROUT ;$FFD2 - output character                 
+        NOP 
+        NOP 
+        NOP 
+        NOP 
+        NOP 
+        JMP j82EC
 
-;GameLoopBody
-        JSR Game_DecrementTimer
-        JSR UpdateXYZappers
-        JSR UpdateScreen
-        JSR UpdatePods
-        JSR DrawUpdatedPods
-        JSR PlayBackgroundSounds
-        JSR DrawSnake
-        JSR MaybeResetSomeCounter
-        JSR e8AC8
-        JMP StartWaitLoop
+        PLA 
+        TAY 
+        PLA 
+        TAX 
+        PLA 
+        RTI 
 
-;*************************************************************************************
-        SEI                                                            ; Never Reached
-        CLD                                                            ; Never Reached
-        LDA #$05                                                       ; Never Reached
-        STA $D016    ;VIC Control Register 2                           ; Never Reached
-        JSR ROM_IOINITj ;$FDA3 (jmp) - initialize CIA & IRQ            ; Never Reached
-        JSR ROM_RAMTASj ;$FD50 (jmp) - RAM test & search RAM end       ; Never Reached
-        JSR ROM_RESTORj ;$FD15 (jmp) - restore default I/O vectors     ; Never Reached
-        JSR eE518                                                      ; Never Reached
-        CLI                                                            ; Never Reached
-        LDA #$08                                                       ; Never Reached
-        JSR ROM_CHROUT ;$FFD2 - output character                       ; Never Reached
-        NOP                               ; Never Reached
-        NOP                               ; Never Reached
-        NOP                               ; Never Reached
-        NOP                               ; Never Reached
-        NOP                               ; Never Reached
-        JMP LoadCharSetData                         ; Never Reached
-        PLA                               ; Never Reached
-        TAY                               ; Never Reached
-        PLA                               ; Never Reached
-        TAX                               ; Never Reached
-        PLA                               ; Never Reached
-        RTI                               ; Never Reached
-;*************************************************************************************
-
-; StartWaitLoop
+;---------------------------------------------------------------------------------
+; j83E8   
+;---------------------------------------------------------------------------------
+j83E8   
         LDX #$15
-WaitLoop
-        DEX 
-        BNE WaitLoop
-        JMP JumpToMainGameLoop
+b83EA   DEX 
+        BNE b83EA
+        JMP j83A0
 
-        .BYTE $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA ; NOPs
-        JMP JumpToMainGameLoop            
-        .BYTE $EA, $EA, $EA ; NOPs
+        .BYTE $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+        JMP j83A0
 
-;--------------------------------------------------------------
-; DrawMaterializeShip
-;--------------------------------------------------------------
-        JSR Screen_Plot
+        NOP 
+        NOP 
+        NOP 
+;---------------------------------------------------------------------------------
+; j8400   
+;---------------------------------------------------------------------------------
+j8400   
+        JSR s8172
         LDA a09
-        STA charToPlot
-p0D07   DEC a0A
+        STA a04
+        DEC a0A
         LDA a0A
         CMP #$FF
-        BEQ b0D1A
+        BEQ b841A
         LDA #$0F
         CLC 
         SBC a0A
         STA $D418    ;Select Filter Mode and Volume
-        JMP MaterializeShipLoop
+        JMP j8264
 
-b0D1A   LDA #<p0D07
-        STA charToPlot
+b841A   LDA #<p0D07
+        STA a04
         LDA #>p0D07
-        STA colourToPlot
+        STA a05
         LDA #>p1514
-        STA zpHi2
+        STA a03
         LDA #<p1514
-        STA zpLo2
-        JSR Screen_Plot
+        STA a02
+        JSR s8172
         LDA #$0F
         STA $D418    ;Select Filter Mode and Volume
-        JSR e8450
+        JSR s8450
         LDA #$08
         STA $D418    ;Select Filter Mode and Volume
-        JSR e8450
+        JSR s8450
         LDA #$02
         STA $D418    ;Select Filter Mode and Volume
-        JSR e8450
+        JSR s8450
         LDA #$00
         STA $D40B    ;Voice 2: Control Register
         LDA #$0F
         STA $D418    ;Select Filter Mode and Volume
         RTS 
 
-;--------------------------------------------------------------
-;e8450
-;--------------------------------------------------------------
+;-------------------------------------------------------------------------
+; s8450
+;-------------------------------------------------------------------------
+s8450
         LDA #$18
         STA a0A
-b0D54   LDA a0A
+b8454   LDA a0A
         STA $D408    ;Voice 2: Frequency Control - High-Byte
         LDA #$00
         STA $D40B    ;Voice 2: Control Register
         LDA #$11
         STA $D40B    ;Voice 2: Control Register
         LDX #$02
-b0D65   JSR SpinForCyclesIn0A
+b8465   JSR s8380
         DEX 
-        BNE b0D65
+        BNE b8465
         DEC a0A
-        BNE b0D54
+        BNE b8454
         RTS 
 
-;--------------------------------------------------------------
-; UpdateShipPosition
-;--------------------------------------------------------------
-        DEC SomeCounter
-        BEQ b0D75
+;-------------------------------------------------------------------------
+; s8470
+;-------------------------------------------------------------------------
+s8470
+        DEC a0D
+        BEQ b8475
         RTS 
 
-b0D75   JSR CheckJoy
-        LDA ShipPreviousXPosition
-        STA zpLo2
-        LDA ShipPreviousYPosition
-        STA zpHi2
-        JSR GetCurrentChar
-        CMP #$07                   ; Ship
-        BEQ IsShip
-        JSR ReturnIfBulletOrGrid
-IsShip   LDA #<p0800
-        STA charToPlot
+b8475   JSR s8373
+        LDA a0B
+        STA a02
+        LDA a0C
+        STA a03
+        JSR s818B
+        CMP #$07
+        BEQ b848A
+        JSR s8BEC
+b848A   LDA #<p0800
+        STA a04
         LDA #>p0800
-        STA colourToPlot
-        JSR Screen_Plot
-        LDA InputJoy
-        AND #JOY_UP
-        BEQ CheckJoyDown
-        DEC zpHi2
-        LDA zpHi2
+        STA a05
+        JSR s8172
+        LDA a0E
+        AND #$01
+        BEQ b84A7
+        DEC a03
+        LDA a03
         CMP #$0E
-        BNE CheckJoyDown
+        BNE b84A7
         LDA #$0F
-        STA zpHi2
-CheckJoyDown
-        LDA InputJoy
-        AND #JOY_DOWN
-        BEQ CheckJoyLeft
-        INC zpHi2
-        LDA zpHi2
+        STA a03
+b84A7   LDA a0E
+        AND #$02
+        BEQ b84B9
+        INC a03
+        LDA a03
         CMP #$16
-        BNE CheckJoyLeft
+        BNE b84B9
         LDA #$15
-        STA zpHi2
-CheckJoyLeft
-         LDA InputJoy
-        AND #JOY_LEFT
-        BEQ CheckJoyRight
-        DEC zpLo2
-        LDA zpLo2
+        STA a03
+b84B9   LDA a0E
+        AND #$04
+        BEQ b84CB
+        DEC a02
+        LDA a02
         CMP #$00
-        BNE CheckJoyRight
+        BNE b84CB
         LDA #$01
-        STA zpLo2
-CheckJoyRight
-        LDA InputJoy
-        AND #JOY_RIGHT
-        BEQ b0DDD
-        INC zpLo2
-        LDA zpLo2
+        STA a02
+b84CB   LDA a0E
+        AND #$08
+        BEQ b84DD
+        INC a02
+        LDA a02
         CMP #$27
-        BNE b0DDD
+        BNE b84DD
         LDA #$26
-        STA zpLo2
-b0DDD   JSR GetCurrentChar
-        BEQ b0DE5
-        JSR CheckIfBlockedByPod_CA
-b0DE5   LDA zpLo2
-        STA ShipPreviousXPosition
-        LDA zpHi2
-        STA ShipPreviousYPosition
+        STA a02
+b84DD   JSR s818B
+        BEQ b84E5
+        JSR s89AB
+b84E5   LDA a02
+        STA a0B
+        LDA a03
+        STA a0C
         LDA #>p0D07
-        STA colourToPlot
+        STA a05
         LDA #<p0D07
-        STA charToPlot
-        JMP Screen_Plot
+        STA a04
+        JMP s8172
 
-;-------------------------------------------------------------------------------
-;Game_DecrementTimer
-;-------------------------------------------------------------------------------
-        DEC GameTimer
-        BEQ ResetGameTimer
-b0DFC   RTS 
+;-------------------------------------------------------------------------
+; s84F8
+;-------------------------------------------------------------------------
+s84F8
+        DEC a0F
+        BEQ b84FD
+b84FC   RTS 
 
-ResetGameTimer
-        LDA #$18
-        STA GameTimer
-
-p0E02   =*+$01
-        JSR MaybePlayPulse
+b84FD   LDA #$18
+        STA a0F
+        JSR s8573
         LDA a11
         CMP #$FF
-        BNE b0E22
-        LDA InputJoy
+        BNE b8522
+        LDA a0E
         AND #$10
-        BEQ b0DFC
-        LDA ShipPreviousXPosition
+        BEQ b84FC
+        LDA a0B
         STA a10
-        LDA ShipPreviousYPosition
+        LDA a0C
         STA a11
         DEC a11
         LDA #<p4008
         STA a12
         LDA #>p4008
         STA a13
-b0E22   LDA a10
-        STA zpLo2
+b8522   LDA a10
+        STA a02
         LDA a11
-        STA zpHi2
-        JSR GetCurrentChar
+        STA a03
+        JSR s818B
         CMP a12
-        BEQ b0E38
+        BEQ b8538
         CMP #$00
-        BEQ b0E38
-        JSR e87CB
-b0E38   LDA #>p0800
-        STA colourToPlot
+        BEQ b8538
+        JSR s87CB
+b8538   LDA #>p0800
+        STA a05
         LDA #<p0800
-        STA charToPlot
-        JSR Screen_Plot
+        STA a04
+        JSR s8172
         INC a12
         LDA a12
         CMP #$0A
-        BNE b0E5C
+        BNE b855C
         DEC a11
         LDA a11
         CMP #$02
-        BNE b0E58
+        BNE b8558
         LDA #$FF
         STA a11
         RTS 
 
-b0E58   LDA #$08
+b8558   LDA #$08
         STA a12
-b0E5C   LDA a11
-        STA zpHi2
-        JSR GetCurrentChar
-        BEQ b0E68
-        JSR e87CB
-b0E68   LDA a12
-        STA charToPlot
+b855C   LDA a11
+        STA a03
+        JSR s818B
+        BEQ b8568
+        JSR s87CB
+b8568   LDA a12
+        STA a04
         LDA #$01
-        STA colourToPlot
-        JMP Screen_Plot
+        STA a05
+        JMP s8172
 
-;MaybePlayPulse
+;-------------------------------------------------------------------------
+; s8573
+;-------------------------------------------------------------------------
+s8573
         LDA a13
-        BNE PlayPulse
+        BNE b8578
         RTS 
 
-PlayPulse
-        DEC a13
+b8578   DEC a13
         LDA a13
         ADC #$00
         STA $D401    ;Voice 1: Frequency Control - High-Byte
@@ -1117,69 +944,74 @@ PlayPulse
         STA $D40B    ;Voice 2: Control Register
         RTS 
 
-;-------------------------------------------------------------------------------
-; UpdateXYZappers
-;-------------------------------------------------------------------------------
-        LDA SomeCounter
+;-------------------------------------------------------------------------
+; s859B
+;-------------------------------------------------------------------------
+s859B
+        LDA a0D
         CMP #$01
-        BEQ b0EA2
-b0EA1   RTS 
+        BEQ b85A2
+b85A1   RTS 
 
-b0EA2   DEC a14
-        BNE b0EA1
+b85A2   DEC a14
+        BNE b85A1
         LDA #$02
         STA a14
         LDA #$00
-        STA zpLo2
+        STA a02
         LDA a15
-        STA zpHi2
+        STA a03
         LDA #$20
-        STA charToPlot
-        JSR Screen_Plot
+        STA a04
+        JSR s8172
         INC a15
         LDA a15
         CMP #$16
-        BNE b0EC5
+        BNE b85C5
         LDA #$03
         STA a15
-b0EC5   LDA a15
-        STA zpHi2
-        LDA #WHITE                 
-        STA colourToPlot
-        LDA #$01                 ; Y Zapper
-        STA charToPlot
-        JSR Screen_Plot
+b85C5   LDA a15
+        STA a03
+        LDA #>p0101
+        STA a05
+        LDA #<p0101
+        STA a04
+        JSR s8172
         LDA #$16
-        STA zpHi2
+        STA a03
         LDA a16
-        STA zpLo2
+        STA a02
         LDA #$20
-        JSR e85F8
+        JSR s85F8
         INC a16
         LDA a16
         CMP #$27
-        BNE b0EED
+        BNE b85ED
         LDA #$01
         STA a16
-b0EED   LDA a16
-        STA zpLo2
-        LDA #$02                ; X Zapper
-        STA charToPlot
-        JMP e85FD
-;e85F8
-        STA charToPlot
-        JMP Screen_Plot
-;e85FD
-        JSR Screen_Plot
+b85ED   LDA a16
+        STA a02
+        LDA #$02
+        STA a04
+        JMP j85FD
+
+;-------------------------------------------------------------------------
+; s85F8
+;-------------------------------------------------------------------------
+s85F8
+        STA a04
+        JMP s8172
+
+j85FD   JSR s8172
         DEC a17
-        BEQ b0F05
+        BEQ b8605
         RTS 
 
-b0F05   LDA a34
+b8605   LDA a34
         STA a17
-        JSR e862F
+        JSR s862F
         LDA #$00
-a0F0E   STA $D412    ;Voice 3: Control Register
+        STA $D412    ;Voice 3: Control Register
         LDA #$21
         STA $D412    ;Voice 3: Control Register
         LDA #<p05FF
@@ -1195,353 +1027,363 @@ a0F0E   STA $D412    ;Voice 3: Control Register
         LDA a16
         STA a1C
         RTS 
-;e862F
+
+;-------------------------------------------------------------------------
+; s862F
+;-------------------------------------------------------------------------
+s862F
         LDA #$03
         STA $D40F    ;Voice 3: Frequency Control - High-Byte
         RTS 
 
-;------------------------------------------------------------
-; UpdateScreen
-;------------------------------------------------------------
-        LDA GameTimer
+;-------------------------------------------------------------------------
+; s8635
+;-------------------------------------------------------------------------
+s8635
+        LDA a0F
         CMP #$05
-        BEQ b0F3C
-b0F3B   RTS 
+        BEQ b863C
+b863B   RTS 
 
-b0F3C   LDA a18
+b863C   LDA a18
         CMP #$FF
-        BNE b0F3B
-        JSR e86D0
+        BNE b863B
+        JSR s86D0
         NOP 
         CMP #$07
-        BNE b0F4E
+        BNE b864E
         LDA #$05
         STA a19
-b0F4E   LDA #$01
-        STA colourToPlot
+b864E   LDA #$01
+        STA a05
         LDA a19
-        STA charToPlot
+        STA a04
         LDA #$15
         STA a1D
-b0F5A   LDA a1D
-        STA zpHi2
+b865A   LDA a1D
+        STA a03
         LDA a1C
-        STA zpLo2
-        JSR Screen_Plot
+        STA a02
+        JSR s8172
         DEC a1D
         LDA a1D
         CMP #$02
-        BNE b0F5A
+        BNE b865A
         LDA a1A
-        STA zpHi2
+        STA a03
         LDA a1B
-        STA zpLo2
-        JSR GetCurrentChar
+        STA a02
+        JSR s818B
         CMP a19
-        BEQ b0FA2
+        BEQ b86A2
         LDA #<p0800
-        STA charToPlot
+        STA a04
         LDA #>p0800
-        STA colourToPlot
-        JSR Screen_Plot
+        STA a05
+        JSR s8172
         INC a1B
         LDA a1B
-        STA zpLo2
-        JSR e8020
+        STA a02
+        JSR s8020
         CMP a19
-        BEQ b0FA2
+        BEQ b86A2
         LDA #$01
-        STA colourToPlot
+        STA a05
         LDA a19
         CLC 
         SBC #$01
-        STA charToPlot
-        JMP Screen_Plot
+        STA a04
+        JMP s8172
 
-b0FA2   LDA #$15
-        STA zpHi2
+b86A2   LDA #$15
+        STA a03
         LDA a1C
-        STA zpLo2
+        STA a02
         LDA #>p0800
-        STA colourToPlot
+        STA a05
         LDA #<p0800
-        STA charToPlot
-b0FB2   JSR Screen_Plot
-        DEC zpHi2
-        LDA zpHi2
+        STA a04
+b86B2   JSR s8172
+        DEC a03
+        LDA a03
         CMP #$02
-        BNE b0FB2
+        BNE b86B2
         LDA a1A
-        STA zpHi2
+        STA a03
         LDA #>p070F
-        STA colourToPlot
+        STA a05
         LDA #<p070F
-        STA charToPlot
+        STA a04
         LDA #$00
         STA a18
-        JMP Screen_Plot
-;e86D0
-        DEC GameTimer
+        JMP s8172
+
+;-------------------------------------------------------------------------
+; s86D0
+;-------------------------------------------------------------------------
+s86D0
+        DEC a0F
         INC a19
         LDA a19
         RTS 
 
-;------------------------------------------------------------
-;UpdatePods
-;------------------------------------------------------------
+;-------------------------------------------------------------------------
+; s86D7
+;-------------------------------------------------------------------------
+s86D7
         LDA a17
         CMP #$05
-        BEQ b0FDE
+        BEQ b86DE
         RTS 
 
-b0FDE   DEC a17
-        LDA #$04
+b86DE   DEC a17
+        LDA #>p0450
         STA a20
-        LDA #$50
+        LDA #<p0450
         STA a1F
         LDY #$00
-b0FEA   LDA (p1F),Y
-        BNE b0FFB
-
-;e86EE
-b0FEE   INC a1F
-        BNE b0FEA
+b86EA   LDA (p1F),Y
+        BNE b86FB
+b86EE   INC a1F
+        BNE b86EA
         INC a20
         LDA a20
         CMP #$08
-        BNE b0FEA
+        BNE b86EA
         RTS 
 
-b0FFB   CMP #$20
-        BEQ b0FEE
-f0FFF   LDX #$07
-b1001   CMP PodDecaySequence_CA,X
-        BEQ b100C
+b86FB   CMP #$20
+        BEQ b86EE
+        LDX #$07
+b8701   CMP f871F,X
+        BEQ b870C
         DEX 
-        BNE b1001
-        JMP e86EE
+        BNE b8701
+        JMP b86EE
 
-b100C   CPX #$07
-        BEQ b1019
+b870C   CPX #$07
+        BEQ b8719
         INX 
-        LDA PodDecaySequence_CA,X
+        LDA f871F,X
         STA (p1F),Y
-        JMP e86EE
+        JMP b86EE
 
-b1019   JSR e8728
-        JMP e86EE
+b8719   JSR s8728
+        JMP b86EE
 
-; This is the sequence in which the yellow pods decay before exploding.
-; Each byte is a char representing a stage of decay, working from left to right.
-;PodDecaySequence_CA
-PodDecaySequence
-        .BYTE $EA,$18,$0D,$0E,$0F,$10,$11,$12,$13
-
-;e8728
-        LDA #$0A
+f871F   .BYTE $EA,$18,$0D,$0E,$0F,$10,$11
+        .BYTE $12,$13
+;-------------------------------------------------------------------------
+; s8728
+;-------------------------------------------------------------------------
+s8728   LDA #$0A
         STA (p1F),Y
         LDX #$18
-b102E   LDA PodDecaySequence,X
+b872E   LDA f101F,X
         CMP #$FF
-        BEQ b103D
+        BEQ b873D
         DEX 
-b1037   =*+$01
-        BNE b102E
+b8737   =*+$01
+        BNE b872E
         LDA #$12
         STA (p1F),Y
         RTS 
 
-b103D   LDA a1F
+b873D   LDA a1F
         STA f0FFF,X
         LDA a20
-        STA PodDecaySequence,X
+        STA f101F,X
         RTS 
 
-;--------------------------------------------------------------
-;e8748
-;--------------------------------------------------------------
+;-------------------------------------------------------------------------
+; s8748
+;-------------------------------------------------------------------------
+s8748
         LDX #$20
         LDA #$FF
-b104C   STA PodDecaySequence,X
+b874C   STA f101F,X
         DEX 
-        BNE b104C
+        BNE b874C
         RTS 
 
-;--------------------------------------------------------------
-;DrawUpdatedPods
-;--------------------------------------------------------------
+;-------------------------------------------------------------------------
+; s8753
+;-------------------------------------------------------------------------
+s8753
         DEC a21
-        BEQ b1058
+        BEQ b8758
         RTS 
-b1058   LDA #$40
+
+b8758   LDA #$40
         STA a21
         LDX #$18
-b105E   LDA PodDecaySequence,X
+b875E   LDA f101F,X
         CMP #$FF
-        BEQ b1068
-        JSR e876C
-b1068   DEX 
-        BNE b105E
+        BEQ b8768
+        JSR s876C
+b8768   DEX 
+        BNE b875E
         RTS 
 
-;e876C
+;-------------------------------------------------------------------------
+; s876C
+;-------------------------------------------------------------------------
+s876C
         LDA f0FFF,X
-        STA zpLo2
-        LDA PodDecaySequence,X
-        STA zpHi2
+        STA a02
+        LDA f101F,X
+        STA a03
         LDY #$00
-        LDA (zpLo2),Y
+        LDA (p02),Y
         CMP #$07
-        BNE b1081
-        JMP DrawGridCharAtOldPos
+        BNE b8781
+        JMP j8ADE
 
-b1081   LDA #$00
-        STA (zpLo2),Y
-        LDA zpHi2
+b8781   LDA #$00
+        STA (p02),Y
+        LDA a03
         CLC 
         ADC #$D4
-        STA zpHi2
+        STA a03
         LDA #$08
-        STA (zpLo2),Y
+        STA (p02),Y
         LDA f0FFF,X
         CLC 
         ADC #$28
         STA f0FFF,X
-        LDA PodDecaySequence,X
+        LDA f101F,X
         ADC #$00
-        STA PodDecaySequence,X
-        STA zpHi2
+        STA f101F,X
+        STA a03
         LDA f0FFF,X
-        STA zpLo2
-        LDA (zpLo2),Y
+        STA a02
+        LDA (p02),Y
         CMP #$20
-        BNE b10B4
+        BNE b87B4
         LDA #$FF
-        STA PodDecaySequence,X
+        STA f101F,X
         RTS 
 
-b10B4   CMP #$07
-        BNE b10BB
-        JMP DrawGridCharAtOldPos
+b87B4   CMP #$07
+        BNE b87BB
+        JMP j8ADE
 
-b10BB   LDA #$0A
-        STA (zpLo2),Y
-        LDA zpHi2
+b87BB   LDA #$0A
+        STA (p02),Y
+        LDA a03
         CLC 
         ADC #$D4
-        STA zpHi2
+        STA a03
         LDA #$01
-        STA (zpLo2),Y
+        STA (p02),Y
         RTS 
-;e87CB
+
+;-------------------------------------------------------------------------
+; s87CB
+;-------------------------------------------------------------------------
+s87CB
         LDX #$07
-b10CD   CMP PodDecaySequence_CA,X
-        BEQ b10D9
+b87CD   CMP f871F,X
+        BEQ b87D9
         DEX 
-        BNE b10CD
-        JMP e8A11
+        BNE b87CD
+        JMP j8A11
+
         RTS 
 
-b10D9   DEX 
-        BEQ b10EC
-        LDA PodDecaySequence_CA,X
-        STA charToPlot
+b87D9   DEX 
+        BEQ b87EC
+        LDA f871F,X
+        STA a04
         LDA #$07
-        STA colourToPlot
+        STA a05
         LDA #$FF
         STA a11
-        JMP e8801
+        JMP j8801
 
-b10EC   LDA #<p0800
-        STA charToPlot
+b87EC   LDA #<p0800
+        STA a04
         LDA #>p0800
-        STA colourToPlot
+        STA a05
         LDA #$FF
         STA a11
-        JSR Screen_Plot
-        JSR e888A
-f10FE   PLA 
-f10FF   PLA 
-f1100   RTS 
-
-;e8801
+        JSR s8172
+        JSR s888A
         PLA 
         PLA 
-        JMP Screen_Plot
-
-;---------------------------------------------------------------
-; Menu_DisplayHeader
-; Writes the text for the top of the title screen to the screen.
-;---------------------------------------------------------------
-        LDX #$28
-DisplayHeaderLoop
-        LDA ScreenHeaderText,X
-        STA SCREENRAM-1,X
-        LDA ScreenHeaderColors,X
-        STA COLOURRAM-1,X
-        DEX 
-        BNE DisplayHeaderLoop
         RTS 
-;SetUpMenu
-        JSR Menu_DisplayHeader
-        JMP JumpToDisplayTitleScreen
 
-        NOP
-        NOP
+j8801   PLA 
+        PLA 
+        JMP s8172
 
-;ScreenHeaderText
-        .BYTE $21,$22,$24,$25,$22,$23          ; GRIDRU
-        .BYTE $26,$26,$27,$22,$20,$20,$19,$1A  ; NNER  PL 1
-        .BYTE $20,$30,$30,$30,$30,$30,$30,$30  ;  0000000
-        .BYTE $20,$20,$1D,$1E,$20,$30,$30,$30  ;  HI: 000
-        .BYTE $30,$30,$30,$30,$20,$20,$07,$20  ; 0000  * 
-        .BYTE $20,$34                          ; 4
-;ScreenHeaderColors
-        .BYTE $03,$03,$03,$03,$04,$04  ;  
-        .BYTE $04,$04,$04,$04,$01,$01,$07,$07 
-        .BYTE $01,$03,$03,$03,$03,$03,$03,$03
-        .BYTE $01,$01,$07,$07,$01,$0E,$0E,$0E
-        .BYTE $0E,$0E,$0E,$0E,$01,$01,$0D,$01,$01
-        .BYTE $04
-
-;-------------------------------------------------------------------
-;IncrementPlayerScore
-;-------------------------------------------------------------------
-b1170   TXA
-        PHA 
-b1172   INC SCREEN_PL1_SCORE,X
-        LDA SCREEN_PL1_SCORE,X
-        CMP #$3A
-        BNE b1184
-        LDA #$30 ; "0"
-        STA SCREEN_PL1_SCORE,X
+;-------------------------------------------------------------------------
+; s8806
+;-------------------------------------------------------------------------
+s8806
+        LDX #$28
+b8808   LDA f881F,X
+        STA f03FF,X
+        LDA f8847,X
+        STA fD7FF,X
         DEX 
-        BNE b1172
-b1184   PLA 
+        BNE b8808
+        RTS 
+
+j8818   JSR s8806
+        JMP j8D57
+
+        NOP 
+f881F   .BYTE $EA,$21,$22,$24,$25,$22,$23,$26
+        .BYTE $26,$27,$22,$20,$20,$19,$1A,$20
+        .BYTE $30,$30,$30,$30,$30,$30,$30,$20
+        .BYTE $20,$1D,$1E,$20,$30,$30,$30,$30
+        .BYTE $30,$30,$30,$20,$20,$07,$20,$20
+f8847   .BYTE $34,$03,$03,$03,$03,$04,$04,$04
+        .BYTE $04,$04,$04,$01,$01,$07,$07,$01
+        .BYTE $03,$03,$03,$03,$03,$03,$03,$01
+        .BYTE $01,$07,$07,$01,$0E,$0E,$0E,$0E
+        .BYTE $0E,$0E,$0E,$01,$01,$0D,$01,$01
+        .BYTE $04
+b8870   TXA 
+        PHA 
+b8872   INC f040F,X
+        LDA f040F,X
+        CMP #$3A
+        BNE b8884
+        LDA #$30
+        STA f040F,X
+        DEX 
+        BNE b8872
+b8884   PLA 
         TAX 
         DEY 
-        BNE b1170
+        BNE b8870
         RTS 
 
-;e888A
+;-------------------------------------------------------------------------
+; s888A
+;-------------------------------------------------------------------------
+s888A
         LDX #$06
         LDY #$0A
-        JSR IncrementPlayerScore
+        JSR b8870
         LDA #<p03F0
         STA a22
         LDA #>p03F0
         STA a23
-b1199   RTS 
+b8899   RTS 
 
-;--------------------------------------------------------------
-;PlayBackgroundSounds
-;--------------------------------------------------------------
-        LDA SomeCounter
+;-------------------------------------------------------------------------
+; s889A
+;-------------------------------------------------------------------------
+s889A
+        LDA a0D
         AND #$01
-        BEQ b1199
+        BEQ b8899
         LDA a22
         AND #$C0
-        BEQ b11B8
+        BEQ b88B8
         DEC a22
         LDA a22
         STA $D40F    ;Voice 3: Frequency Control - High-Byte
@@ -1551,168 +1393,171 @@ b1199   RTS
         STA $D412    ;Voice 3: Control Register
         RTS 
 
-b11B8   LDA a23
-        BEQ b11C3
+b88B8   LDA a23
+        BEQ b88C3
         DEC a23
         LDA #$F0
         STA a22
         RTS 
 
-b11C3   LDA #$04
+b88C3   LDA #$04
         STA $D40F    ;Voice 3: Frequency Control - High-Byte
         RTS 
 
-;--------------------------------------------------------------
-;DrawSnake
-;--------------------------------------------------------------
+;-------------------------------------------------------------------------
+; s88C9
+;-------------------------------------------------------------------------
+s88C9
         DEC a25
-        BEQ b11CE
-b11CD   RTS 
+        BEQ b88CE
+b88CD   RTS 
 
-b11CE   LDA #$80
+b88CE   LDA #$80
         STA a25
-        JSR e89C1
+        JSR s89C1
         LDA a24
-        BEQ b11CD
+        BEQ b88CD
         TAX 
-        INC Snake ; Animating the head of the snake
-        LDA Snake
+        INC a26
+        LDA a26
         CMP #$16
-        BNE b11E6
-        LDA #$13 ; Snake Head initial state
-        STA Snake
-b11E6   STX a27
+        BNE b88E6
+        LDA #$13
+        STA a26
+b88E6   STX a27
         LDA f10FF,X
-        STA zpLo2
+        STA a02
         LDA f11FF,X
-        STA zpHi2
+        STA a03
         LDA #<p0800
-        STA charToPlot
+        STA a04
         LDA #>p0800
-        STA colourToPlot
-        JSR e8995
-f11FE   =*+$01
+        STA a05
+        JSR s8995
         LDX a27
-f1200   =*+$01
-f11FF   LDA f12FF,X
+        LDA f12FF,X
         AND #$40
-        BNE b122A
+        BNE b892A
         LDA f10FE,X
         STA f10FF,X
         LDA f11FE,X
         STA f11FF,X
-        STA zpHi2
+        STA a03
         LDA f10FF,X
-        STA zpLo2
-
-        ; Paint the snake
-        LDA #CYAN
-        STA colourToPlot
-        LDA #$13 ; Snake
-        STA charToPlot
-        JSR Screen_Plot
-;e8924
-        LDX a27
+        STA a02
+        LDA #>p0313
+        STA a05
+        LDA #<p0313
+        STA a04
+        JSR s8172
+j8924   LDX a27
         DEX 
-        BNE b11E6
+        BNE b88E6
         RTS 
 
-b122A   LDA f12FF,X
+b892A   LDA f12FF,X
         AND #$02
-        BNE b1235
-        INC zpLo2
-        INC zpLo2
-b1235   DEC zpLo2
-        JSR GetCurrentChar
-        BEQ b1290
+        BNE b8935
+        INC a02
+        INC a02
+b8935   DEC a02
+        JSR s818B
+        BEQ b8990
         LDX a27
-        JSR CheckForShipCollision
-        STA zpLo2
-        INC zpHi2
-        LDA zpHi2
+        JSR s8AE9
+        STA a02
+        INC a03
+        LDA a03
         CMP #$16
-        BNE b1262
+        BNE b8962
         LDA f12FF,X
         ORA #$01
         AND #$FD
         STA f12FF,X
         LDA #>p0E02
-        .BYTE $8D,$03,$00 ;STA a0003
+        STA @wa0003
         LDA #<p0E02
-        .BYTE $8D,$02,$00 ;STA a0002
-        JMP e896A
+        STA @wa0002
+        JMP j896A
 
-b1262   LDA f12FF,X
+b8962   LDA f12FF,X
         EOR #$03
         STA f12FF,X
-;e896A
-        LDA zpLo2
+j896A   LDA a02
         STA f10FF,X
-        LDA zpHi2
+        LDA a03
         STA f11FF,X
         LDA #$03
-        STA colourToPlot
-        LDA Snake
-        STA charToPlot
-        JSR Screen_Plot
+        STA a05
+        LDA a26
+        STA a04
+        JSR s8172
         LDX a27
-        JMP e8924
+        JMP j8924
 
         LDX #$01
-        INC Snake
+        INC a26
         RTS 
+
         LDX a27
         INX 
         CPX a24
         RTS 
-        NOP 
 
-b1290   LDX a27
-        JMP e896A
-;$8995
+        NOP 
+b8990   LDX a27
+        JMP j896A
+
+;-------------------------------------------------------------------------
+; s8995
+;-------------------------------------------------------------------------
+s8995
         LDA f12FF,X
         AND #$80
-        BEQ b129F
-        JMP Screen_Plot
+        BEQ b899F
+        JMP s8172
 
-b129F   RTS 
+b899F   RTS 
 
-;-------------------------------------------------------------------------------
-;MaybeResetSomeCounter
-;-------------------------------------------------------------------------------
-        LDA SomeCounter
+;-------------------------------------------------------------------------
+; s89A0
+;-------------------------------------------------------------------------
+s89A0
+        LDA a0D
         CMP #$FF
-        BNE b129F
+        BNE b899F
         LDA #$80
-        STA SomeCounter
+        STA a0D
         RTS 
 
-;-------------------------------------------------------------------------------
-;CheckIfBlockedByPod_CA
-;-------------------------------------------------------------------------------
+;-------------------------------------------------------------------------
+; s89AB
+;-------------------------------------------------------------------------
+s89AB
         LDX #$07
-b12AD   CMP PodDecaySequence_CA,X
-        BEQ b12B8
+b89AD   CMP f871F,X
+        BEQ b89B8
         DEX 
-        BNE b12AD
-        JMP ReturnIfBulletOrGrid
+        BNE b89AD
+        JMP s8BEC
 
-b12B8   LDA ShipPreviousXPosition
-        STA zpLo2
-        LDA ShipPreviousYPosition
-        STA zpHi2
+b89B8   LDA a0B
+        STA a02
+        LDA a0C
+        STA a03
         RTS 
 
-;-------------------------------------------------------------------------------
-;e89C1
-;-------------------------------------------------------------------------------
+;-------------------------------------------------------------------------
+; s89C1
+;-------------------------------------------------------------------------
+s89C1
         LDA a29
-        BNE b12E6
+        BNE b89E6
         DEC a28
-        BEQ b130C
+        BEQ b8A0C
         RTS 
 
-b12CA   LDA #$20
+b89CA   LDA #$20
         STA a28
         LDA a2B
         STA a29
@@ -1726,7 +1571,7 @@ b12CA   LDA #$20
         STA f12FF,X
         RTS 
 
-b12E6   INC a24
+b89E6   INC a24
         LDX a24
         LDA #$00
         STA f12FF,X
@@ -1736,453 +1581,397 @@ b12E6   INC a24
         STA f10FF,X
         DEC a29
         LDA a29
-f12FE   =*+$01
         CMP #$01
-f1300   =*+$01
-f12FF   BEQ b1302
+        BEQ b8A02
         RTS 
 
-b1302   DEC a29
+b8A02   DEC a29
         DEC a2A
         LDA #$80
         STA f12FF,X
         RTS 
 
-b130C   LDA a2A
-        BNE b12CA
+b8A0C   LDA a2A
+        BNE b89CA
         RTS 
-;e8A11
-        CMP #$13
-        BEQ b1328
+
+j8A11   CMP #$13
+        BEQ b8A28
         CMP #$14
-        BEQ b1321
+        BEQ b8A21
         CMP #$15
-        BEQ b1321
+        BEQ b8A21
         NOP 
         NOP 
         NOP 
         RTS 
 
-b1321   LDX #$04
+b8A21   LDX #$04
         LDY #$03
-        JSR IncrementPlayerScore
-b1328   LDX #$04
+        JSR b8870
+b8A28   LDX #$04
         LDY #$01
-        JSR e8A99
+        JSR s8A99
         LDA #$FF
         STA a11
         PLA 
         PLA 
         LDX a24
-b1337   LDA f10FF,X
-        CMP zpLo2
-        BEQ b1342
-b133E   DEX 
-        BNE b1337
+b8A37   LDA f10FF,X
+        CMP a02
+        BEQ b8A42
+b8A3E   DEX 
+        BNE b8A37
         RTS 
 
-b1342   LDA f11FF,X
-        CMP zpHi2
-        BNE b133E
+b8A42   LDA f11FF,X
+        CMP a03
+        BNE b8A3E
         LDA f12FF,X
         AND #$C0
-        BNE b137A
-        JSR e8AA4
-;e8A53
-b1353   LDA f1200,X
+        BNE b8A7A
+        JSR s8AA4
+j8A53   LDA f1200,X
         STA f11FF,X
         LDA f1100,X
         STA f10FF,X
         LDA f1300,X
         STA f12FF,X
         CPX a24
-        BEQ b136D
+        BEQ b8A6D
         INX 
-        JMP e8A53
+        JMP j8A53
 
-b136D   LDA #>p070F
-        STA colourToPlot
+b8A6D   LDA #>p070F
+        STA a05
         LDA #<p070F
-        STA charToPlot
+        STA a04
         DEC a24
-        JMP Screen_Plot
+        JMP s8172
 
-b137A   CMP #$C0
-        BEQ b1353
+b8A7A   CMP #$C0
+        BEQ j8A53
         CMP #$40
-        BEQ b138D
+        BEQ b8A8D
         LDA f12FE,X
         ORA #$80
         STA f12FE,X
-        JMP e8A53
+        JMP j8A53
 
-b138D   LDA f1300,X
+b8A8D   LDA f1300,X
         ORA f12FF,X
         STA f1300,X
-        JMP e8A53
-;e8A99
+        JMP j8A53
+
+;-------------------------------------------------------------------------
+; s8A99
+;-------------------------------------------------------------------------
+s8A99
         LDA #<p03F0
         STA a22
         LDA #>p03F0
         STA a23
-        JMP IncrementPlayerScore
+        JMP b8870
 
-;e8A44
+;-------------------------------------------------------------------------
+; s8AA4
+;-------------------------------------------------------------------------
+s8AA4
         STX a27
-b13A6   DEX 
+b8AA6   DEX 
         LDA f12FF,X
         AND #$40
-        BEQ b13A6
+        BEQ b8AA6
         LDA f12FF,X
         NOP 
         NOP 
         LDX a27
-        JSR e8AC1
+        JSR s8AC1
         LDA f12FE,X
         ORA #$80
         STA f12FE,X
         RTS 
 
-;MaybeResetSomeCounter
+;-------------------------------------------------------------------------
+; s8AC1
+;-------------------------------------------------------------------------
+s8AC1
         ORA f1300,X
         STA f1300,X
         RTS 
 
-;--------------------------------------------------------------
-;e8AC8
-;--------------------------------------------------------------
+;-------------------------------------------------------------------------
+; s8AC8
+;-------------------------------------------------------------------------
+s8AC8
         LDA a2A
-        BEQ b13CD
-b13CC   RTS 
+        BEQ b8ACD
+b8ACC   RTS 
 
-b13CD   LDA a24
-        BNE b13CC
-        JMP DisplayNewLevelInterstitial
-        JSR GetCurrentChar
-        CMP #SHIP_CHR
-        BEQ DrawGridChrAtOldPosAndCheckCollisions
-        JMP Screen_Plot
+b8ACD   LDA a24
+        BNE b8ACC
+        JMP j8C2D
 
-;DrawGridCharAtOldPos
-DrawGridChrAtOldPosAndCheckCollisions
-        LDX #$F6
+        JSR s818B
+        CMP #$07
+        BEQ j8ADE
+        JMP s8172
+
+j8ADE   LDX #$F6
         TXS 
         NOP 
         NOP 
         NOP 
-        JMP DrawGridCharAtOldPosAndCheckCollisionsImpl
+        JMP j8D78
+
         RTS 
 
         NOP 
-
-;--------------------------------------------------------------
-;CheckForShipCollision
-;--------------------------------------------------------------
-        CMP #SHIP_CHR
-        BEQ DrawGridChrAtOldPosAndCheckCollisions
+;-------------------------------------------------------------------------
+; s8AE9
+;-------------------------------------------------------------------------
+s8AE9
+        CMP #$07
+        BEQ j8ADE
         LDA f10FF,X
-b13F0   RTS 
+b8AF0   RTS 
 
-        CMP #SPACE                ; Never Reached
-        BEQ b13F0                 ; Never Reached
-        JMP DrawGridCharAtOldPos  ; Never Reached
+        CMP #$20
+        BEQ b8AF0
+        JMP j8ADE
 
-;--------------------------------------------------------------
-;CheckForCollisions
-;--------------------------------------------------------------
-; Set the volume for sounds played, this will be used to create a
-; fade-out effect.
-        LDA #$0F
-        SND_VOLUME = $33
-        STA SND_VOLUME
-
-; Store ShipPreviousXPosition at 8 positions (?)
-        CHRS_TO_DRAW = $08
-        LDA ShipPreviousXPosition
-        LDX #CHRS_TO_DRAW
-CTD_XLOOP
-        STA f1500,X
+j8AF8   LDA #$0F
+        STA a33
+        LDA a0B
+        LDX #$08
+b8B00   STA f1500,X
         DEX 
-        BNE CTD_XLOOP
-
-; Store ShipPreviousYPosition at 8 positions (?)
-        LDA ShipPreviousYPosition
-        LDX #CHRS_TO_DRAW
-CTD_YLOOP
-        STA LevelData3FromLevel13,X
+        BNE b8B00
+        LDA a0C
+        LDX #$08
+b8B0A   STA f1600,X
         DEX 
-        BNE CTD_YLOOP
-
-; Play Sounds
+        BNE b8B0A
         LDA #$00
         STA $D404    ;Voice 1: Control Register
         STA $D40B    ;Voice 2: Control Register
         STA $D412    ;Voice 3: Control Register
         LDA #$03
         STA $D401    ;Voice 1: Frequency Control - High-Byte
-
-        CTR_22 = $2D
         LDA #$16
-        STA CTR_22
-
-;PlayFadeSound
-        LDA #$00
+        STA a2D
+j8B24   LDA #$00
         STA $D404    ;Voice 1: Control Register
         LDA #$81
         STA $D404    ;Voice 1: Control Register
-        LDA SND_VOLUME
+        LDA a33
         STA $D418    ;Select Filter Mode and Volume
-
-; Draw the Grid character across 8 positions
-        GRID_CHRS_TO_DRAW = $27
-        LDX #CHRS_TO_DRAW
-        LDA #ORANGE
-        STA colourToPlot
-        LDA #GRID_CHR
-        STA charToPlot
-GCD_DRAW_X
-        LDA f1500,X
-        STA zpLo2
-        LDA LevelData3FromLevel13,X
-        STA zpHi2
-        STX GRID_CHRS_TO_DRAW
-        JSR GetCurrentChar
-        CMP CTR_22
-        BNE GCD_DRAW_NEXT
-        JSR Screen_Plot
-GCD_DRAW_NEXT
-        LDX GRID_CHRS_TO_DRAW
-        DEX 
-        BNE GCD_DRAW_X
-
-        LDA #$14
-b145A   JMP e8B60
-        DEX 
-        BNE b145A
-
-;e8B60
-        INC CTR_22
-        LDA CTR_22
-        CMP #$19
-        BNE b146C
-        LDA #$16
-        STA CTR_22
-b146C   LDX #$08
-b146E   LDA f8BC0,X
-        CMP #$80
-        BEQ b147F
-        CMP #$00
-        BEQ b147C
-        INC f1500,X
-b147C   INC f1500,X
-b147F   JSR e8040
-        LDA f8BC8,X
-        BEQ b148E
-        CMP #$80
-        BEQ b1491
-        INC LevelData3FromLevel13,X
-b148E   INC LevelData3FromLevel13,X
-b1491   JSR e8056
-        LDA f1500,X
-        STA zpLo2
-        LDA LevelData3FromLevel13,X
-        STA zpHi2
-        LDA #$01
-        STA colourToPlot
-        LDA CTR_22
-        STA charToPlot
-        JSR CTG_GetCurrentChar
-        BNE b14AE
-        JSR Screen_Plot
-b14AE   JMP e8BD2
-
-;PlayExplosionAndStartNewLevel
-        DEC SND_VOLUME
-        BMI ClrScrAndRestartLvl
-        JMP PlayFadeSound
-ClrScrAndRestartLvl
-        JMP ClearScreenAndRestartLevel
-
-;CTG_GetCurrentChar
+        LDX #$08
+        LDA #>p0800
+        STA a05
+        LDA #<p0800
+        STA a04
+b8B3D   LDA f1500,X
+        STA a02
+        LDA f1600,X
+        STA a03
         STX a27
-        JMP GetCurrentChar ; And Return
-
-;********************************************** 
-        NOP                       ; Not Reached
-        BRK #$01                  ; Not Reached
-        ORA (p01,X)               ; Not Reached
-        BRK #$80                  ; Not Reached
-        .BYTE $80,$80 ;NOP #$80   ; Not Reached
-        .BYTE $80,$80 ;NOP #$80   ; Not Reached
-        BRK #$01                  ; Not Reached
-        ORA (p01,X)               ; Not Reached
-        BRK #$80                  ; Not Reached
-        NOP                       ; Not Reached
-;********************************************** 
-
-;e8BD2
-        LDX a27
+        JSR s818B
+        CMP a2D
+        BNE b8B53
+        JSR s8172
+b8B53   LDX a27
         DEX 
-        BNE b146E
+        BNE b8B3D
+        LDA #$14
+b8B5A   JMP j8B60
 
-; Play Explosion Sounds?
+        DEX 
+        BNE b8B5A
+j8B60   INC a2D
+        LDA a2D
+        CMP #$19
+        BNE b8B6C
+        LDA #$16
+        STA a2D
+b8B6C   LDX #$08
+b8B6E   LDA f8BC0,X
+        CMP #$80
+        BEQ b8B7F
+        CMP #$00
+        BEQ b8B7C
+        INC f1500,X
+b8B7C   INC f1500,X
+b8B7F   JSR s8040
+        LDA f8BC8,X
+        BEQ b8B8E
+        CMP #$80
+        BEQ b8B91
+        INC f1600,X
+b8B8E   INC f1600,X
+b8B91   JSR s8056
+        LDA f1500,X
+        STA a02
+        LDA f1600,X
+        STA a03
+        LDA #$01
+        STA a05
+        LDA a2D
+        STA a04
+        JSR s8BBB
+        BNE b8BAE
+        JSR s8172
+b8BAE   JMP j8BD2
+
+j8BB1   DEC a33
+        BMI b8BB8
+        JMP j8B24
+
+b8BB8   JMP j8C17
+
+;-------------------------------------------------------------------------
+; s8BBB
+;-------------------------------------------------------------------------
+s8BBB
+        STX a27
+        JMP s818B
+
+f8BC0   .BYTE $EA,$00,$01,$01,$01,$00,$80,$80
+f8BC8   .BYTE $80,$80,$80,$00,$01,$01,$01,$00
+        .BYTE $80
+        NOP 
+j8BD2   LDX a27
+        DEX 
+        BNE b8B6E
         LDX #$10
-PES_LOOP
-        JSR SpinFor255Cycles
+b8BD9   JSR s8386
         DEX 
-        BNE PES_LOOP
+        BNE b8BD9
         LDA #$00
         STA $D404    ;Voice 1: Control Register
         LDA #$81
         STA $D404    ;Voice 1: Control Register
-        JMP PlayExplosionAndStartNewLevel
+        JMP j8BB1
 
-;-------------------------------------------------
-;ReturnIfBulletOrGrid
-;-------------------------------------------------
-        CMP #$08 ; Bullet
-        BEQ b14FB
-        CMP #$09 ; Bullet
-        BEQ b14FB
-        CMP #$00 ; Grid
-        BEQ b14FB
-        JMP DrawGridCharAtOldPos
-;e8BFB
-b14FB   RTS 
+;-------------------------------------------------------------------------
+; s8BEC
+;-------------------------------------------------------------------------
+s8BEC
+        CMP #$08
+        BEQ b8BFB
+        CMP #$09
+        BEQ b8BFB
+        CMP #$00
+        BEQ b8BFB
+        JMP j8ADE
 
-;-------------------------------------------------
-;ClearScreen
-;-------------------------------------------------
+b8BFB   RTS 
+
+;-------------------------------------------------------------------------
+; s8BFC
+;-------------------------------------------------------------------------
+s8BFC
         LDA #<p0450
-        STA zpHi3
-f1500   LDA #>p0450
+        STA a07
+        LDA #>p0450
         STA a08
         LDY #$00
-b1506   LDA #$20
-b1508   STA (zpHi3),Y
-        INC zpHi3
-        BNE b1508
+b8C06   LDA #$20
+b8C08   STA (p07),Y
+        INC a07
+        BNE b8C08
         INC a08
         LDA a08
         CMP #$08
-p1514   BNE b1506
+        BNE b8C06
         RTS 
 
-
-;-------------------------------------------------
-;ClearScreenAndRestartLevel
-;-------------------------------------------------
-        JSR ClearScreen
+j8C17   JSR s8BFC
         NOP 
         NOP 
         NOP 
-        DEC LivesDisplay
-        LDA LivesDisplay
-        CMP #ZERO
-        BEQ GameOver
-        JMP UpdateLivesAndRestartLevel
+        DEC a0427
+        LDA a0427
+        CMP #$30
+        BEQ b8C2A
+        JMP j8D5E
 
-GameOver
-        JMP ClearScore
+b8C2A   JMP j8060
 
-;--------------------------------------------------------------
-; DisplayNewLevelInterstitial
-;--------------------------------------------------------------
-        LDX #$F6
+j8C2D   LDX #$F6
         TXS 
-        JSR ClearScreen
+        JSR s8BFC
         LDX #$12
-
-CopyLevelTextLoop
-        LDA BattleStations,X
-        STA SCREENRAM + $FD,X
+b8C35   LDA f8C50,X
+        STA f04FD,X
         LDA #$0E
-        STA COLOURRAM + $FD,X
-        LDA EnterGridArea,X
-        STA SCREENRAM + $014D,X
+        STA fD8FD,X
+        LDA f8C62,X
+        STA f054D,X
         LDA #$01
-        STA COLOURRAM + $014D,X
+        STA fD94D,X
         DEX 
-        BNE CopyLevelTextLoop
-        JMP IncrementLives
+        BNE b8C35
+f8C50   =*+$02
+        JMP j8C75
 
-;BattleStations
-        .BYTE $20,$29,$28,$3A,$3A,$3E,$27,$20,$20,$2F,$3A,$28,$3A,$24,$30,$26,$2F ; "BATTLE  STATIONS"
-;EnterGridArea
-        .BYTE $20,$27,$26,$3A,$27,$22,$20,$21,$22,$24,$25,$20,$28,$22,$27,$28,$20,$30,$30 ; "ENTER GRID AREA 00"
-
-;IncrementLives
-        INC LivesDisplay
-        LDA LivesDisplay
+        .BYTE $20,$29,$28,$3A,$3A,$3E,$27,$20
+        .BYTE $20,$2F,$3A,$28,$3A,$24,$30,$26
+        .BYTE $2F
+f8C62   .BYTE $20,$27,$26,$3A,$27,$22,$20,$21
+        .BYTE $22,$24,$25,$20,$28,$22,$27,$28
+        .BYTE $20,$30,$30
+j8C75   INC a0427
+        LDA a0427
         CMP #$3A
-        BNE b1582
-        DEC LivesDisplay
-b1582   INC SelectedLevel
-        LDA SelectedLevel
-        CMP #$20             ; There are only 31 levels.
-        BNE LoadNextLevel
-        DEC SelectedLevel
-LoadNextLevel
-        LDX SelectedLevel
-        LDA LevelData1,X
+        BNE b8C82
+        DEC a0427
+b8C82   INC a35
+        LDA a35
+        CMP #$20
+        BNE b8C8C
+        DEC a35
+b8C8C   LDX a35
+        LDA f8CB4,X
         STA a2A
-        LDA LevelData2,X
+        LDA f8CD4,X
         STA a2B
-        LDA LevelData3,X
+        LDA f8CF4,X
         STA a34
+b8C9D   INC a055F
+        LDA a055F
+        CMP #$3A
+        BNE b8CAF
+        LDA #$30
+        STA a055F
+        INC a055E
+b8CAF   DEX 
+        BNE b8C9D
+f8CB4   =*+$02
+        JMP j8D70
 
-; Increment the level displayed in 'ENTER GRID AREA XX'
-IncrementLevel
-        INC LevelDisplayByte2
-        LDA LevelDisplayByte2
-        CMP #$3A  ; Has the byte overflowed from 9 to 0? If so increment to '10'.
-        BNE IL_ADJUST
-        LDA #$30 ; "0"
-        STA LevelDisplayByte2
-        INC LevelDisplayByte1
-IL_ADJUST
-        DEX 
-        BNE IncrementLevel
-        JMP SetSoundVolumeToMax ; Which then jumps below to PlayNewLevelMusic
-
-;LevelData1 - actually starts at the '8D' byte in the previous instruction!
-;             FIXME: Is this deliberate or an off by one error?
         .BYTE $01,$02,$02,$03,$03,$03,$04,$04
         .BYTE $04,$04,$05,$05,$10,$06,$06,$06
         .BYTE $06,$06,$06,$06,$06,$06,$06,$06
         .BYTE $06,$06,$07,$07,$07,$07,$07
-;LevelData2
-        .BYTE $07,$06,$06,$06,$07,$07,$08,$08
+f8CD4   .BYTE $07,$06,$06,$06,$07,$07,$08,$08
         .BYTE $09,$0C,$0C,$0A,$0A,$03,$0F,$10
         .BYTE $10,$11,$12,$13,$14,$14,$14,$15
         .BYTE $15,$16,$16,$16,$17,$03,$18,$18
-;LevelData3
-        .BYTE $19,$10,$10,$10,$0F,$0E,$0D,$0C
-        .BYTE $0B,$0A,$09,$09
-LevelData3FromLevel13
-        .BYTE $09,$09,$09,$09,$09,$08,$08,$08
-        .BYTE $08,$07,$07,$07,$07,$07,$07,$07
-        .BYTE $07,$07,$06
-        ASL colourToPlot
+f8CF4   .BYTE $19,$10,$10,$10,$0F,$0E,$0D,$0C
+        .BYTE $0B,$0A,$09,$09,$09,$09,$09,$09
+        .BYTE $09,$08,$08,$08,$08,$07,$07,$07
+        .BYTE $07,$07,$07,$07,$07,$07,$06,$06
+        .BYTE $05
         NOP 
-
-PNL_COUNTER = $36
-LevelColor1stByte = $D95E
-LevelColor2ndByte = $D95F
-SpinFor32Cycles = $8D52
-SoundEffect = $8D66
-
-;PlayNewLevelMusic
-        LDA #$30 ; Play the loop 30 times
-        STA PNL_COUNTER
-MainNewLevelSoundLoop
-        LDA PNL_COUNTER               ; Flashing effect on the level number
-        STA LevelColor2ndByte
-        STA LevelColor1stByte
-        LDX PNL_COUNTER
-NewLevelSoundLoop             ; Play the level sounds
-        JSR SpinFor32Cycles
-        JSR SoundEffect
+j8D16   LDA #$30
+        STA a36
+b8D1A   LDA a36
+        STA aD95F
+        STA aD95E
+        LDX a36
+b8D24   JSR s8D52
+        JSR s8D66
         NOP 
         STA $D408    ;Voice 2: Frequency Control - High-Byte
         NOP 
@@ -2196,842 +1985,90 @@ NewLevelSoundLoop             ; Play the level sounds
         STA $D40B    ;Voice 2: Control Register
         STA $D412    ;Voice 3: Control Register
         DEX 
-        BNE NewLevelSoundLoop
-        DEC PNL_COUNTER
-        BNE MainNewLevelSoundLoop
-        JMP DrawNewLevelScreen ; Which then jumps to JumpToMainGameLoop
+        BNE b8D24
+        DEC a36
+        BNE b8D1A
+        JMP j8300
 
-;SpinFor32Cycles
+;-------------------------------------------------------------------------
+; s8D52
+;-------------------------------------------------------------------------
+s8D52
         LDA #$20
-        JMP DecrementAccumToZero
-        ; RTS
+        JMP j8388
 
-;JumpToDisplayTitleScreen
-        LDA SelectedLevel
-        STA SelectedLevel
-        JMP DisplayTitleScreen
+j8D57   LDA a35
+b8D5A   =*+$01
+        STA a35
+        JMP j8D8E
 
-;UpdateLivesAndRestartLevel
-        DEC LivesDisplay
-        DEC SelectedLevel
-        JMP DisplayNewLevelInterstitial
+j8D5E   DEC a0427
+        DEC a35
+        JMP j8C2D
 
-;SoundEffect
+;-------------------------------------------------------------------------
+; s8D66
+;-------------------------------------------------------------------------
+s8D66
         STX a27
         LDA #$40
         SBC a27
         STA $D401    ;Voice 1: Frequency Control - High-Byte
         RTS 
 
-;SetSoundVolumeToMax
-        LDA #$0F     ;Set volume to full?
+j8D70   LDA #$0F
         STA $D418    ;Select Filter Mode and Volume
-        JMP PlayNewLevelMusic
+        JMP j8D16
 
-;DrawGridCharAtOldPosAndCheckCollisionsImpl
-        LDA #$00 ; Grid character
-        STA charToPlot
-        LDA #ORANGE
-        STA colourToPlot
-        LDA ShipPreviousXPosition
-        STA zpLo2
-        LDA ShipPreviousYPosition
-        STA zpHi2
-        JSR Screen_Plot
-        JMP CheckForCollisions
+j8D78   LDA #<p0800
+        STA a04
+        LDA #>p0800
+        STA a05
+        LDA a0B
+        STA a02
+        LDA a0C
+        STA a03
+        JSR s8172
+        JMP j8AF8
 
-;-----------------------------------------------------
-; DisplayTitleScreen
-; This is the main loop for displaying the title screen. It waits for the player
-; to press fire or select a level to start at. 
-;-----------------------------------------------------
-        LDA #$01
-        STA SelectedLevel
+j8D8E   LDA #$01
+        STA a35
         LDX #$0E
-DTS_LOOP   
-        LDA ByJeffMinter,X
-        STA SCREENRAM + $FA,X
+b8D94   LDA f8DE0,X
+        STA f04FA,X
         LDA #$03
-        STA COLOURRAM + $FA,X
-        LDA EnterLevelText,X
-        STA SCREENRAM + $014A,X
+        STA fD8FA,X
+        LDA f8DF0,X
+        STA f054A,X
         LDA #$01
-        STA COLOURRAM + $014A,X
+        STA fD94A,X
         DEX 
-        BNE DTS_LOOP
-        JMP WriteCopyrightLine
+        BNE b8D94
+        JMP j80D2
 
-; Loop while waiting for the player to press fire (JOY1_FIRE) or
-; increment the starting level by pressing the joystick upwards (JOY1_UP).
+b8DB0   LDA aDC11
+        CMP #$EF
+        BNE b8DBA
+        JMP j8DC6
 
-LoopWhileWaitingToStartGame = $8DB0
-WTS_LOOP
-        LDA JOY1
-        CMP #JOY1_FIRE
-        BNE b16BA
-        JMP Start_Game
+b8DBA   CMP #$FE
+        BNE b8DB0
+        INC a35
+j8DC0   JSR s80A0
+        JMP b8DB0
 
-b16BA   CMP #JOY1_UP
-        BNE WTS_LOOP
-        INC SelectedLevel
-;e8DC0
-        JSR IncrementSelectedLevel
-        JMP LoopWhileWaitingToStartGame
+j8DC6   DEC a35
+        JMP j80E5
 
-;Start_Game
-        DEC SelectedLevel
-        JMP StartLevel
-
-;-----------------------------------------------------
-; Game Data
-;-----------------------------------------------------
-
-        .BYTE $B0,$8D,$EA,$EA,$EA,$EA,$EA,$EA
+        BCS b8D5A
         .BYTE $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
-        .BYTE $EA,$EA,$EA,$EA,$EA,$EA
-;ByJeffMinter
-        .BYTE $29,$1B,$20,$2C,$27,$2A,$2A,$20,$2D,$24,$26,$3A,$27,$22,$20 ; "BY JEFF MINTER "
-        NOP
-;EnterLevelText
-        .BYTE $27,$26,$3A,$27,$22,$20,$3E,$27,$3B,$27,$3E,$20,$30,$30,$20 ; "ENTER LEVEL 00 "
+        .BYTE $EA,$EA,$EA,$EA,$EA,$EA,$EA,$EA
+        .BYTE $EA,$EA,$EA
+f8DE0   .BYTE $EA,$29,$1B,$20,$2C,$27,$2A,$2A
+        .BYTE $20,$2D,$24,$26,$3A,$27,$22,$20
+f8DF0   .BYTE $EA,$27,$26,$3A,$27,$22,$20,$3E
+        .BYTE $27,$3B,$27,$3E,$20,$30,$30,$20
+.include "charset.asm"
+        .BYTE $30,$00
 
-;-----------------------------------------------------
-; The character set data for the game!
-;-----------------------------------------------------
-        ;CharSet1
-        GRID_CHR = $00
-        .BYTE $18,$18,$18,$18,$FF,$18,$18,$18 ; CHARACTER 0
-                                                ; $00
-                                                ; 00011000      **   
-                                                ; 00011000      **   
-                                                ; 00011000      **   
-                                                ; 00011000      **   
-                                                ; 11111111   ********
-                                                ; 00011000      **   
-                                                ; 00011000      **   
-                                                ; 00011000      **   
-
-        .BYTE $F0,$20,$10,$1F,$1F,$10,$20,$F0 ; CHARACTER 1
-                                                ; $01
-                                                ; 11110000   ****    
-                                                ; 00100000     *     
-                                                ; 00010000      *    
-                                                ; 00011111      *****
-                                                ; 00011111      *****
-                                                ; 00010000      *    
-                                                ; 00100000     *     
-                                                ; 11110000   ****    
-
-        .BYTE $18,$18,$18,$18,$BD,$C3,$81,$81 ; CHARACTER 2
-                                                ; $02
-                                                ; 00011000      **   
-                                                ; 00011000      **   
-                                                ; 00011000      **   
-                                                ; 00011000      **   
-                                                ; 10111101   * **** *
-                                                ; 11000011   **    **
-                                                ; 10000001   *      *
-                                                ; 10000001   *      *
-
-        .BYTE $00,$20,$60,$A3,$2C,$30,$00,$00 ; CHARACTER 3
-                                                ; $03
-                                                ; 00000000           
-                                                ; 00100000     *     
-                                                ; 01100000    **     
-                                                ; 10100011   * *   **
-                                                ; 00101100     * **  
-                                                ; 00110000     **    
-                                                ; 00000000           
-                                                ; 00000000           
-
-        .BYTE $00,$02,$05,$C8,$30,$00,$00,$00 ; CHARACTER 4
-                                                ; $04
-                                                ; 00000000           
-                                                ; 00000010         * 
-                                                ; 00000101        * *
-                                                ; 11001000   **  *   
-                                                ; 00110000     **    
-                                                ; 00000000           
-                                                ; 00000000           
-                                                ; 00000000           
-
-        .BYTE $08,$04,$3E,$20,$10,$10,$08,$08 ; CHARACTER 5
-                                                ; $05
-                                                ; 00001000       *   
-                                                ; 00000100        *  
-                                                ; 00111110     ***** 
-                                                ; 00100000     *     
-                                                ; 00010000      *    
-                                                ; 00010000      *    
-                                                ; 00001000       *   
-                                                ; 00001000       *   
-
-        .BYTE $08,$08,$10,$10,$08,$04,$02,$04 ; CHARACTER 6
-                                                ; $06
-                                                ; 00001000       *   
-                                                ; 00001000       *   
-                                                ; 00010000      *    
-                                                ; 00010000      *    
-                                                ; 00001000       *   
-                                                ; 00000100        *  
-                                                ; 00000010         * 
-                                                ; 00000100        *  
-
-        SHIP_CHR = $07
-        .BYTE $18,$3C,$66,$18,$7E,$FF,$E7,$C3 ; CHARACTER 7
-                                                ; $07
-                                                ; 00011000      **   
-                                                ; 00111100     ****  
-                                                ; 01100110    **  ** 
-                                                ; 00011000      **   
-                                                ; 01111110    ****** 
-                                                ; 11111111   ********
-                                                ; 11100111   ***  ***
-                                                ; 11000011   **    **
-
-        .BYTE $18,$18,$18,$3C,$7E,$7E,$7E,$3C ; CHARACTER 8
-                                                ; $08
-                                                ; 00011000      **   
-                                                ; 00011000      **   
-                                                ; 00011000      **   
-                                                ; 00111100     ****  
-                                                ; 01111110    ****** 
-                                                ; 01111110    ****** 
-                                                ; 01111110    ****** 
-                                                ; 00111100     ****  
-
-        .BYTE $3C,$7E,$7E,$7E,$3C,$18,$18,$18 ; CHARACTER 9
-                                                ; $09
-                                                ; 00111100     ****  
-                                                ; 01111110    ****** 
-                                                ; 01111110    ****** 
-                                                ; 01111110    ****** 
-                                                ; 00111100     ****  
-                                                ; 00011000      **   
-                                                ; 00011000      **   
-                                                ; 00011000      **   
-
-        .BYTE $42,$66,$24,$3C,$18,$18,$3C,$18 ; CHARACTER 10
-                                                ; $0a
-                                                ; 01000010    *    * 
-                                                ; 01100110    **  ** 
-                                                ; 00100100     *  *  
-                                                ; 00111100     ****  
-                                                ; 00011000      **   
-                                                ; 00011000      **   
-                                                ; 00111100     ****  
-                                                ; 00011000      **   
-
-        .BYTE $00,$C0,$72,$1F,$1F,$72,$C0,$00 ; CHARACTER 11
-                                                ; $0b
-                                                ; 00000000           
-                                                ; 11000000   **      
-                                                ; 01110010    ***  * 
-                                                ; 00011111      *****
-                                                ; 00011111      *****
-                                                ; 01110010    ***  * 
-                                                ; 11000000   **      
-                                                ; 00000000           
-
-        .BYTE $00,$03,$4E,$F8,$F8,$4E,$03,$00 ; CHARACTER 12
-                                                ; $0c
-                                                ; 00000000           
-                                                ; 00000011         **
-                                                ; 01001110    *  *** 
-                                                ; 11111000   *****   
-                                                ; 11111000   *****   
-                                                ; 01001110    *  *** 
-                                                ; 00000011         **
-                                                ; 00000000           
-
-        .BYTE $00,$00,$00,$18,$18,$00,$00,$00 ; CHARACTER 13
-                                                ; $0d
-                                                ; 00000000           
-                                                ; 00000000           
-                                                ; 00000000           
-                                                ; 00011000      **   
-                                                ; 00011000      **   
-                                                ; 00000000           
-                                                ; 00000000           
-                                                ; 00000000           
-
-        .BYTE $00,$00,$18,$3C,$3C,$18,$00,$00 ; CHARACTER 14
-                                                ; $0e
-                                                ; 00000000           
-                                                ; 00000000           
-                                                ; 00011000      **   
-                                                ; 00111100     ****  
-                                                ; 00111100     ****  
-                                                ; 00011000      **   
-                                                ; 00000000           
-                                                ; 00000000           
-
-        .BYTE $18,$24,$5A,$BD,$BD,$5A,$24,$18 ; CHARACTER 15
-                                                ; $0f
-                                                ; 00011000      **   
-                                                ; 00100100     *  *  
-                                                ; 01011010    * ** * 
-                                                ; 10111101   * **** *
-                                                ; 10111101   * **** *
-                                                ; 01011010    * ** * 
-                                                ; 00100100     *  *  
-                                                ; 00011000      **   
-
-        .BYTE $99,$7E,$5A,$FF,$FF,$5A,$7E,$99 ; CHARACTER 16
-                                                ; $10
-                                                ; 10011001   *  **  *
-                                                ; 01111110    ****** 
-                                                ; 01011010    * ** * 
-                                                ; 11111111   ********
-                                                ; 11111111   ********
-                                                ; 01011010    * ** * 
-                                                ; 01111110    ****** 
-                                                ; 10011001   *  **  *
-
-        .BYTE $66,$99,$BD,$5A,$5A,$BD,$99,$66 ; CHARACTER 17
-                                                ; $11
-                                                ; 01100110    **  ** 
-                                                ; 10011001   *  **  *
-                                                ; 10111101   * **** *
-                                                ; 01011010    * ** * 
-                                                ; 01011010    * ** * 
-                                                ; 10111101   * **** *
-                                                ; 10011001   *  **  *
-                                                ; 01100110    **  ** 
-
-        .BYTE $24,$42,$A5,$00,$00,$A5,$42,$24 ; CHARACTER 18
-                                                ; $12
-                                                ; 00100100     *  *  
-                                                ; 01000010    *    * 
-                                                ; 10100101   * *  * *
-                                                ; 00000000           
-                                                ; 00000000           
-                                                ; 10100101   * *  * *
-                                                ; 01000010    *    * 
-                                                ; 00100100     *  *  
-
-        .BYTE $30,$46,$48,$FF,$FF,$12,$62,$0C ; CHARACTER 19
-                                                ; $13
-                                                ; 00110000     **    
-                                                ; 01000110    *   ** 
-                                                ; 01001000    *  *   
-                                                ; 11111111   ********
-                                                ; 11111111   ********
-                                                ; 00010010      *  * 
-                                                ; 01100010    **   * 
-                                                ; 00001100       **  
-
-        .BYTE $C0,$FC,$72,$F8,$1F,$4E,$3F,$03 ; CHARACTER 20
-                                                ; $14
-                                                ; 11000000   **      
-                                                ; 11111100   ******  
-                                                ; 01110010    ***  * 
-                                                ; 11111000   *****   
-                                                ; 00011111      *****
-                                                ; 01001110    *  *** 
-                                                ; 00111111     ******
-                                                ; 00000011         **
-
-        .BYTE $0B,$2F,$4E,$5E,$7A,$72,$F4,$D0 ; CHARACTER 21
-                                                ; $15
-                                                ; 00001011       * **
-                                                ; 00101111     * ****
-                                                ; 01001110    *  *** 
-                                                ; 01011110    * **** 
-                                                ; 01111010    **** * 
-                                                ; 01110010    ***  * 
-                                                ; 11110100   **** *  
-                                                ; 11010000   ** *    
-
-        .BYTE $00,$46,$28,$80,$16,$08,$20,$42 ; CHARACTER 22
-                                                ; $16
-                                                ; 00000000           
-                                                ; 01000110    *   ** 
-                                                ; 00101000     * *   
-                                                ; 10000000   *       
-                                                ; 00010110      * ** 
-                                                ; 00001000       *   
-                                                ; 00100000     *     
-                                                ; 01000010    *    * 
-
-        .BYTE $40,$21,$06,$00,$00,$60,$82,$01 ; CHARACTER 23
-                                                ; $17
-                                                ; 01000000    *      
-                                                ; 00100001     *    *
-                                                ; 00000110        ** 
-                                                ; 00000000           
-                                                ; 00000000           
-                                                ; 01100000    **     
-                                                ; 10000010   *     * 
-                                                ; 00000001          *
-
-        .BYTE $02,$80,$00,$00,$00,$00,$01,$40 ; CHARACTER 24
-                                                ; $18
-                                                ; 00000010         * 
-                                                ; 10000000   *       
-                                                ; 00000000           
-                                                ; 00000000           
-                                                ; 00000000           
-                                                ; 00000000           
-                                                ; 00000001          *
-                                                ; 01000000    *      
-
-        .BYTE $00,$F3,$DB,$F3,$C3,$C3,$00,$00 ; CHARACTER 25
-                                                ; $19
-                                                ; 00000000           
-                                                ; 11110011   ****  **
-                                                ; 11011011   ** ** **
-                                                ; 11110011   ****  **
-                                                ; 11000011   **    **
-                                                ; 11000011   **    **
-                                                ; 00000000           
-                                                ; 00000000           
-
-        .BYTE $00,$03,$03,$03,$03,$DB,$00,$00 ; CHARACTER 26
-                                                ; $1a
-                                                ; 00000000           
-                                                ; 00000011         **
-                                                ; 00000011         **
-                                                ; 00000011         **
-                                                ; 00000011         **
-                                                ; 11011011   ** ** **
-                                                ; 00000000           
-                                                ; 00000000           
-
-        .BYTE $C6,$C6,$00,$7C,$38,$38,$38,$38 ; CHARACTER 27
-                                                ; $1b
-                                                ; 11000110   **   ** 
-                                                ; 11000110   **   ** 
-                                                ; 00000000           
-                                                ; 01111100    *****  
-                                                ; 00111000     ***   
-                                                ; 00111000     ***   
-                                                ; 00111000     ***   
-                                                ; 00111000     ***   
-
-        .BYTE $C6,$C6,$00,$7C,$38,$38,$38,$38 ; CHARACTER 28
-                                                ; $1c
-                                                ; 11000110   **   ** 
-                                                ; 11000110   **   ** 
-                                                ; 00000000           
-                                                ; 01111100    *****  
-                                                ; 00111000     ***   
-                                                ; 00111000     ***   
-                                                ; 00111000     ***   
-                                                ; 00111000     ***   
-
-        .BYTE $00,$CC,$CC,$FC,$CC,$CC,$00,$00 ; CHARACTER 29
-                                                ; $1d
-                                                ; 00000000           
-                                                ; 11001100   **  **  
-                                                ; 11001100   **  **  
-                                                ; 11111100   ******  
-                                                ; 11001100   **  **  
-                                                ; 11001100   **  **  
-                                                ; 00000000           
-                                                ; 00000000           
-
-        .BYTE $00,$F0,$66,$60,$66,$F0,$00,$00 ; CHARACTER 30
-                                                ; $1e
-                                                ; 00000000           
-                                                ; 11110000   ****    
-                                                ; 01100110    **  ** 
-                                                ; 01100000    **     
-                                                ; 01100110    **  ** 
-                                                ; 11110000   ****    
-                                                ; 00000000           
-                                                ; 00000000           
-
-        .BYTE $00,$10,$08,$7C,$08,$10,$00,$00 ; CHARACTER 31
-                                                ; $1f
-                                                ; 00000000           
-                                                ; 00010000      *    
-                                                ; 00001000       *   
-                                                ; 01111100    *****  
-                                                ; 00001000       *   
-                                                ; 00010000      *    
-                                                ; 00000000           
-                                                ; 00000000           
-
-        SPACE = $20
-        .BYTE $00,$00,$00,$00,$00,$00,$00,$00 ; CHARACTER 32
-                                                ; $20
-                                                ; 00000000           
-                                                ; 00000000           
-                                                ; 00000000           
-                                                ; 00000000           
-                                                ; 00000000           
-                                                ; 00000000           
-                                                ; 00000000           
-                                                ; 00000000           
-
-        ;CharSet2
-        .BYTE $7C,$FE,$00,$C0,$DE,$C6,$C6,$7C ; CHARACTER 33
-                                                ; $21
-                                                ; 01111100    *****  
-                                                ; 11111110   ******* 
-                                                ; 00000000           
-                                                ; 11000000   **      
-                                                ; 11011110   ** **** 
-                                                ; 11000110   **   ** 
-                                                ; 11000110   **   ** 
-                                                ; 01111100    *****  
-
-        .BYTE $FC,$FE,$00,$C6,$FC,$D0,$C8,$C6 ; CHARACTER 34
-                                                ; $22
-                                                ; 11111100   ******  
-                                                ; 11111110   ******* 
-                                                ; 00000000           
-                                                ; 11000110   **   ** 
-                                                ; 11111100   ******  
-                                                ; 11010000   ** *    
-                                                ; 11001000   **  *   
-                                                ; 11000110   **   ** 
-
-        .BYTE $C6,$C6,$00,$C6,$C6,$C6,$FE,$7C ; CHARACTER 35
-                                                ; $23
-                                                ; 11000110   **   ** 
-                                                ; 11000110   **   ** 
-                                                ; 00000000           
-                                                ; 11000110   **   ** 
-                                                ; 11000110   **   ** 
-                                                ; 11000110   **   ** 
-                                                ; 11111110   ******* 
-                                                ; 01111100    *****  
-
-        .BYTE $FC,$FC,$00,$30,$30,$30,$FC,$FC ; CHARACTER 36
-                                                ; $24
-                                                ; 11111100   ******  
-                                                ; 11111100   ******  
-                                                ; 00000000           
-                                                ; 00110000     **    
-                                                ; 00110000     **    
-                                                ; 00110000     **    
-                                                ; 11111100   ******  
-                                                ; 11111100   ******  
-
-        .BYTE $FC,$FE,$00,$C6,$C6,$C6,$FE,$FC ; CHARACTER 37
-                                                ; $25
-                                                ; 11111100   ******  
-                                                ; 11111110   ******* 
-                                                ; 00000000           
-                                                ; 11000110   **   ** 
-                                                ; 11000110   **   ** 
-                                                ; 11000110   **   ** 
-                                                ; 11111110   ******* 
-                                                ; 11111100   ******  
-
-        .BYTE $C6,$C6,$00,$E6,$F6,$DE,$CE,$C6 ; CHARACTER 38
-                                                ; $26
-                                                ; 11000110   **   ** 
-                                                ; 11000110   **   ** 
-                                                ; 00000000           
-                                                ; 11100110   ***  ** 
-                                                ; 11110110   **** ** 
-                                                ; 11011110   ** **** 
-                                                ; 11001110   **  *** 
-                                                ; 11000110   **   ** 
-
-        .BYTE $FE,$FE,$00,$F0,$F0,$C0,$FE,$FE ; CHARACTER 39
-                                                ; $27
-                                                ; 11111110   ******* 
-                                                ; 11111110   ******* 
-                                                ; 00000000           
-                                                ; 11110000   ****    
-                                                ; 11110000   ****    
-                                                ; 11000000   **      
-                                                ; 11111110   ******* 
-                                                ; 11111110   ******* 
-
-        .BYTE $FE,$FE,$00,$C6,$FE,$C6,$C6,$C6 ; CHARACTER 40
-                                                ; $28
-                                                ; 11111110   ******* 
-                                                ; 11111110   ******* 
-                                                ; 00000000           
-                                                ; 11000110   **   ** 
-                                                ; 11111110   ******* 
-                                                ; 11000110   **   ** 
-                                                ; 11000110   **   ** 
-                                                ; 11000110   **   ** 
-
-        .BYTE $FC,$FE,$00,$C6,$FC,$C6,$C6,$FC ; CHARACTER 41
-                                                ; $29
-                                                ; 11111100   ******  
-                                                ; 11111110   ******* 
-                                                ; 00000000           
-                                                ; 11000110   **   ** 
-                                                ; 11111100   ******  
-                                                ; 11000110   **   ** 
-                                                ; 11000110   **   ** 
-                                                ; 11111100   ******  
-
-        .BYTE $FE,$FE,$00,$F0,$F0,$C0,$C0,$C0 ; CHARACTER 42
-                                                ; $2a
-                                                ; 11111110   ******* 
-                                                ; 11111110   ******* 
-                                                ; 00000000           
-                                                ; 11110000   ****    
-                                                ; 11110000   ****    
-                                                ; 11000000   **      
-                                                ; 11000000   **      
-                                                ; 11000000   **      
-
-        .BYTE $C6,$C6,$00,$C6,$FE,$C6,$C6,$C6 ; CHARACTER 43
-                                                ; $2b
-                                                ; 11000110   **   ** 
-                                                ; 11000110   **   ** 
-                                                ; 00000000           
-                                                ; 11000110   **   ** 
-                                                ; 11111110   ******* 
-                                                ; 11000110   **   ** 
-                                                ; 11000110   **   ** 
-                                                ; 11000110   **   ** 
-
-        .BYTE $06,$06,$00,$06,$06,$C6,$FE,$7C ; CHARACTER 44
-                                                ; $2c
-                                                ; 00000110        ** 
-                                                ; 00000110        ** 
-                                                ; 00000000           
-                                                ; 00000110        ** 
-                                                ; 00000110        ** 
-                                                ; 11000110   **   ** 
-                                                ; 11111110   ******* 
-                                                ; 01111100    *****  
-
-        .BYTE $C6,$EE,$00,$FE,$C6,$C6,$C6,$C6 ; CHARACTER 45
-                                                ; $2d
-                                                ; 11000110   **   ** 
-                                                ; 11101110   *** *** 
-                                                ; 00000000           
-                                                ; 11111110   ******* 
-                                                ; 11000110   **   ** 
-                                                ; 11000110   **   ** 
-                                                ; 11000110   **   ** 
-                                                ; 11000110   **   ** 
-
-        .BYTE $FE,$FE,$00,$C6,$FE,$C0,$C0,$C0 ; CHARACTER 46
-                                                ; $2e
-                                                ; 11111110   ******* 
-                                                ; 11111110   ******* 
-                                                ; 00000000           
-                                                ; 11000110   **   ** 
-                                                ; 11111110   ******* 
-                                                ; 11000000   **      
-                                                ; 11000000   **      
-                                                ; 11000000   **      
-
-        .BYTE $FE,$FE,$00,$C0,$FE,$06,$C6,$FE ; CHARACTER 47
-                                                ; $2f
-                                                ; 11111110   ******* 
-                                                ; 11111110   ******* 
-                                                ; 00000000           
-                                                ; 11000000   **      
-                                                ; 11111110   ******* 
-                                                ; 00000110        ** 
-                                                ; 11000110   **   ** 
-                                                ; 11111110   ******* 
-
-        ZERO = $30
-        .BYTE $FE,$FE,$00,$C6,$C6,$C6,$FE,$FE ; CHARACTER 48
-                                                ; $30
-                                                ; 11111110   ******* 
-                                                ; 11111110   ******* 
-                                                ; 00000000           
-                                                ; 11000110   **   ** 
-                                                ; 11000110   **   ** 
-                                                ; 11000110   **   ** 
-                                                ; 11111110   ******* 
-                                                ; 11111110   ******* 
-
-        .BYTE $18,$18,$00,$18,$38,$38,$38,$38 ; CHARACTER 49
-                                                ; $31
-                                                ; 00011000      **   
-                                                ; 00011000      **   
-                                                ; 00000000           
-                                                ; 00011000      **   
-                                                ; 00111000     ***   
-                                                ; 00111000     ***   
-                                                ; 00111000     ***   
-                                                ; 00111000     ***   
-
-        .BYTE $7C,$FE,$00,$06,$0C,$38,$FE,$FE ; CHARACTER 50
-                                                ; $32
-                                                ; 01111100    *****  
-                                                ; 11111110   ******* 
-                                                ; 00000000           
-                                                ; 00000110        ** 
-                                                ; 00001100       **  
-                                                ; 00111000     ***   
-                                                ; 11111110   ******* 
-                                                ; 11111110   ******* 
-
-        .BYTE $7C,$FE,$00,$1E,$1E,$06,$FE,$7C ; CHARACTER 51
-                                                ; $33
-                                                ; 01111100    *****  
-                                                ; 11111110   ******* 
-                                                ; 00000000           
-                                                ; 00011110      **** 
-                                                ; 00011110      **** 
-                                                ; 00000110        ** 
-                                                ; 11111110   ******* 
-                                                ; 01111100    *****  
-
-        .BYTE $60,$60,$00,$EC,$FE,$0C,$0C,$0C ; CHARACTER 52
-                                                ; $34
-                                                ; 01100000    **     
-                                                ; 01100000    **     
-                                                ; 00000000           
-                                                ; 11101100   *** **  
-                                                ; 11111110   ******* 
-                                                ; 00001100       **  
-                                                ; 00001100       **  
-                                                ; 00001100       **  
-
-        .BYTE $FE,$FE,$00,$E0,$7C,$06,$FE,$7C ; CHARACTER 53
-                                                ; $35
-                                                ; 11111110   ******* 
-                                                ; 11111110   ******* 
-                                                ; 00000000           
-                                                ; 11100000   ***     
-                                                ; 01111100    *****  
-                                                ; 00000110        ** 
-                                                ; 11111110   ******* 
-                                                ; 01111100    *****  
-
-        .BYTE $7C,$FE,$00,$C0,$FC,$C6,$C6,$7C ; CHARACTER 54
-                                                ; $36
-                                                ; 01111100    *****  
-                                                ; 11111110   ******* 
-                                                ; 00000000           
-                                                ; 11000000   **      
-                                                ; 11111100   ******  
-                                                ; 11000110   **   ** 
-                                                ; 11000110   **   ** 
-                                                ; 01111100    *****  
-
-        .BYTE $FE,$FE,$00,$0C,$18,$30,$30,$70 ; CHARACTER 55
-                                                ; $37
-                                                ; 11111110   ******* 
-                                                ; 11111110   ******* 
-                                                ; 00000000           
-                                                ; 00001100       **  
-                                                ; 00011000      **   
-                                                ; 00110000     **    
-                                                ; 00110000     **    
-                                                ; 01110000    ***    
-
-        .BYTE $7C,$FE,$00,$C6,$7C,$C6,$C6,$7C ; CHARACTER 56
-                                                ; $38
-                                                ; 01111100    *****  
-                                                ; 11111110   ******* 
-                                                ; 00000000           
-                                                ; 11000110   **   ** 
-                                                ; 01111100    *****  
-                                                ; 11000110   **   ** 
-                                                ; 11000110   **   ** 
-                                                ; 01111100    *****  
-
-        .BYTE $7C,$FE,$00,$C6,$7E,$06,$FE,$7C ; CHARACTER 57
-                                                ; $39
-                                                ; 01111100    *****  
-                                                ; 11111110   ******* 
-                                                ; 00000000           
-                                                ; 11000110   **   ** 
-                                                ; 01111110    ****** 
-                                                ; 00000110        ** 
-                                                ; 11111110   ******* 
-                                                ; 01111100    *****  
-
-        .BYTE $FC,$FC,$00,$30,$30,$30,$30,$30 ; CHARACTER 58
-                                                ; $3a
-                                                ; 11111100   ******  
-                                                ; 11111100   ******  
-                                                ; 00000000           
-                                                ; 00110000     **    
-                                                ; 00110000     **    
-                                                ; 00110000     **    
-                                                ; 00110000     **    
-                                                ; 00110000     **    
-
-        .BYTE $C6,$C6,$00,$C6,$6C,$6C,$38,$38 ; CHARACTER 59
-                                                ; $3b
-                                                ; 11000110   **   ** 
-                                                ; 11000110   **   ** 
-                                                ; 00000000           
-                                                ; 11000110   **   ** 
-                                                ; 01101100    ** **  
-                                                ; 01101100    ** **  
-                                                ; 00111000     ***   
-                                                ; 00111000     ***   
-
-        .BYTE $1F,$30,$67,$CC,$CC,$67,$30,$1F ; CHARACTER 60
-                                                ; $3c
-                                                ; 00011111      *****
-                                                ; 00110000     **    
-                                                ; 01100111    **  ***
-                                                ; 11001100   **  **  
-                                                ; 11001100   **  **  
-                                                ; 01100111    **  ***
-                                                ; 00110000     **    
-                                                ; 00011111      *****
-
-        .BYTE $80,$C0,$60,$30,$30,$60,$C0,$80 ; CHARACTER 61
-                                                ; $3d
-                                                ; 10000000   *       
-                                                ; 11000000   **      
-                                                ; 01100000    **     
-                                                ; 00110000     **    
-                                                ; 00110000     **    
-                                                ; 01100000    **     
-                                                ; 11000000   **      
-                                                ; 10000000   *       
-
-        .BYTE $C0,$C0,$00,$C0,$C0,$C0,$FE,$FE ; CHARACTER 62
-                                                ; $3e
-                                                ; 11000000   **      
-                                                ; 11000000   **      
-                                                ; 00000000           
-                                                ; 11000000   **      
-                                                ; 11000000   **      
-                                                ; 11000000   **      
-                                                ; 11111110   ******* 
-                                                ; 11111110   ******* 
-
-        GRID_BAR_CHR = $3F
-        .BYTE $18,$18,$18,$18,$18,$18,$18,$18 ; CHARACTER 63
-                                                ; $3f
-                                                ; 00011000      **   
-                                                ; 00011000      **   
-                                                ; 00011000      **   
-                                                ; 00011000      **   
-                                                ; 00011000      **   
-                                                ; 00011000      **   
-                                                ; 00011000      **   
-                                                ; 00011000      **   
-
-        .BYTE $C1,$83,$E2,$83,$C3,$C2,$CD,$38 ; CHARACTER 64
-                                                ; $40
-                                                ; 11000001   **     *
-                                                ; 10000011   *     **
-                                                ; 11100010   ***   * 
-                                                ; 10000011   *     **
-                                                ; 11000011   **    **
-                                                ; 11000010   **    * 
-                                                ; 11001101   **  ** *
-                                                ; 00111000     ***   
-
-        .BYTE $30,$00,$8F,$9D,$00,$21,$CA,$D0 ; CHARACTER 65
-                                                ; $41
-                                                ; 00110000     **    
-                                                ; 00000000           
-                                                ; 10001111   *   ****
-                                                ; 10011101   *  *** *
-                                                ; 00000000           
-                                                ; 00100001     *    *
-                                                ; 11001010   **  * * 
-                                                ; 11010000   ** *    
-
-        .BYTE $F1
-        JMP InitializeGame
-.include "padding.asm"; This appears to be redundant, duplicated data
 
