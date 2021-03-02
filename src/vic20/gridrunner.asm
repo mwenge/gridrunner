@@ -44,7 +44,6 @@ aFF = $FF
 ;
 ; **** ZP POINTERS **** 
 ;
-bulletScreenRamLoPtr = $0C
 p2D = $2D
 ;
 ; **** FIELDS **** 
