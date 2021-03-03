@@ -95,6 +95,15 @@ VIA2PB = $9120
 VIA2DDRB = $9122
 ROM_ISCNTC = $FFE1
 
+BLACK   = $00
+WHITE   = $01
+RED     = $02
+CYAN    = $03
+PURPLE  = $04
+GREEN   = $05
+BLUE    = $06
+YELLOW  = $07
+
         * = $1001
 
 ;-----------------------------------------------------------------------------------------------------
@@ -410,7 +419,7 @@ UpdateShipPosition
         JSR CheckIfBumpingAgainstSomething
 b1289   LDA #$00
         STA currentCharacter
-        LDA #$02
+        LDA #RED
         STA currentColor
         JSR DrawCurrentCharacterToScreen
 
@@ -458,7 +467,7 @@ b12E1   LDA currentYPos
         STA oldXPos
 j12E9   LDA #$07
         STA currentCharacter
-        LDA #$05
+        LDA #GREEN
         STA currentColor
         JMP DrawCurrentCharacterToScreen
 
@@ -635,7 +644,7 @@ b13F6   LDA xZapperXPos
         STA currentXPos
         LDA #$02
         STA currentCharacter
-        LDA #$01
+        LDA #WHITE
         STA currentColor
         JSR DrawCurrentCharacterToScreen
         LDA yZapperYPos
@@ -700,7 +709,7 @@ b1462   LDA currentLaserYPos
         STA currentYPos
         LDA currentXLaserChar
         STA currentCharacter
-        LDA #$07
+        LDA #YELLOW
         STA currentColor
         JSR DrawCurrentCharacterToScreen
         DEC currentLaserYPos
@@ -722,7 +731,7 @@ b1462   LDA currentLaserYPos
         STA currentXLaserChar
 b1492   LDA #$00
         STA currentCharacter
-        LDA #$02
+        LDA #RED
         STA currentColor
         JSR DrawCurrentCharacterToScreen
         INC currentYLaserXPos
@@ -736,7 +745,7 @@ b1492   LDA #$00
         BEQ b14BB
         LDA currentXLaserChar
         STA currentCharacter
-        LDA #$07
+        LDA #YELLOW
         STA currentColor
         JMP DrawCurrentCharacterToScreen
 
@@ -744,7 +753,7 @@ b14BB   LDA oldXZaooerXPos
         STA currentXPos
         LDA #$00
         STA currentCharacter
-        LDA #$02
+        LDA #RED
         STA currentColor
         LDA #$13
         STA currentLaserYPos
@@ -762,7 +771,7 @@ b14CB   LDA currentLaserYPos
         STA currentXPos
         LDA #$0F
         STA currentCharacter
-        LDA #$07
+        LDA #YELLOW
         STA currentColor
         JSR DrawCurrentCharacterToScreen
 
@@ -1686,7 +1695,7 @@ b1A65   LDA explosionYPosArray,X
         BNE b1A85
         LDA #$00
         STA currentCharacter
-        LDA #$02
+        LDA #RED
         STA currentColor
         JSR DrawCurrentCharacterToScreen
 b1A85   PLA 
@@ -1729,7 +1738,7 @@ b1AC1   LDA explosionYPosArray,X
         BNE b1ADF
         LDA currentExplosionCharacter
         STA currentCharacter
-        LDA #$01
+        LDA #WHITE
         STA currentColor
         JSR DrawCurrentCharacterToScreen
 b1ADF   PLA 
@@ -1771,7 +1780,7 @@ ExplodeShip
         STA currentXPos
         LDA #$00
         STA currentCharacter
-        LDA #$02
+        LDA #RED
         STA currentColor
         JSR DrawCurrentCharacterToScreen
         JMP DrawExplosion
