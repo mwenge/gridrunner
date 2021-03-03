@@ -1,3 +1,21 @@
+; This is the reverse-engineered source code for the game 'Matrix' written by Jeff Minter in 1983.
+;
+; The code in this file was created by disassembling a binary of the game released into
+; the public domain by Jeff Minter in 2019.
+;
+; The original code from which this source is derived is the copyright of Jeff Minter.
+;
+; The original home of this file is at: https://github.com/mwenge/matrix
+;
+; To the extent to which any copyright may apply to the act of disassembling and reconstructing
+; the code from its binary, the author disclaims copyright to this source code.  In place of
+; a legal notice, here is a blessing:
+;
+;    May you do good and not evil.
+;    May you find forgiveness for yourself and forgive others.
+;    May you share freely, never taking more than you give.
+;
+; (Note: I ripped this part from the SQLite licence! :) )
 ;
 ; **** ZP ABSOLUTE ADRESSES **** 
 ;
