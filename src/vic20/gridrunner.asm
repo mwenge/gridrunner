@@ -408,9 +408,9 @@ UpdateShipPosition
         CMP #$00
         BEQ b1289
         JSR CheckIfBumpingAgainstSomething
-b1289   LDA #<p0200
+b1289   LDA #$00
         STA currentCharacter
-        LDA #>p0200
+        LDA #$02
         STA currentColor
         JSR DrawCurrentCharacterToScreen
 
@@ -456,9 +456,9 @@ b12E1   LDA currentYPos
         STA oldYPos
         LDA currentXPos
         STA oldXPos
-j12E9   LDA #<p0507
+j12E9   LDA #$07
         STA currentCharacter
-        LDA #>p0507
+        LDA #$05
         STA currentColor
         JMP DrawCurrentCharacterToScreen
 
