@@ -3,7 +3,7 @@
 <img src="https://www.mobygames.com/images/covers/l/34991-gridrunner-commodore-64-front-cover.jpg" height=300><img src="https://user-images.githubusercontent.com/58846/103443482-9fb16180-4c57-11eb-9403-4968bd16287f.gif" height=300>
 
 
-This is the disassembled and [commented source code] for the 1982 Commodore 64 port of Gridrunner by Jeff Minter. 
+This is the disassembled and [commented source code] for the 1982 Vic 20 (and Commodore 64 port) of Gridrunner by Jeff Minter. 
 
 You can play Gridrunner in your browser at [https://gridrunner.xyz]. (Ctrl key is 'Fire', Arrow Keys to move.)
 
@@ -16,18 +16,31 @@ You can play Gridrunner in your browser at [https://gridrunner.xyz]. (Ctrl key i
 [vice]: http://vice-emu.sourceforge.net/
 [https://gridrunner.xyz]: https://mwenge.github.io/gridrunner.xyz
 [commented source code]:https://github.com/mwenge/gridrunner/blob/master/src/gridrunner.asm
-To compile and run it do:
+
+To compile and run the C64 version do:
 
 ```sh
 $ make
 ```
+To compile and run the Vic 20 version do:
+
+```sh
+$ make vic
+```
+
 The compiled game is written to the `bin` folder. 
 
 To just compile the game and get a binary (`gridrunner.prg`) do:
 
 ```sh
-$ make gridrunner
+$ make gridrunner.prg
 ```
+or
+```sh
+$ make gridrunner-vic20.prg
+```
+
+for the Vic 20 version.
 
 
 # Disassembling the Game
