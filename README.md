@@ -15,7 +15,7 @@ You can play Gridrunner in your browser at [https://gridrunner.xyz]. (Ctrl key i
 [64tass]: http://tass64.sourceforge.net/
 [vice]: http://vice-emu.sourceforge.net/
 [https://gridrunner.xyz]: https://mwenge.github.io/gridrunner.xyz
-[commented source code]:https://github.com/mwenge/gridrunner/blob/master/src/gridrunner.asm
+[commented source code]:https://github.com/mwenge/gridrunner/blob/master/src/
 
 To compile and run the C64 version do:
 
