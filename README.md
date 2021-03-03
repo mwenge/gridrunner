@@ -3,7 +3,7 @@
 <img src="https://www.mobygames.com/images/covers/l/34991-gridrunner-commodore-64-front-cover.jpg" height=300><img src="https://user-images.githubusercontent.com/58846/103443482-9fb16180-4c57-11eb-9403-4968bd16287f.gif" height=300>
 
 
-This is the disassembled and [commented source code] for the 1982 Vic 20 (and Commodore 64 port) of Gridrunner by Jeff Minter. 
+This is the disassembled and [commented source code] for the 1982 Vic 20 (and Commodore 64 port) of Gridrunner by Jeff Minter. It is part of the [llamasource project](https://mwenge.github.io/llamaSource/).
 
 You can play Gridrunner in your browser at [https://gridrunner.xyz]. (Ctrl key is 'Fire', Arrow Keys to move.)
 
