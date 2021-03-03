@@ -62,7 +62,6 @@ unusedVariable2 = $FF
 ;
 ; **** FIELDS **** 
 ;
-f002F = $002F
 bombScreenPtrArrayLo = $0030
 bombScreenPtrArrayHi = $0031
 f0FFD = $0FFD
@@ -70,7 +69,6 @@ f0FFE = $0FFE
 f0FFF = $0FFF
 f1000 = $1000
 SCREEN_RAM = $1E00
-f95FF = $95FF
 COLOR_RAM = $9600
 ;
 ; **** ABSOLUTE ADRESSES **** 
@@ -79,15 +77,8 @@ a0291 = $0291
 ;
 ; **** POINTERS **** 
 ;
-p0100 = $0100
-p0102 = $0102
-p0103 = $0103
-p0105 = $0105
 p0200 = $0200
 p0507 = $0507
-p070F = $070F
-p0A13 = $0A13
-p2000 = $2000
 ;
 ; **** PREDEFINED LABELS **** 
 ;
