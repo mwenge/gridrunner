@@ -1152,7 +1152,7 @@ b863B   RTS
 b863C   LDA laserShootInterval
         CMP #$FF
         BNE b863B
-        JSR s86D0
+        JSR UpdateLaserCharacter
         NOP 
         CMP #$07
         BNE b864E
@@ -1223,9 +1223,9 @@ b86B2   JSR WriteCurrentCharacterToCurrentXYPos
         JMP WriteCurrentCharacterToCurrentXYPos
 
 ;-------------------------------------------------------------------------
-; s86D0
+; UpdateLaserCharacter
 ;-------------------------------------------------------------------------
-s86D0
+UpdateLaserCharacter
         DEC bulletAndLaserFrameRate
         INC laserCurrentCharacter
         LDA laserCurrentCharacter
@@ -1329,22 +1329,22 @@ b8758   LDA #$40
 b875E   LDA f101F,X
         CMP #$FF
         BEQ b8768
-        JSR s876C
+        JSR DrawPods
 b8768   DEX 
         BNE b875E
         RTS 
 
 ;-------------------------------------------------------------------------
-; s876C
+; DrawPods
 ;-------------------------------------------------------------------------
-s876C
+DrawPods
         LDA f0FFF,X
         STA currentXPosition
         LDA f101F,X
         STA currentYPosition
         LDY #$00
         LDA (currentXPosition),Y
-        CMP #$07
+        CMP #SHIP
         BNE b8781
         JMP JumpToDrawGridCharAtOldPosAndCheckCollisions
 
@@ -1373,7 +1373,7 @@ b8781   LDA #$00
         STA f101F,X
         RTS 
 
-b87B4   CMP #$07
+b87B4   CMP #SHIP
         BNE b87BB
         JMP JumpToDrawGridCharAtOldPosAndCheckCollisions
 
@@ -1527,7 +1527,7 @@ b88CD   RTS
 
 b88CE   LDA #$80
         STA droidFrameRate
-        JSR s89C1
+        JSR UpdateDroidsRemaining
         LDA noOfDroidSquadsCurrentLevel
         BEQ b88CD
         TAX 
@@ -1661,9 +1661,9 @@ b89B8   LDA previousXPosition
         RTS 
 
 ;-------------------------------------------------------------------------
-; s89C1
+; UpdateDroidsRemaining
 ;-------------------------------------------------------------------------
-s89C1
+UpdateDroidsRemaining
         LDA a29
         BNE b89E6
         DEC a28
@@ -1914,15 +1914,15 @@ b8B53   LDX currentDroidIndex
         DEX 
         BNE b8B3D
         LDA #$14
-b8B5A   JMP j8B60
+b8B5A   JMP AnimateShipExplosion
 
         DEX 
         BNE b8B5A
 
 ;---------------------------------------------------------------------------------
-; j8B60   
+; AnimateShipExplosion   
 ;---------------------------------------------------------------------------------
-j8B60   
+AnimateShipExplosion   
         INC currentShipExplosionCharacter
         LDA currentShipExplosionCharacter
         CMP #$19
@@ -1940,6 +1940,7 @@ b8B7C   INC f1500,X
 b8B7F   JSR s8040
         LDA f8BC8,X
         BEQ b8B8E
+
         CMP #$80
         BEQ b8B91
         INC f1600,X
@@ -1953,15 +1954,15 @@ b8B91   JSR s8056
         STA colorForCurrentCharacter
         LDA currentShipExplosionCharacter
         STA currentCharacter
-        JSR s8BBB
+        JSR GetCharAtCurrentPosition
         BNE b8BAE
         JSR WriteCurrentCharacterToCurrentXYPos
-b8BAE   JMP j8BD2
+b8BAE   JMP MaybeRestartLevel
 
 ;---------------------------------------------------------------------------------
-; PlayExplosionAndStartNewLevel   
+; PlayExplosionAndRestartLevel   
 ;---------------------------------------------------------------------------------
-PlayExplosionAndStartNewLevel   
+PlayExplosionAndRestartLevel   
         DEC a33
         BMI b8BB8
         JMP j8B24
@@ -1969,9 +1970,9 @@ PlayExplosionAndStartNewLevel
 b8BB8   JMP ClearScreenAndRestartLevel
 
 ;-------------------------------------------------------------------------
-; s8BBB
+; GetCharAtCurrentPosition
 ;-------------------------------------------------------------------------
-s8BBB
+GetCharAtCurrentPosition
         STX currentDroidIndex
         JMP GetCharacterAtCurrentXYPos
 
@@ -1980,9 +1981,9 @@ f8BC8   .BYTE $80,$80,$80,$00,$01,$01,$01,$00
         .BYTE $80
         NOP 
 ;---------------------------------------------------------------------------------
-; j8BD2   
+; MaybeRestartLevel   
 ;---------------------------------------------------------------------------------
-j8BD2   
+MaybeRestartLevel   
         LDX currentDroidIndex
         DEX 
         BNE b8B6E
@@ -1994,7 +1995,7 @@ b8BD9   JSR WasteSomeCycles
         STA $D404    ;Voice 1: Control Register
         LDA #$81
         STA $D404    ;Voice 1: Control Register
-        JMP PlayExplosionAndStartNewLevel
+        JMP PlayExplosionAndRestartLevel
 
 ;-------------------------------------------------------------------------
 ; s8BEC
