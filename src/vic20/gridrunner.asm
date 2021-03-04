@@ -37,7 +37,7 @@ zapperMovementInterval = $10
 yZapperYPos = $11
 xZapperXPos = $12
 currentYLaserYPos = $13
-oldXZaooerXPos = $14
+oldXZapperXPos = $14
 podDecayInterval = $15
 currentXLaserChar = $16
 currentLaserYPos = $17
@@ -55,13 +55,10 @@ bombsLeft = $2C
 currentNoOfDroids = $2D
 bombScreenHiPtr = $2E
 aA2 = $A2
-aCE = $CE
 livesLeft = $F0
 currentLevel = $F1
 unusedVariable2 = $FF
-;
-; **** FIELDS **** 
-;
+
 bombScreenPtrArrayLo = $0030
 bombScreenPtrArrayHi = $0031
 f0FFD = $0FFD
@@ -70,18 +67,8 @@ f0FFF = $0FFF
 f1000 = $1000
 SCREEN_RAM = $1E00
 COLOR_RAM = $9600
-;
-; **** ABSOLUTE ADRESSES **** 
-;
-a0291 = $0291
-;
-; **** POINTERS **** 
-;
-p0200 = $0200
-p0507 = $0507
-;
-; **** PREDEFINED LABELS **** 
-;
+VIC_SWITCH_CASE = $0291
+
 VICCR5 = $9005
 VICCRA = $900A
 VICCRB = $900B
@@ -163,7 +150,7 @@ InitializeScreenAndBorder
         STA VICCRF   ;$900F - screen colors: background, border & inverse
         JMP DrawBannerTopOfScreen
 
-        CMP aCE
+        .BYTE $C5,$CE
 f10EF   .BYTE $02,$A8,$83,$A9,$B1,$B9,$B8,$B2
         .BYTE $8A,$83,$8D,$BD,$39,$3B,$BC,$76
         .BYTE $6A
@@ -178,7 +165,7 @@ LaunchGame
         LDA #$FF
         STA VICCR5   ;$9005 - screen map & character map address
         LDA #$80
-        STA a0291
+        STA VIC_SWITCH_CASE ; Disable switching character case
         JSR ClearScreen
         JSR DrawBannerTopOfScreen
         JSR DrawGrid
@@ -269,7 +256,7 @@ ResetVariablesAndRestartLevel
         LDA #$00
         STA bulletActive
         STA currentYLaserYPos
-        STA oldXZaooerXPos
+        STA oldXZapperXPos
         LDA #$10
         STA podUpdateInterval
         LDA #$0B
@@ -667,7 +654,7 @@ b1419   LDA #$0B
 b1422   LDA yZapperYPos
         STA currentYLaserYPos
         LDA xZapperXPos
-        STA oldXZaooerXPos
+        STA oldXZapperXPos
         LDA #$87
         STA VICCRB   ;$900B - frequency of sound osc.2 (alto)
         LDA #$C2
@@ -689,7 +676,7 @@ MaybeFireBulletsAndLasers
 ; DrawLasers   
 ;---------------------------------------------------------------------------------
 DrawLasers   
-        LDA oldXZaooerXPos
+        LDA oldXZapperXPos
         STA currentXPos
         LDA #$13
         STA currentYPos
@@ -749,7 +736,7 @@ b1492   LDA #$00
         STA currentColor
         JMP DrawCurrentCharacterToScreen
 
-b14BB   LDA oldXZaooerXPos
+b14BB   LDA oldXZapperXPos
         STA currentXPos
         LDA #$00
         STA currentCharacter
@@ -783,7 +770,7 @@ b14CB   LDA currentLaserYPos
         STA podDecayInterval
         LDA #$00
         STA currentYLaserYPos
-        STA oldXZaooerXPos
+        STA oldXZapperXPos
         STA VICCRA   ;$900A - frequency of sound osc.1 (bass)
         STA VICCRB   ;$900B - frequency of sound osc.2 (alto)
         RTS 
@@ -797,7 +784,7 @@ UpdatePods
         BEQ b1508
         RTS 
 
-b1508   LDA oldXZaooerXPos
+b1508   LDA oldXZapperXPos
         BNE b150D
         RTS 
 
@@ -1651,9 +1638,9 @@ explosionYPosArray  =*-$01
         .BYTE $0D,$1C,$1C,$1C,$0D,$FE,$FE,$FE
 explosionXPosArray  =*-$01 
         .BYTE $FB,$FB,$0A,$19,$19,$19,$0A,$FB
-f1A30  =*-$01 
+explosionYPosArrayControl  =*-$01 
         .BYTE $00,$01,$01,$01,$00,$81,$81,$81
-f1A38  =*-$01 
+explosionXPosArrayControl  =*-$01 
         .BYTE $81,$81,$00,$01,$01,$01,$00,$81
 
 currentExplosionCharacter = $2D
@@ -1705,14 +1692,14 @@ b1A85   PLA
 
         LDX #$08
 b1A8C   INC explosionYPosArray,X
-        LDA f1A30,X
+        LDA explosionYPosArrayControl,X
         BEQ b1A9B
         CMP #$81
         BNE b1A9E
         DEC explosionYPosArray,X
 b1A9B   DEC explosionYPosArray,X
 b1A9E   INC explosionXPosArray,X
-        LDA f1A38,X
+        LDA explosionXPosArrayControl,X
         BEQ b1AAD
         CMP #$81
         BNE b1AB0
