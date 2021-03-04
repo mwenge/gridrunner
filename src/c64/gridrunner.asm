@@ -454,7 +454,7 @@ b81BC   LDA a09
         CMP #$16
         BNE b81BC
         LDX #$01
-b81D4   JSR s8230
+b81D4   JSR JumpToPlayAnotherSound
         DEY 
         BNE b81DA
 b81DA   DEX 
@@ -480,7 +480,7 @@ b81F1   LDA a09
         CMP #$27
         BNE b81F1
         LDX #$01
-b8209   JSR s8230
+b8209   JSR JumpToPlayAnotherSound
         DEY 
         BNE b820F
 b820F   DEX 
@@ -508,9 +508,9 @@ b8227   LDA lastKeyPressed
         ;Returns
 
 ;-------------------------------------------------------------------------
-; s8230
+; JumpToPlayAnotherSound
 ;-------------------------------------------------------------------------
-s8230
+JumpToPlayAnotherSound
         JMP PlayAnotherSound
 
 ;---------------------------------------------------------------------------------
