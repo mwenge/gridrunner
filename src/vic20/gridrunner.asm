@@ -832,7 +832,7 @@ b1512   CMP podDecaySequence,X
         BEQ b151E
         DEX 
         BNE b1512
-        JMP j1959
+        JMP CheckIfBulletCollidedWithDroid
 
         RTS 
 
@@ -1516,16 +1516,21 @@ b1945   JSR s1B67
         TAX 
         JMP RefillDroidsIfNecessary
 
-j1959   LDA (bulletScreenRamLoPtr),Y
+;---------------------------------------------------------------------------------
+; CheckIfBulletCollidedWithDroid   
+;---------------------------------------------------------------------------------
+CheckIfBulletCollidedWithDroid   
+        LDA (bulletScreenRamLoPtr),Y
         CMP #$13
-        BEQ b1968
+        BEQ BulletCollidedWithDroid
         CMP #$14
-        BEQ b1968
+        BEQ BulletCollidedWithDroid
         CMP #$15
-        BEQ b1968
+        BEQ BulletCollidedWithDroid
         RTS 
 
-b1968   JMP j1993
+BulletCollidedWithDroid
+       JMP j1993
 
         .BYTE $0B,$68,$68
         JMP j1993
@@ -1553,7 +1558,11 @@ b197A   DEX
         JSR s19DF
         JMP j19C6
 
-j1993   PLA 
+;---------------------------------------------------------------------------------
+; j1993   
+;---------------------------------------------------------------------------------
+j1993   
+        PLA 
         PLA 
         LDA #$00
         STA bulletActive
