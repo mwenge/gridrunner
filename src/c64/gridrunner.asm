@@ -74,7 +74,6 @@ aFF = $FF
 ;
 ; **** ZP POINTERS **** 
 ;
-p02 = $02
 p1F = $1F
 p83 = $83
 pCA = $CA
@@ -331,12 +330,12 @@ InitializeGame
         STA currentXPosition
         LDY #$18
         TYA 
-        STA (p02),Y
+        STA (currentXPosition),Y
         LDY #$20
         LDA #$00
-        STA (p02),Y
+        STA (currentXPosition),Y
         INY 
-        STA (p02),Y
+        STA (currentXPosition),Y
         LDA #$0A
         STA $D401    ;Voice 1: Frequency Control - High-Byte
         STA $D405    ;Voice 1: Attack / Decay Cycle Control
@@ -358,7 +357,7 @@ b8138   LDA currentXPosition
         STA screenLinesHiPtrArray,X
         LDY #$00
         LDA #$20
-b8146   STA (p02),Y
+b8146   STA (currentXPosition),Y
         INY 
         CPY #$28
         BNE b8146
@@ -427,12 +426,14 @@ PlaySomeSound
         STA $D40B    ;Voice 2: Control Register
         RTS 
 
+gridXPos = $08
+gridYPos = $09
 ;-------------------------------------------------------------------------
 ; DrawGrid
 ;-------------------------------------------------------------------------
 DrawGrid
         LDA #$02
-        STA a08
+        STA gridXPos
         LDA #>p083F
         STA colorForCurrentCharacter
         LDA #<p083F
@@ -442,15 +443,15 @@ b81AE   LDA #$00
         LDA #$00
         STA $D412    ;Voice 3: Control Register
         LDA #$02
-        STA a09
-b81BC   LDA a09
+        STA gridYPos
+b81BC   LDA gridYPos
         STA currentYPosition
-        LDA a08
+        LDA gridXPos
         STA currentXPosition
         JSR WriteCurrentCharacterToCurrentXYPos
         JSR PlaySomeSound
-        INC a09
-        LDA a09
+        INC gridYPos
+        LDA gridYPos
         CMP #$16
         BNE b81BC
         LDX #$01
@@ -459,24 +460,24 @@ b81D4   JSR JumpToPlayAnotherSound
         BNE b81DA
 b81DA   DEX 
         BNE b81D4
-        INC a08
-        LDA a08
+        INC gridXPos
+        LDA gridXPos
         CMP #$27
         BNE b81AE
         LDA #$02
-        STA a08
+        STA gridXPos
         LDA #$00
         STA currentCharacter
 b81ED   LDA #$01
-        STA a09
-b81F1   LDA a09
+        STA gridYPos
+b81F1   LDA gridYPos
         STA currentXPosition
-        LDA a08
+        LDA gridXPos
         STA currentYPosition
         JSR WriteCurrentCharacterToCurrentXYPos
         JSR PlaySomeSound
-        INC a09
-        LDA a09
+        INC gridYPos
+        LDA gridYPos
         CMP #$27
         BNE b81F1
         LDX #$01
@@ -485,8 +486,8 @@ b8209   JSR JumpToPlayAnotherSound
         BNE b820F
 b820F   DEX 
         BNE b8209
-        INC a08
-        LDA a08
+        INC gridXPos
+        LDA gridXPos
         CMP #$16
         BNE b81ED
 b821A   RTS 
@@ -1300,19 +1301,19 @@ s876C
         LDA f101F,X
         STA currentYPosition
         LDY #$00
-        LDA (p02),Y
+        LDA (currentXPosition),Y
         CMP #$07
         BNE b8781
         JMP JumpToDrawGridCharAtOldPosAndCheckCollisions
 
 b8781   LDA #$00
-        STA (p02),Y
+        STA (currentXPosition),Y
         LDA currentYPosition
         CLC 
         ADC #$D4
         STA currentYPosition
         LDA #$08
-        STA (p02),Y
+        STA (currentXPosition),Y
         LDA f0FFF,X
         CLC 
         ADC #$28
@@ -1323,7 +1324,7 @@ b8781   LDA #$00
         STA currentYPosition
         LDA f0FFF,X
         STA currentXPosition
-        LDA (p02),Y
+        LDA (currentXPosition),Y
         CMP #$20
         BNE b87B4
         LDA #$FF
@@ -1335,13 +1336,13 @@ b87B4   CMP #$07
         JMP JumpToDrawGridCharAtOldPosAndCheckCollisions
 
 b87BB   LDA #$0A
-        STA (p02),Y
+        STA (currentXPosition),Y
         LDA currentYPosition
         CLC 
         ADC #$D4
         STA currentYPosition
         LDA #$01
-        STA (p02),Y
+        STA (currentXPosition),Y
         RTS 
 
 ;-------------------------------------------------------------------------
