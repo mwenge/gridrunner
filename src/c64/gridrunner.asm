@@ -324,9 +324,9 @@ WaitForKeyToBeReleased
 ; InitializeGame   
 ;---------------------------------------------------------------------------------
 InitializeGame   
-        LDA #>pD000
+        LDA #$D0
         STA currentYPosition
-        LDA #<pD000
+        LDA #$00
         STA currentXPosition
         LDY #$18
         TYA 
@@ -434,9 +434,9 @@ gridYPos = $09
 DrawGrid
         LDA #$02
         STA gridXPos
-        LDA #>p083F
+        LDA #$08
         STA colorForCurrentCharacter
-        LDA #<p083F
+        LDA #$3F
         STA currentCharacter
 b81AE   LDA #$00
         STA $D412    ;Voice 3: Control Register
@@ -544,10 +544,10 @@ MaterializeShip
         LDA #$00
         STA $D404    ;Voice 1: Control Register
         STA $D40B    ;Voice 2: Control Register
-        LDA #<p0116
+        LDA #$16
         STA currentCharacter
 MaterializeShipLoop
-        LDA #>p0116
+        LDA #$01
         STA colorForCurrentCharacter
         LDA #$00
         STA $D40B    ;Voice 2: Control Register
@@ -587,9 +587,9 @@ b82AE   STA a09
 b82B2   JSR MaybeWasteSomeCycles
         DEX 
         BNE b82B2
-        LDA #<p0800
+        LDA #$00
         STA currentCharacter
-        LDA #>p0800
+        LDA #$08
         STA colorForCurrentCharacter
         LDA #$14
         STA currentXPosition
@@ -640,15 +640,15 @@ DrawNewLevelScreen
         STA $D414    ;Voice 3: Sustain / Release Cycle Control
         JSR DrawGrid
         JSR MaterializeShip
-        LDA #<p1514
+        LDA #$14
         STA previousXPosition
-        LDA #>p1514
+        LDA #$15
         STA previousYPosition
         LDA #$FF
         STA a11
-        LDA #>p0102
+        LDA #$01
         STA a16
-        LDA #<p0102
+        LDA #$02
         STA a15
         LDA #$04
         STA a14
@@ -803,13 +803,13 @@ DrawMaterializeShip
         STA $D418    ;Select Filter Mode and Volume
         JMP MaterializeShipLoop
 
-b841A   LDA #<p0D07
+b841A   LDA #$07
         STA currentCharacter
-        LDA #>p0D07
+        LDA #$0D
         STA colorForCurrentCharacter
-        LDA #>p1514
+        LDA #$15
         STA currentYPosition
-        LDA #<p1514
+        LDA #$14
         STA currentXPosition
         JSR WriteCurrentCharacterToCurrentXYPos
         LDA #$0F
@@ -864,9 +864,9 @@ b8475   JSR GetJoystickInput
         CMP #$07
         BEQ b848A
         JSR s8BEC
-b848A   LDA #<p0800
+b848A   LDA #$00
         STA currentCharacter
-        LDA #>p0800
+        LDA #$08
         STA colorForCurrentCharacter
         JSR WriteCurrentCharacterToCurrentXYPos
         LDA joystickInput
@@ -912,9 +912,9 @@ b84E5   LDA currentXPosition
         STA previousXPosition
         LDA currentYPosition
         STA previousYPosition
-        LDA #>p0D07
+        LDA #$0D
         STA colorForCurrentCharacter
-        LDA #<p0D07
+        LDA #$07
         STA currentCharacter
         JMP WriteCurrentCharacterToCurrentXYPos
 
@@ -940,9 +940,9 @@ b84FD   LDA #$18
         LDA previousYPosition
         STA a11
         DEC a11
-        LDA #<p4008
+        LDA #$08
         STA a12
-        LDA #>p4008
+        LDA #$40
         STA a13
 b8522   LDA a10
         STA currentXPosition
@@ -954,9 +954,9 @@ b8522   LDA a10
         CMP #$00
         BEQ b8538
         JSR s87CB
-b8538   LDA #>p0800
+b8538   LDA #$08
         STA colorForCurrentCharacter
-        LDA #<p0800
+        LDA #$00
         STA currentCharacter
         JSR WriteCurrentCharacterToCurrentXYPos
         INC a12
@@ -1036,9 +1036,9 @@ b85A2   DEC a14
         STA a15
 b85C5   LDA a15
         STA currentYPosition
-        LDA #>p0101
+        LDA #$01
         STA colorForCurrentCharacter
-        LDA #<p0101
+        LDA #$01
         STA currentCharacter
         JSR WriteCurrentCharacterToCurrentXYPos
         LDA #$16
@@ -1140,9 +1140,9 @@ b865A   LDA a1D
         JSR GetCharacterAtCurrentXYPos
         CMP a19
         BEQ b86A2
-        LDA #<p0800
+        LDA #$00
         STA currentCharacter
-        LDA #>p0800
+        LDA #$08
         STA colorForCurrentCharacter
         JSR WriteCurrentCharacterToCurrentXYPos
         INC a1B
@@ -1163,9 +1163,9 @@ b86A2   LDA #$15
         STA currentYPosition
         LDA a1C
         STA currentXPosition
-        LDA #>p0800
+        LDA #$08
         STA colorForCurrentCharacter
-        LDA #<p0800
+        LDA #$00
         STA currentCharacter
 b86B2   JSR WriteCurrentCharacterToCurrentXYPos
         DEC currentYPosition
@@ -1368,9 +1368,9 @@ b87D9   DEX
         STA a11
         JMP j8801
 
-b87EC   LDA #<p0800
+b87EC   LDA #$00
         STA currentCharacter
-        LDA #>p0800
+        LDA #$08
         STA colorForCurrentCharacter
         LDA #$FF
         STA a11
@@ -1439,9 +1439,9 @@ s888A
         LDX #$06
         LDY #$0A
         JSR IncrementPlayerScore
-        LDA #<p03F0
+        LDA #$F0
         STA a22
-        LDA #>p03F0
+        LDA #$03
         STA a23
 b8899   RTS 
 
@@ -1500,9 +1500,9 @@ b88E6   STX a27
         STA currentXPosition
         LDA f11FF,X
         STA currentYPosition
-        LDA #<p0800
+        LDA #$00
         STA currentCharacter
-        LDA #>p0800
+        LDA #$08
         STA colorForCurrentCharacter
         JSR s8995
         LDX a27
@@ -1516,9 +1516,9 @@ b88E6   STX a27
         STA currentYPosition
         LDA f10FF,X
         STA currentXPosition
-        LDA #>p0313
+        LDA #$03
         STA colorForCurrentCharacter
-        LDA #<p0313
+        LDA #$13
         STA currentCharacter
         JSR WriteCurrentCharacterToCurrentXYPos
 j8924   LDX a27
@@ -1545,9 +1545,9 @@ b8935   DEC currentXPosition
         ORA #$01
         AND #$FD
         STA f12FF,X
-        LDA #>p0E02
+        LDA #$0E
         STA @wa0003
-        LDA #<p0E02
+        LDA #$02
         STA @wa0002
         JMP j896A
 
@@ -1738,9 +1738,9 @@ b8A8D   LDA f1300,X
 ; s8A99
 ;-------------------------------------------------------------------------
 s8A99
-        LDA #<p03F0
+        LDA #$F0
         STA a22
-        LDA #>p03F0
+        LDA #$03
         STA a23
         JMP IncrementPlayerScore
 
@@ -1846,9 +1846,9 @@ j8B24   LDA #$00
         LDA a33
         STA $D418    ;Select Filter Mode and Volume
         LDX #$08
-        LDA #>p0800
+        LDA #$08
         STA colorForCurrentCharacter
-        LDA #<p0800
+        LDA #$00
         STA currentCharacter
 b8B3D   LDA f1500,X
         STA currentXPosition
@@ -2145,9 +2145,9 @@ SetVolumeAndPlaySounds
         JMP PlayNewLevelSounds
 
 DrawGridCharAtOldPosAndCheckCollisions
-        LDA #<p0800
+        LDA #$00
         STA currentCharacter
-        LDA #>p0800
+        LDA #$08
         STA colorForCurrentCharacter
         LDA previousXPosition
         STA currentXPosition
