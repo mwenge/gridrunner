@@ -691,7 +691,7 @@ DrawNewLevelScreen
         STA backgroundSoundParm1
         STA backgroundSoundParm2
         STA noOfDroidSquadsCurrentLevel
-        LDA #$13
+        LDA #DROID1
         STA currentDroidCharacter
         LDA #$20
         STA a28
@@ -1003,7 +1003,7 @@ b8538   LDA #ORANGE
         STA currentBulletYPosition
         RTS 
 
-b8558   LDA #$08
+b8558   LDA #BULLET_UP1
         STA currentBulletCharacter
 b855C   LDA currentBulletYPosition
         STA currentYPosition
@@ -1285,7 +1285,7 @@ PodDecaySequence
 ;-------------------------------------------------------------------------
 ; s8728
 ;-------------------------------------------------------------------------
-s8728   LDA #$0A
+s8728   LDA #BOMB_DOWN
         STA (podScreenLoPtr),Y
         LDX #$18
 b872E   LDA f101F,X
@@ -1294,7 +1294,7 @@ b872E   LDA f101F,X
         DEX 
 b8737   =*+$01
         BNE b872E
-        LDA #$12
+        LDA #POD6
         STA (podScreenLoPtr),Y
         RTS 
 
@@ -1535,7 +1535,7 @@ b88CE   LDA #$80
         LDA currentDroidCharacter
         CMP #$16
         BNE b88E6
-        LDA #$13
+        LDA #DROID1
         STA currentDroidCharacter
 b88E6   STX currentDroidIndex
         LDA f10FF,X
@@ -1888,7 +1888,7 @@ b8B0A   STA f1600,X
         STA $D412    ;Voice 3: Control Register
         LDA #$03
         STA $D401    ;Voice 1: Frequency Control - High-Byte
-        LDA #$16
+        LDA #EXPLOSION1
         STA currentShipExplosionCharacter
 j8B24   LDA #$00
         STA $D404    ;Voice 1: Control Register
@@ -1927,7 +1927,7 @@ j8B60
         LDA currentShipExplosionCharacter
         CMP #$19
         BNE b8B6C
-        LDA #$16
+        LDA #EXPLOSION1
         STA currentShipExplosionCharacter
 b8B6C   LDX #$08
 b8B6E   LDA f8BC0,X
@@ -2021,7 +2021,7 @@ ClearScreen
         LDA #>SCREEN_RAM + $0050
         STA clearScreenLineHiPtr
         LDY #$00
-b8C06   LDA #$20
+b8C06   LDA #SPACE
 b8C08   STA (clearScreenLineLoPtr),Y
         INC clearScreenLineLoPtr
         BNE b8C08
