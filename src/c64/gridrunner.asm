@@ -132,6 +132,40 @@ ROM_RAMTASj = $FD50
 ROM_IOINITj = $FDA3
 ROM_CHROUT = $FFD2
 
+GRID = $00
+LEFT_ZAPPER = $01
+BOTTOM_ZAPPER = $02
+HORIZ_LASER1 = $03
+HORIZ_LASER2 = $04
+VERTICAL_LASER1 = $05
+VERTICAL_LASER2 = $06
+SHIP = $07
+BULLET_UP1 = $08
+BULLET_UP2 = $09
+BOMB_DOWN = $0A
+BOMB_RIGHT = $0B
+BOMB_LEFT = $0C
+POD1 = $0D
+POD2 = $0E
+POD3 = $0F
+POD4 = $10
+POD5 = $11
+POD6 = $12
+DROID1 = $13
+DROID2 = $14
+DROID3 = $15
+EXPLOSION1 = $16
+EXPLOSION2 = $17
+EXPLOSION3 = $18
+SCORE_LEFT = $19
+SCORE_RIGHT = $1A
+MEN_LEFT = $1B
+MEN_RIGHT = $1C
+HI_SCORE1 = $1D
+HI_SCORE2 = $1E
+RIGHT_ARROW = $1F
+SPACE = $20
+
 * = $0800
 
 ;-----------------------------------------------------------------------------------------------------
@@ -466,7 +500,7 @@ b81DA   DEX
         BNE b81AE
         LDA #$02
         STA gridXPos
-        LDA #$00
+        LDA #GRID
         STA currentCharacter
 b81ED   LDA #$01
         STA gridYPos
@@ -544,7 +578,7 @@ MaterializeShip
         LDA #$00
         STA $D404    ;Voice 1: Control Register
         STA $D40B    ;Voice 2: Control Register
-        LDA #$16
+        LDA #EXPLOSION1
         STA currentCharacter
 MaterializeShipLoop
         LDA #$01
@@ -587,7 +621,7 @@ b82AE   STA a09
 b82B2   JSR MaybeWasteSomeCycles
         DEX 
         BNE b82B2
-        LDA #$00
+        LDA #GRID
         STA currentCharacter
         LDA #$08
         STA colorForCurrentCharacter
@@ -803,7 +837,7 @@ DrawMaterializeShip
         STA $D418    ;Select Filter Mode and Volume
         JMP MaterializeShipLoop
 
-b841A   LDA #$07
+b841A   LDA #SHIP
         STA currentCharacter
         LDA #$0D
         STA colorForCurrentCharacter
@@ -864,7 +898,7 @@ b8475   JSR GetJoystickInput
         CMP #$07
         BEQ b848A
         JSR s8BEC
-b848A   LDA #$00
+b848A   LDA #GRID
         STA currentCharacter
         LDA #$08
         STA colorForCurrentCharacter
@@ -914,7 +948,7 @@ b84E5   LDA currentXPosition
         STA previousYPosition
         LDA #$0D
         STA colorForCurrentCharacter
-        LDA #$07
+        LDA #SHIP
         STA currentCharacter
         JMP WriteCurrentCharacterToCurrentXYPos
 
@@ -956,7 +990,7 @@ b8522   LDA a10
         JSR s87CB
 b8538   LDA #$08
         STA colorForCurrentCharacter
-        LDA #$00
+        LDA #GRID
         STA currentCharacter
         JSR WriteCurrentCharacterToCurrentXYPos
         INC a12
@@ -1025,7 +1059,7 @@ b85A2   DEC a14
         STA currentXPosition
         LDA a15
         STA currentYPosition
-        LDA #$20
+        LDA #SPACE
         STA currentCharacter
         JSR WriteCurrentCharacterToCurrentXYPos
         INC a15
@@ -1038,7 +1072,7 @@ b85C5   LDA a15
         STA currentYPosition
         LDA #$01
         STA colorForCurrentCharacter
-        LDA #$01
+        LDA #LEFT_ZAPPER
         STA currentCharacter
         JSR WriteCurrentCharacterToCurrentXYPos
         LDA #$16
@@ -1055,7 +1089,7 @@ b85C5   LDA a15
         STA a16
 b85ED   LDA a16
         STA currentXPosition
-        LDA #$02
+        LDA #BOTTOM_ZAPPER
         STA currentCharacter
         JMP j85FD
 
@@ -1140,7 +1174,7 @@ b865A   LDA a1D
         JSR GetCharacterAtCurrentXYPos
         CMP a19
         BEQ b86A2
-        LDA #$00
+        LDA #GRID
         STA currentCharacter
         LDA #$08
         STA colorForCurrentCharacter
@@ -1165,7 +1199,7 @@ b86A2   LDA #$15
         STA currentXPosition
         LDA #$08
         STA colorForCurrentCharacter
-        LDA #$00
+        LDA #GRID
         STA currentCharacter
 b86B2   JSR WriteCurrentCharacterToCurrentXYPos
         DEC currentYPosition
@@ -1368,7 +1402,7 @@ b87D9   DEX
         STA a11
         JMP j8801
 
-b87EC   LDA #$00
+b87EC   LDA #GRID
         STA currentCharacter
         LDA #$08
         STA colorForCurrentCharacter
@@ -1500,7 +1534,7 @@ b88E6   STX a27
         STA currentXPosition
         LDA f11FF,X
         STA currentYPosition
-        LDA #$00
+        LDA #GRID
         STA currentCharacter
         LDA #$08
         STA colorForCurrentCharacter
@@ -1518,7 +1552,7 @@ b88E6   STX a27
         STA currentXPosition
         LDA #$03
         STA colorForCurrentCharacter
-        LDA #$13
+        LDA #DROID1
         STA currentCharacter
         JSR WriteCurrentCharacterToCurrentXYPos
 j8924   LDX a27
@@ -1848,7 +1882,7 @@ j8B24   LDA #$00
         LDX #$08
         LDA #$08
         STA colorForCurrentCharacter
-        LDA #$00
+        LDA #GRID
         STA currentCharacter
 b8B3D   LDA f1500,X
         STA currentXPosition
@@ -2145,7 +2179,7 @@ SetVolumeAndPlaySounds
         JMP PlayNewLevelSounds
 
 DrawGridCharAtOldPosAndCheckCollisions
-        LDA #$00
+        LDA #GRID
         STA currentCharacter
         LDA #$08
         STA colorForCurrentCharacter
