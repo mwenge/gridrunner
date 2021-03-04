@@ -39,7 +39,7 @@ xZapperXPos = $12
 currentYLaserYPos = $13
 oldXZapperXPos = $14
 podDecayInterval = $15
-currentXLaserChar = $16
+currentXLaserCharacter = $16
 currentLaserYPos = $17
 currentYLaserXPos = $18
 explosionSoundInterval = $1B
@@ -91,8 +91,41 @@ GREEN   = $05
 BLUE    = $06
 YELLOW  = $07
 
-        * = $1001
+GRID = $00
+LEFT_ZAPPER = $01
+BOTTOM_ZAPPER = $02
+HORIZ_LASER1 = $03
+HORIZ_LASER2 = $04
+VERTICAL_LASER1 = $05
+VERTICAL_LASER2 = $06
+SHIP = $07
+BULLET_UP1 = $08
+BULLET_UP2 = $09
+BOMB_DOWN = $0A
+BOMB_RIGHT = $0B
+BOMB_LEFT = $0C
+POD1 = $0D
+POD2 = $0E
+POD3 = $0F
+POD4 = $10
+POD5 = $11
+POD6 = $12
+DROID1 = $13
+DROID2 = $14
+DROID3 = $15
+EXPLOSION1 = $16
+EXPLOSION2 = $17
+EXPLOSION3 = $18
+SCORE_LEFT = $19
+SCORE_RIGHT = $1A
+MEN_LEFT = $1B
+MEN_RIGHT = $1C
+HI_SCORE1 = $1D
+HI_SCORE2 = $1E
+RIGHT_ARROW = $1F
+SPACE = $20
 
+* = $1001
 ;-----------------------------------------------------------------------------------------------------
 ; SYS 7076 (PrepareGame)
 ; This launches the program from address $1BA4, i.e. DrawTitleScreen.
@@ -215,7 +248,7 @@ DrawGrid
 
         LDX #$12
 b1177   LDY #$15
-b1179   LDA #$00
+b1179   LDA #GRID
         STA (screenRamLoPtr),Y
 
         LDA screenRamHiPtr
@@ -226,7 +259,7 @@ b1179   LDA #$00
         STA screenRamHiPtr
 
         ; Draw the color
-        LDA #$02
+        LDA #BOTTOM_ZAPPER
         STA (screenRamLoPtr),Y
 
         PLA 
@@ -327,7 +360,7 @@ MainGameLoop
 ; RestartLevel   
 ;---------------------------------------------------------------------------------
 RestartLevel   
-        LDA #$13
+        LDA #DROID1
         STA currentDroidCharacter
         JMP ResetVariablesAndRestartLevel
 
@@ -404,7 +437,7 @@ UpdateShipPosition
         CMP #$00
         BEQ b1289
         JSR CheckIfBumpingAgainstSomething
-b1289   LDA #$00
+b1289   LDA #GRID
         STA currentCharacter
         LDA #RED
         STA currentColor
@@ -452,7 +485,7 @@ b12E1   LDA currentYPos
         STA oldYPos
         LDA currentXPos
         STA oldXPos
-j12E9   LDA #$07
+j12E9   LDA #SHIP
         STA currentCharacter
         LDA #GREEN
         STA currentColor
@@ -505,19 +538,19 @@ b1331   LDY #$00
         BEQ b1375
         CMP #$08
         BNE b1342
-        LDA #$09
+        LDA #BULLET_UP2
         STA (bulletScreenRamLoPtr),Y
         RTS 
 
 b1342   JSR CheckBulletCollisionWithPod
-        LDA #$00
+        LDA #GRID
         STA (bulletScreenRamLoPtr),Y
         LDA bulletScreenRamHiPtr
         PHA 
         CLC 
         ADC #$78
         STA bulletScreenRamHiPtr
-        LDA #$02
+        LDA #BOTTOM_ZAPPER
         STA (bulletScreenRamLoPtr),Y
         PLA 
         STA bulletScreenRamHiPtr
@@ -533,23 +566,23 @@ DrawBullet
         DEY 
         BNE b135A
         LDA (bulletScreenRamLoPtr),Y
-        CMP #$00
+        CMP #GRID
         BEQ b1375
-        CMP #$20
+        CMP #SPACE
         BNE b1372
         LDA #$00
         STA bulletActive
         RTS 
 
 b1372   JSR CheckBulletCollisionWithPod
-b1375   LDA #$08
+b1375   LDA #BULLET_UP1
         STA (bulletScreenRamLoPtr),Y
         LDA bulletScreenRamHiPtr
         PHA 
         CLC 
         ADC #$78
         STA bulletScreenRamHiPtr
-        LDA #$01
+        LDA #LEFT_ZAPPER
         STA (bulletScreenRamLoPtr),Y
         PLA 
         STA bulletScreenRamHiPtr
@@ -607,7 +640,7 @@ b13C0   LDA #$04
         STA currentYPos
         LDA #$00
         STA currentXPos
-        LDA #$20
+        LDA #SPACE
         STA currentCharacter
         JSR DrawCurrentCharacterToScreen
         INC yZapperYPos
@@ -629,7 +662,7 @@ b13DF   LDA #$14
         STA xZapperXPos
 b13F6   LDA xZapperXPos
         STA currentXPos
-        LDA #$02
+        LDA #BOTTOM_ZAPPER
         STA currentCharacter
         LDA #WHITE
         STA currentColor
@@ -638,7 +671,7 @@ b13F6   LDA xZapperXPos
         STA currentYPos
         LDA #$00
         STA currentXPos
-        LDA #$01
+        LDA #LEFT_ZAPPER
         STA currentCharacter
         JSR DrawCurrentCharacterToScreen
         DEC podDecayInterval
@@ -681,20 +714,20 @@ DrawLasers
         LDA #$13
         STA currentYPos
         JSR GetScreenPointerForCurrentXYPos
-        LDA #$05
-        STA currentXLaserChar
+        LDA #VERTICAL_LASER1
+        STA currentXLaserCharacter
         LDA (screenRamLoPtr),Y
-        CMP currentXLaserChar
+        CMP currentXLaserCharacter
         BNE b145E
 
-        LDA #$06
-        STA currentXLaserChar
+        LDA #VERTICAL_LASER2
+        STA currentXLaserCharacter
 
 b145E   LDA #$13
         STA currentLaserYPos
 b1462   LDA currentLaserYPos
         STA currentYPos
-        LDA currentXLaserChar
+        LDA currentXLaserCharacter
         STA currentCharacter
         LDA #YELLOW
         STA currentColor
@@ -709,14 +742,14 @@ b1462   LDA currentLaserYPos
         LDA currentYLaserXPos
         STA currentXPos
         JSR GetScreenPointerForCurrentXYPos
-        LDA #$03
-        STA currentXLaserChar
+        LDA #HORIZ_LASER1
+        STA currentXLaserCharacter
         LDA (screenRamLoPtr),Y
-        CMP currentXLaserChar
+        CMP currentXLaserCharacter
         BNE b1492
-        LDA #$04
-        STA currentXLaserChar
-b1492   LDA #$00
+        LDA #HORIZ_LASER2
+        STA currentXLaserCharacter
+b1492   LDA #GRID
         STA currentCharacter
         LDA #RED
         STA currentColor
@@ -726,11 +759,11 @@ b1492   LDA #$00
         STA currentXPos
         JSR GetScreenPointerForCurrentXYPos
         LDA (screenRamLoPtr),Y
-        CMP #$05
+        CMP #VERTICAL_LASER1
         BEQ b14BB
-        CMP #$06
+        CMP #VERTICAL_LASER2
         BEQ b14BB
-        LDA currentXLaserChar
+        LDA currentXLaserCharacter
         STA currentCharacter
         LDA #YELLOW
         STA currentColor
@@ -738,7 +771,7 @@ b1492   LDA #$00
 
 b14BB   LDA oldXZapperXPos
         STA currentXPos
-        LDA #$00
+        LDA #GRID
         STA currentCharacter
         LDA #RED
         STA currentColor
@@ -756,7 +789,7 @@ b14CB   LDA currentLaserYPos
         STA currentYPos
         LDA currentYLaserXPos
         STA currentXPos
-        LDA #$0F
+        LDA #POD3
         STA currentCharacter
         LDA #YELLOW
         STA currentColor
@@ -814,13 +847,13 @@ j1528   LDA #$00
         PLA 
         RTS 
 
-b152F   LDA #$00
+b152F   LDA #GRID
         STA (bulletScreenRamLoPtr),Y
         LDA bulletScreenRamHiPtr
         CLC 
         ADC #$78
         STA bulletScreenRamHiPtr
-        LDA #$02
+        LDA #BOTTOM_ZAPPER
         STA (bulletScreenRamLoPtr),Y
         JSR PlayExplosion
         JSR IncreaseScoreBy10000
@@ -835,7 +868,7 @@ CheckBulletCollisionWithPod
         RTS 
 
 podDecaySequence =*-$01 
-        .BYTE $0D,$0E,$0F,$10,$11,$12
+        .BYTE POD1,POD2,POD3,POD4,POD5,POD6
 ;-------------------------------------------------------------------------
 ; PlayExplosion
 ;-------------------------------------------------------------------------
@@ -942,20 +975,20 @@ b15CD   INY
 ; CheckPodDecayState
 ;-------------------------------------------------------------------------
 CheckPodDecayState
-        STX currentXLaserChar
+        STX currentXLaserCharacter
         LDX #$06
 b15D7   CMP podDecaySequence,X
         BEQ b15E2
         DEX 
         BNE b15D7
-        LDX currentXLaserChar
+        LDX currentXLaserCharacter
         RTS 
 
 b15E2   CMP #$12
         BEQ b15ED
         INX 
         LDA podDecaySequence,X
-        LDX currentXLaserChar
+        LDX currentXLaserCharacter
         RTS 
 
 b15ED   LDX #$0E
@@ -1030,7 +1063,7 @@ b1637   LDA @wbombScreenPtrArrayHi - $01,X
         CLC 
         ADC #$78
         STA bombScreenHiPtr
-        LDA #$02
+        LDA #BOTTOM_ZAPPER
         STA (bombScreenLoPtr),Y
 
         ; Move the bomb's position down a line
@@ -1051,19 +1084,19 @@ b1637   LDA @wbombScreenPtrArrayHi - $01,X
         LDA (bombScreenLoPtr),Y
         CMP #$20 ; ignore the grid
         BEQ b1691
-        CMP #$02 ; ignore the X Zapper
+        CMP #BOTTOM_ZAPPER ; ignore the X Zapper
         BEQ b1691
-        CMP #$07 ; Did it hit the ship?
+        CMP #SHIP ; Did it hit the ship?
         BEQ BombHitTheShip
 
         ; Draw the bomb at its new position
-        LDA #$0A
+        LDA #BOMB_DOWN
         STA (bombScreenLoPtr),Y
         LDA bombScreenHiPtr
         CLC 
         ADC #$78
         STA bombScreenHiPtr
-        LDA #$01
+        LDA #LEFT_ZAPPER
         STA (bombScreenLoPtr),Y
 
 b1689   JMP j169C
@@ -1113,9 +1146,9 @@ DrawMovementofDroids
         STA droidAnimationInterval
         INC currentDroidCharacter
         LDA currentDroidCharacter
-        CMP #$16
+        CMP #EXPLOSION1
         BNE b16CB
-        LDA #$13
+        LDA #DROID1
         STA currentDroidCharacter
 b16CB   LDA droidsLeftToKill
         BNE b16D0
@@ -1146,13 +1179,13 @@ b16F6   JMP CheckIfBulletHitsDroid
 b16F9   LDA $1002,X
         AND #$80
         BEQ b170F
-        LDA #$00
+        LDA #GRID
         STA (screenRamLoPtr),Y
         LDA screenRamHiPtr
         CLC 
         ADC #$78
         STA screenRamHiPtr
-        LDA #$02
+        LDA #BOTTOM_ZAPPER
         STA (screenRamLoPtr),Y
 b170F   LDA $1002,X
         AND #$40
@@ -1163,13 +1196,13 @@ b170F   LDA $1002,X
         LDA f0FFE,X
         STA screenRamHiPtr
         STA $1001,X
-        LDA #$13
+        LDA #DROID1
         STA (screenRamLoPtr),Y
         LDA screenRamHiPtr
         CLC 
         ADC #$78
         STA screenRamHiPtr
-        LDA #$03
+        LDA #HORIZ_LASER1
         STA (screenRamLoPtr),Y
 j1735   DEX 
         DEX 
@@ -1282,7 +1315,7 @@ b17F9   LDA currentDroidCharacter
         CLC 
         ADC #$78
         STA screenRamHiPtr
-        LDA #$03
+        LDA #HORIZ_LASER1
         STA (screenRamLoPtr),Y
         LDA screenRamLoPtr
         STA f1000,X
@@ -1427,7 +1460,7 @@ DroidHit
         CLC 
         ADC #$78
         STA screenRamHiPtr
-        LDA #$07
+        LDA #SHIP
         STA (screenRamLoPtr),Y
 
         LDY #$01
@@ -1624,7 +1657,7 @@ JumpToExplodeShip
 CheckForCollisionWithShip
         LDY #$00
         LDA (screenRamLoPtr),Y
-        CMP #$07
+        CMP #SHIP
         BEQ b1A08
         LDA (screenRamLoPtr),Y
         RTS 
@@ -1662,7 +1695,7 @@ b1A51   STA explosionXPosArray,Y
         DEY 
         BNE b1A51
 
-        LDA #$16
+        LDA #EXPLOSION1
         STA currentExplosionCharacter
         LDA #$80
         STA VICCRD   ;$900D - frequency of sound osc.4 (noise)
@@ -1680,7 +1713,7 @@ b1A65   LDA explosionYPosArray,X
         LDA (screenRamLoPtr),Y
         CMP currentExplosionCharacter
         BNE b1A85
-        LDA #$00
+        LDA #GRID
         STA currentCharacter
         LDA #RED
         STA currentColor
@@ -1711,7 +1744,7 @@ b1AB0   DEX
         LDA currentExplosionCharacter
         CMP #$19
         BNE b1ABF
-        LDA #$16
+        LDA #EXPLOSION1
         STA currentExplosionCharacter
 b1ABF   LDX #$08
 b1AC1   LDA explosionYPosArray,X
@@ -1765,7 +1798,7 @@ ExplodeShip
         STA currentYPos
         LDA oldXPos
         STA currentXPos
-        LDA #$00
+        LDA #GRID
         STA currentCharacter
         LDA #RED
         STA currentColor
