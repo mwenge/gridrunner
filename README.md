@@ -1,4 +1,4 @@
-# Gridrunner by Jeff Minter
+# Gridrunner (1982) by Jeff Minter
 
 <img src="https://www.mobygames.com/images/covers/l/34991-gridrunner-commodore-64-front-cover.jpg" height=300><img src="https://user-images.githubusercontent.com/58846/103443482-9fb16180-4c57-11eb-9403-4968bd16287f.gif" height=300>
 
