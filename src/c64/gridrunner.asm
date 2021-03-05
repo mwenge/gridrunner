@@ -86,29 +86,16 @@ f1300 = $1300
 f1500 = $1500
 f1600 = $1600
 charSetLocation = $2000
-f2100 = $2100
 COLOR_RAM = $D800
 ;
 ; **** ABSOLUTE ADRESSES **** 
 ;
 a0002 = $0002
 a0003 = $0003
-a0F0E = $0F0E
 aDC11 = $DC11
 ;
 ; **** POINTERS **** 
 ;
-p0101 = $0101
-p0102 = $0102
-p0116 = $0116
-p0313 = $0313
-p03F0 = $03F0
-p083F = $083F
-p0D07 = $0D07
-p0E02 = $0E02
-p1514 = $1514
-p4008 = $4008
-pD000 = $D000
 ;
 ; **** PREDEFINED LABELS **** 
 ;
@@ -120,44 +107,19 @@ ROM_CHROUT = $FFD2
 GRID = $00
 LEFT_ZAPPER = $01
 BOTTOM_ZAPPER = $02
-HORIZ_LASER1 = $03
-HORIZ_LASER2 = $04
-VERTICAL_LASER1 = $05
-VERTICAL_LASER2 = $06
 SHIP = $07
 BULLET_UP1 = $08
-BULLET_UP2 = $09
 BOMB_DOWN = $0A
-BOMB_RIGHT = $0B
-BOMB_LEFT = $0C
-POD1 = $0D
-POD2 = $0E
 POD3 = $0F
-POD4 = $10
-POD5 = $11
 POD6 = $12
 DROID1 = $13
-DROID2 = $14
-DROID3 = $15
 EXPLOSION1 = $16
-EXPLOSION2 = $17
-EXPLOSION3 = $18
-SCORE_LEFT = $19
-SCORE_RIGHT = $1A
-MEN_LEFT = $1B
-MEN_RIGHT = $1C
-HI_SCORE1 = $1D
-HI_SCORE2 = $1E
-RIGHT_ARROW = $1F
 SPACE = $20
 
-BLACK                           = $00
 WHITE                           = $01
 RED                             = $02
 CYAN                            = $03
-PURPLE                          = $04
 GREEN                           = $05
-BLUE                            = $06
 YELLOW                          = $07
 ORANGE = $08
 LTGREEN = $0D
