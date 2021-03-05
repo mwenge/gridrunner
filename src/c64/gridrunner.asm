@@ -60,7 +60,7 @@ droidsLeftToKill = $2A
 sizeOfDroidSquadForLevel = $2B
 currentShipExplosionCharacter = $2D
 cyclesToWasteCounter = $30
-a33 = $33
+collisionSoundControl = $33
 laserFrameRate = $34
 selectedLevel = $35
 soundEffectControl = $36
@@ -72,19 +72,13 @@ lastKeyPressed = $C5
 screenLinesLoPtrArray = $0340
 screenLinesHiPtrArray = $0360
 SCREEN_RAM = $0400
-f0FFF = $0FFF
-f101F = $101F
-f10FE = $10FE
-f10FF = $10FF
-f1100 = $1100
-f11FE = $11FE
-f11FF = $11FF
-f1200 = $1200
-f12FE = $12FE
-f12FF = $12FF
-f1300 = $1300
-f1500 = $1500
-f1600 = $1600
+podLoPtrArray = $0FFF
+podHiPtrArray = $101F
+droidXPositionArray = $10FF
+droidYPositionArray = $11FF
+droidStatusArray = $12FF
+explosionXPosArray = $1500
+explosionYPosArray = $1600
 charSetLocation = $2000
 COLOR_RAM = $D800
 ;
@@ -92,7 +86,6 @@ COLOR_RAM = $D800
 ;
 a0002 = $0002
 a0003 = $0003
-aDC11 = $DC11
 ;
 ; **** POINTERS **** 
 ;
@@ -162,9 +155,7 @@ MaybeContinueCheckingScreen
         BNE CheckScreen
         JMP DisplayTitleScreen
 
-        NOP 
-        NOP 
-        NOP 
+        .BYTE $EA,$EA,$EA
 ;-------------------------------------------------------------------------
 ; CheckCurrentCharacterForShip
 ;-------------------------------------------------------------------------
@@ -176,19 +167,15 @@ CheckCurrentCharacterForShip
 
 b8028   JMP JumpToDrawGridCharAtOldPosAndCheckCollisions
 
-        NOP 
-        NOP 
-        NOP 
-        NOP 
-        NOP 
+        .BYTE $EA,$EA,$EA,$EA,$EA
 ;---------------------------------------------------------------------------------
-; j8030   
+; CheckIfHasReachedBorder   
 ;---------------------------------------------------------------------------------
-j8030   
+CheckIfHasReachedBorder   
         AND #$1F
         CMP #$18
         BPL b803A
-j8036   STA f1600,X
+j8036   STA explosionYPosArray,X
         RTS 
 
 b803A   LDA previousYPosition
@@ -196,28 +183,28 @@ b803A   LDA previousYPosition
 
         NOP 
 ;-------------------------------------------------------------------------
-; s8040
+; UpdateExplosionXPosArray
 ;-------------------------------------------------------------------------
-s8040
-        DEC f1500,X
-        LDA f1500,X
+UpdateExplosionXPosArray
+        DEC explosionXPosArray,X
+        LDA explosionXPosArray,X
         AND #$3F
         CMP #$27
         BPL b8050
-        STA f1500,X
+        STA explosionXPosArray,X
         RTS 
 
 b8050   LDA previousXPosition
-        STA f1500,X
+        STA explosionXPosArray,X
         RTS 
 
 ;-------------------------------------------------------------------------
-; s8056
+; UpdateExplosionYPosArray
 ;-------------------------------------------------------------------------
-s8056
-        DEC f1600,X
-        LDA f1600,X
-        JMP j8030
+UpdateExplosionYPosArray
+        DEC explosionYPosArray,X
+        LDA explosionYPosArray,X
+        JMP CheckIfHasReachedBorder
 
         NOP 
 ;---------------------------------------------------------------------------------
@@ -430,10 +417,14 @@ DrawGrid
         STA colorForCurrentCharacter
         LDA #$3F
         STA currentCharacter
-b81AE   LDA #$00
+
+        ; Draw the horizontal lines of the grid
+DrawHorizontalLineLoop   
+        LDA #$00
         STA $D412    ;Voice 3: Control Register
         LDA #$00
         STA $D412    ;Voice 3: Control Register
+
         LDA #$02
         STA gridYPos
 b81BC   LDA gridYPos
@@ -446,6 +437,7 @@ b81BC   LDA gridYPos
         LDA gridYPos
         CMP #$16
         BNE b81BC
+
         LDX #$01
 b81D4   JSR JumpToPlayAnotherSound
         DEY 
@@ -455,12 +447,16 @@ b81DA   DEX
         INC gridXPos
         LDA gridXPos
         CMP #$27
-        BNE b81AE
+        BNE DrawHorizontalLineLoop
+
+        ; Draw the full grid
         LDA #$02
         STA gridXPos
         LDA #GRID
         STA currentCharacter
-b81ED   LDA #$01
+
+DrawGridLoop
+        LDA #$01
         STA gridYPos
 b81F1   LDA gridYPos
         STA currentXPosition
@@ -472,16 +468,19 @@ b81F1   LDA gridYPos
         LDA gridYPos
         CMP #$27
         BNE b81F1
+
         LDX #$01
 b8209   JSR JumpToPlayAnotherSound
         DEY 
         BNE b820F
 b820F   DEX 
         BNE b8209
+
         INC gridXPos
         LDA gridXPos
         CMP #$16
-        BNE b81ED
+        BNE DrawGridLoop
+
 b821A   RTS 
 
 ;-------------------------------------------------------------------------
@@ -648,7 +647,7 @@ DrawNewLevelScreen
         STA laserAndPodInterval
         STA $D413    ;Voice 3: Attack / Decay Cycle Control
         STA laserShootInterval
-        JSR s8748
+        JSR ClearPodArray
         LDA #$00
         STA backgroundSoundParm1
         STA backgroundSoundParm2
@@ -674,7 +673,7 @@ DrawNewLevelScreen
 ; GetJoystickInput
 ;-------------------------------------------------------------------------
 GetJoystickInput
-        LDA aDC11
+        LDA $DC11
         EOR #$FF
         STA joystickInput
         RTS 
@@ -857,7 +856,7 @@ b8475   JSR GetJoystickInput
         JSR GetCharacterAtCurrentXYPos
         CMP #$07
         BEQ b848A
-        JSR s8BEC
+        JSR CheckOverlapWithBulletOrGrid
 b848A   LDA #GRID
         STA currentCharacter
         LDA #ORANGE
@@ -1236,7 +1235,7 @@ b870C   CPX #$07
         STA (podScreenLoPtr),Y
         JMP b86EE
 
-b8719   JSR s8728
+b8719   JSR DrawBomb
         JMP b86EE
 
 ; This is the sequence in which the yellow pods decay before exploding.
@@ -1245,12 +1244,13 @@ PodDecaySequence
         .BYTE $EA,$18,$0D,$0E,$0F,$10,$11
         .BYTE $12,$13
 ;-------------------------------------------------------------------------
-; s8728
+; DrawBomb
 ;-------------------------------------------------------------------------
-s8728   LDA #BOMB_DOWN
+DrawBomb
+        LDA #BOMB_DOWN
         STA (podScreenLoPtr),Y
         LDX #$18
-b872E   LDA f101F,X
+b872E   LDA podHiPtrArray,X
         CMP #$FF
         BEQ b873D
         DEX 
@@ -1261,18 +1261,18 @@ b8737   =*+$01
         RTS 
 
 b873D   LDA podScreenLoPtr
-        STA f0FFF,X
+        STA podLoPtrArray,X
         LDA podScreenHiPtr
-        STA f101F,X
+        STA podHiPtrArray,X
         RTS 
 
 ;-------------------------------------------------------------------------
-; s8748
+; ClearPodArray
 ;-------------------------------------------------------------------------
-s8748
+ClearPodArray
         LDX #$20
         LDA #$FF
-b874C   STA f101F,X
+b874C   STA podHiPtrArray,X
         DEX 
         BNE b874C
         RTS 
@@ -1288,7 +1288,7 @@ DrawUpdatedPods
 b8758   LDA #$40
         STA podUpdateRate
         LDX #$18
-b875E   LDA f101F,X
+b875E   LDA podHiPtrArray,X
         CMP #$FF
         BEQ b8768
         JSR DrawPods
@@ -1296,43 +1296,45 @@ b8768   DEX
         BNE b875E
         RTS 
 
+podLoPtr = currentXPosition
+podHiPtr = currentYPosition
 ;-------------------------------------------------------------------------
 ; DrawPods
 ;-------------------------------------------------------------------------
 DrawPods
-        LDA f0FFF,X
-        STA currentXPosition
-        LDA f101F,X
-        STA currentYPosition
+        LDA podLoPtrArray,X
+        STA podLoPtr
+        LDA podHiPtrArray,X
+        STA podHiPtr
         LDY #$00
-        LDA (currentXPosition),Y
+        LDA (podLoPtr),Y
         CMP #SHIP
         BNE b8781
         JMP JumpToDrawGridCharAtOldPosAndCheckCollisions
 
 b8781   LDA #$00
-        STA (currentXPosition),Y
-        LDA currentYPosition
+        STA (podLoPtr),Y
+        LDA podHiPtr
         CLC 
         ADC #$D4
-        STA currentYPosition
+        STA podHiPtr
         LDA #$08
-        STA (currentXPosition),Y
-        LDA f0FFF,X
+        STA (podLoPtr),Y
+        LDA podLoPtrArray,X
         CLC 
         ADC #$28
-        STA f0FFF,X
-        LDA f101F,X
+        STA podLoPtrArray,X
+        LDA podHiPtrArray,X
         ADC #$00
-        STA f101F,X
-        STA currentYPosition
-        LDA f0FFF,X
-        STA currentXPosition
-        LDA (currentXPosition),Y
+        STA podHiPtrArray,X
+        STA podHiPtr
+        LDA podLoPtrArray,X
+        STA podLoPtr
+        LDA (podLoPtr),Y
         CMP #$20
         BNE b87B4
         LDA #$FF
-        STA f101F,X
+        STA podHiPtrArray,X
         RTS 
 
 b87B4   CMP #SHIP
@@ -1340,13 +1342,13 @@ b87B4   CMP #SHIP
         JMP JumpToDrawGridCharAtOldPosAndCheckCollisions
 
 b87BB   LDA #$0A
-        STA (currentXPosition),Y
-        LDA currentYPosition
+        STA (podLoPtr),Y
+        LDA podHiPtr
         CLC 
         ADC #$D4
-        STA currentYPosition
+        STA podHiPtr
         LDA #$01
-        STA (currentXPosition),Y
+        STA (podLoPtr),Y
         RTS 
 
 ;-------------------------------------------------------------------------
@@ -1379,7 +1381,7 @@ b87EC   LDA #GRID
         LDA #$FF
         STA currentBulletYPosition
         JSR WriteCurrentCharacterToCurrentXYPos
-        JSR IncreaseScoreBy10000
+        JSR IncreaseScoreBy10Points
         PLA 
         PLA 
         RTS 
@@ -1437,9 +1439,9 @@ b8884   PLA
         RTS 
 
 ;-------------------------------------------------------------------------
-; IncreaseScoreBy10000
+; IncreaseScoreBy10Points
 ;-------------------------------------------------------------------------
-IncreaseScoreBy10000
+IncreaseScoreBy10Points
         LDX #$06
         LDY #$0A
         JSR IncrementPlayerScore
@@ -1496,41 +1498,50 @@ b88CE   LDA #$80
         INC currentDroidCharacter
         LDA currentDroidCharacter
         CMP #$16
-        BNE b88E6
+        BNE DrawDroidsLoop
+
         LDA #DROID1
         STA currentDroidCharacter
-b88E6   STX currentDroidIndex
-        LDA f10FF,X
+DrawDroidsLoop
+        STX currentDroidIndex
+
+        ; Draw grid over the old position of the droid
+        LDA droidXPositionArray,X
         STA currentXPosition
-        LDA f11FF,X
+        LDA droidYPositionArray,X
         STA currentYPosition
         LDA #GRID
         STA currentCharacter
         LDA #ORANGE
         STA colorForCurrentCharacter
-        JSR s8995
+        JSR DrawDroidSegment
+
         LDX currentDroidIndex
-        LDA f12FF,X
+        LDA droidStatusArray,X
         AND #$40
         BNE b892A
-        LDA f10FE,X
-        STA f10FF,X
-        LDA f11FE,X
-        STA f11FF,X
+
+        ; Draw the droid segment at its new position.
+        LDA droidXPositionArray - $01,X
+        STA droidXPositionArray,X
+        LDA droidYPositionArray - $01,X
+        STA droidYPositionArray,X
         STA currentYPosition
-        LDA f10FF,X
+        LDA droidXPositionArray,X
         STA currentXPosition
         LDA #CYAN
         STA colorForCurrentCharacter
         LDA #DROID1
         STA currentCharacter
         JSR WriteCurrentCharacterToCurrentXYPos
-j8924   LDX currentDroidIndex
+
+ResumeDrawingDroids
+        LDX currentDroidIndex
         DEX 
-        BNE b88E6
+        BNE DrawDroidsLoop
         RTS 
 
-b892A   LDA f12FF,X
+b892A   LDA droidStatusArray,X
         AND #$02
         BNE b8935
         INC currentXPosition
@@ -1545,30 +1556,32 @@ b8935   DEC currentXPosition
         LDA currentYPosition
         CMP #$16
         BNE b8962
-        LDA f12FF,X
+        LDA droidStatusArray,X
         ORA #$01
         AND #$FD
-        STA f12FF,X
+        STA droidStatusArray,X
         LDA #$0E
         STA @wa0003
         LDA #$02
         STA @wa0002
         JMP j896A
 
-b8962   LDA f12FF,X
+b8962   LDA droidStatusArray,X
         EOR #$03
-        STA f12FF,X
+        STA droidStatusArray,X
+
+        ; Draw the droid segment
 j896A   LDA currentXPosition
-        STA f10FF,X
+        STA droidXPositionArray,X
         LDA currentYPosition
-        STA f11FF,X
+        STA droidYPositionArray,X
         LDA #CYAN
         STA colorForCurrentCharacter
         LDA currentDroidCharacter
         STA currentCharacter
         JSR WriteCurrentCharacterToCurrentXYPos
         LDX currentDroidIndex
-        JMP j8924
+        JMP ResumeDrawingDroids
 
         LDX #$01
         INC currentDroidCharacter
@@ -1584,10 +1597,10 @@ b8990   LDX currentDroidIndex
         JMP j896A
 
 ;-------------------------------------------------------------------------
-; s8995
+; DrawDroidSegment
 ;-------------------------------------------------------------------------
-s8995
-        LDA f12FF,X
+DrawDroidSegment
+        LDA droidStatusArray,X
         AND #$80
         BEQ b899F
         JMP WriteCurrentCharacterToCurrentXYPos
@@ -1614,7 +1627,7 @@ b89AD   CMP PodDecaySequence,X
         BEQ b89B8
         DEX 
         BNE b89AD
-        JMP s8BEC
+        JMP CheckOverlapWithBulletOrGrid
 
 b89B8   LDA previousXPosition
         STA currentXPosition
@@ -1639,21 +1652,21 @@ b89CA   LDA #$20
         INC noOfDroidSquadsCurrentLevel
         LDX noOfDroidSquadsCurrentLevel
         LDA #$0A
-        STA f10FF,X
+        STA droidXPositionArray,X
         LDA #$02
-        STA f11FF,X
+        STA droidYPositionArray,X
         LDA #$41
-        STA f12FF,X
+        STA droidStatusArray,X
         RTS 
 
 b89E6   INC noOfDroidSquadsCurrentLevel
         LDX noOfDroidSquadsCurrentLevel
         LDA #$00
-        STA f12FF,X
+        STA droidStatusArray,X
         LDA #$02
-        STA f11FF,X
+        STA droidYPositionArray,X
         LDA #$0A
-        STA f10FF,X
+        STA droidXPositionArray,X
         DEC a29
         LDA a29
         CMP #$01
@@ -1663,7 +1676,7 @@ b89E6   INC noOfDroidSquadsCurrentLevel
 b8A02   DEC a29
         DEC droidsLeftToKill
         LDA #$80
-        STA f12FF,X
+        STA droidStatusArray,X
         RTS 
 
 b8A0C   LDA droidsLeftToKill
@@ -1675,48 +1688,58 @@ b8A0C   LDA droidsLeftToKill
 ;---------------------------------------------------------------------------------
 CheckIfBulletCollidedWithDroid   
         CMP #$13
-        BEQ b8A28
+        BEQ BulletColidedWithDroneDroid
         CMP #$14
-        BEQ BulletCollidedWithDroid
+        BEQ BulletCollidedWithLeadDroid
         CMP #$15
-        BEQ BulletCollidedWithDroid
+        BEQ BulletCollidedWithLeadDroid
         NOP 
         NOP 
         NOP 
         RTS 
 
-BulletCollidedWithDroid
+BulletCollidedWithLeadDroid
+        ; Increment score by 300 points
         LDX #$04
         LDY #$03
         JSR IncrementPlayerScore
-b8A28   LDX #$04
+        ;Returns
+
+        
+BulletColidedWithDroneDroid   
+        ; Increment Score by 100 points
+        LDX #$04
         LDY #$01
-        JSR s8A99
+        JSR RegisterHit
+
+        ; Figure out which drone droid the bullet hit.
         LDA #$FF
         STA currentBulletYPosition
         PLA 
         PLA 
         LDX noOfDroidSquadsCurrentLevel
-b8A37   LDA f10FF,X
+b8A37   LDA droidXPositionArray,X
         CMP currentXPosition
         BEQ b8A42
 b8A3E   DEX 
         BNE b8A37
         RTS 
 
-b8A42   LDA f11FF,X
+b8A42   LDA droidYPositionArray,X
         CMP currentYPosition
         BNE b8A3E
-        LDA f12FF,X
+        LDA droidStatusArray,X
         AND #$C0
         BNE b8A7A
-        JSR s8AA4
-j8A53   LDA f1200,X
-        STA f11FF,X
-        LDA f1100,X
-        STA f10FF,X
-        LDA f1300,X
-        STA f12FF,X
+        JSR UpdateDroidStatus
+
+        ; Update droid arrays now that one has been killed
+j8A53   LDA droidYPositionArray + $01,X
+        STA droidYPositionArray,X
+        LDA droidXPositionArray + $01,X
+        STA droidXPositionArray,X
+        LDA droidStatusArray + $01,X
+        STA droidStatusArray,X
         CPX noOfDroidSquadsCurrentLevel
         BEQ b8A6D
         INX 
@@ -1733,20 +1756,20 @@ b8A7A   CMP #$C0
         BEQ j8A53
         CMP #$40
         BEQ b8A8D
-        LDA f12FE,X
+        LDA droidStatusArray - $01,X
         ORA #$80
-        STA f12FE,X
+        STA droidStatusArray - $01,X
         JMP j8A53
 
-b8A8D   LDA f1300,X
-        ORA f12FF,X
-        STA f1300,X
+b8A8D   LDA droidStatusArray + $01,X
+        ORA droidStatusArray,X
+        STA droidStatusArray + $01,X
         JMP j8A53
 
 ;-------------------------------------------------------------------------
-; s8A99
+; RegisterHit
 ;-------------------------------------------------------------------------
-s8A99
+RegisterHit
         LDA #$F0
         STA backgroundSoundParm1
         LDA #$03
@@ -1754,30 +1777,30 @@ s8A99
         JMP IncrementPlayerScore
 
 ;-------------------------------------------------------------------------
-; s8AA4
+; UpdateDroidStatus
 ;-------------------------------------------------------------------------
-s8AA4
+UpdateDroidStatus
         STX currentDroidIndex
 b8AA6   DEX 
-        LDA f12FF,X
+        LDA droidStatusArray,X
         AND #$40
         BEQ b8AA6
-        LDA f12FF,X
+        LDA droidStatusArray,X
         NOP 
         NOP 
         LDX currentDroidIndex
         JSR s8AC1
-        LDA f12FE,X
+        LDA droidStatusArray - $01,X
         ORA #$80
-        STA f12FE,X
+        STA droidStatusArray - $01,X
         RTS 
 
 ;-------------------------------------------------------------------------
 ; s8AC1
 ;-------------------------------------------------------------------------
 s8AC1
-        ORA f1300,X
-        STA f1300,X
+        ORA droidStatusArray + $01,X
+        STA droidStatusArray + $01,X
         RTS 
 
 ;-------------------------------------------------------------------------
@@ -1821,7 +1844,7 @@ JumpToDrawGridCharAtOldPosAndCheckCollisions
 CheckForShipCollision
         CMP #$07
         BEQ JumpToDrawGridCharAtOldPosAndCheckCollisions
-        LDA f10FF,X
+        LDA droidXPositionArray,X
 b8AF0   RTS 
 
         CMP #$20
@@ -1833,15 +1856,15 @@ b8AF0   RTS
 ;---------------------------------------------------------------------------------
 CheckForCollisions   
         LDA #$0F
-        STA a33
+        STA collisionSoundControl
         LDA previousXPosition
         LDX #$08
-b8B00   STA f1500,X
+b8B00   STA explosionXPosArray,X
         DEX 
         BNE b8B00
         LDA previousYPosition
         LDX #$08
-b8B0A   STA f1600,X
+b8B0A   STA explosionYPosArray,X
         DEX 
         BNE b8B0A
         LDA #$00
@@ -1856,16 +1879,16 @@ j8B24   LDA #$00
         STA $D404    ;Voice 1: Control Register
         LDA #$81
         STA $D404    ;Voice 1: Control Register
-        LDA a33
+        LDA collisionSoundControl
         STA $D418    ;Select Filter Mode and Volume
         LDX #$08
         LDA #ORANGE
         STA colorForCurrentCharacter
         LDA #GRID
         STA currentCharacter
-b8B3D   LDA f1500,X
+b8B3D   LDA explosionXPosArray,X
         STA currentXPosition
-        LDA f1600,X
+        LDA explosionYPosArray,X
         STA currentYPosition
         STX currentDroidIndex
         JSR GetCharacterAtCurrentXYPos
@@ -1889,28 +1912,31 @@ AnimateShipExplosion
         LDA currentShipExplosionCharacter
         CMP #$19
         BNE b8B6C
+
         LDA #EXPLOSION1
         STA currentShipExplosionCharacter
+
 b8B6C   LDX #$08
-b8B6E   LDA f8BC0,X
+b8B6E   LDA explosionYPosArrayControl,X
         CMP #$80
         BEQ b8B7F
         CMP #$00
         BEQ b8B7C
-        INC f1500,X
-b8B7C   INC f1500,X
-b8B7F   JSR s8040
-        LDA f8BC8,X
+        INC explosionXPosArray,X
+b8B7C   INC explosionXPosArray,X
+b8B7F   JSR UpdateExplosionXPosArray
+        LDA explosionXPosArrayControl,X
         BEQ b8B8E
 
         CMP #$80
         BEQ b8B91
-        INC f1600,X
-b8B8E   INC f1600,X
-b8B91   JSR s8056
-        LDA f1500,X
+
+        INC explosionYPosArray,X
+b8B8E   INC explosionYPosArray,X
+b8B91   JSR UpdateExplosionYPosArray
+        LDA explosionXPosArray,X
         STA currentXPosition
-        LDA f1600,X
+        LDA explosionYPosArray,X
         STA currentYPosition
         LDA #WHITE
         STA colorForCurrentCharacter
@@ -1925,7 +1951,7 @@ b8BAE   JMP MaybeRestartLevel
 ; PlayExplosionAndRestartLevel   
 ;---------------------------------------------------------------------------------
 PlayExplosionAndRestartLevel   
-        DEC a33
+        DEC collisionSoundControl
         BMI b8BB8
         JMP j8B24
 
@@ -1938,9 +1964,11 @@ GetCharAtCurrentPosition
         STX currentDroidIndex
         JMP GetCharacterAtCurrentXYPos
 
-f8BC0   .BYTE $EA,$00,$01,$01,$01,$00,$80,$80
-f8BC8   .BYTE $80,$80,$80,$00,$01,$01,$01,$00
-        .BYTE $80
+        .BYTE $EA
+explosionYPosArrayControl  =*-$01 
+        .BYTE $00,$01,$01,$01,$00,$80,$80,$80
+explosionXPosArrayControl  =*-$01 
+         .BYTE $80,$80,$00,$01,$01,$01,$00,$80
         NOP 
 ;---------------------------------------------------------------------------------
 ; MaybeRestartLevel   
@@ -1960,9 +1988,9 @@ b8BD9   JSR WasteSomeCycles
         JMP PlayExplosionAndRestartLevel
 
 ;-------------------------------------------------------------------------
-; s8BEC
+; CheckOverlapWithBulletOrGrid
 ;-------------------------------------------------------------------------
-s8BEC
+CheckOverlapWithBulletOrGrid
         CMP #$08
         BEQ b8BFB
         CMP #$09
@@ -2192,18 +2220,23 @@ b8D94   LDA txtByJeffMinter,X
         BNE b8D94
         JMP WriteCopyrightLine
 
-b8DB0   LDA aDC11
+        ; Loop around waiting for user input.
+JoystickInputLoop
+        LDA $DC11 ; Joystick Port 2 input
         CMP #$EF
         BNE b8DBA
-        JMP j8DC6
+        ; User Pressed Fire
+        JMP FirePressed
 
 b8DBA   CMP #$FE
-        BNE b8DB0
+        BNE JoystickInputLoop
+        ; User pressed up to increment the selected level.
         INC selectedLevel
 j8DC0   JSR IncrementSelectedLevel
-        JMP b8DB0
+        JMP JoystickInputLoop
 
-j8DC6   DEC selectedLevel
+FirePressed   
+        DEC selectedLevel
         JMP StartLevel
 
         BCS b8D5A
