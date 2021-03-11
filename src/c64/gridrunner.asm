@@ -246,6 +246,7 @@ IncrementSelectedLevel
 b80AA   LDA #$30
         STA SCREEN_RAM + $0157
         STA SCREEN_RAM + $0158
+
         LDX selectedLevel
 b80B4   INC SCREEN_RAM + $0158
         LDA SCREEN_RAM + $0158
@@ -256,6 +257,7 @@ b80B4   INC SCREEN_RAM + $0158
         INC SCREEN_RAM + $0157
 b80C6   DEX 
         BNE b80B4
+
         LDX #$30
 b80CB   JSR WasteSomeCycles
         DEX 
@@ -299,22 +301,24 @@ WaitForKeyToBeReleased
 
         NOP 
         NOP 
+vicRegisterLoPtr = $02
+vicRegisterYPtr = $03
 ;---------------------------------------------------------------------------------
 ; InitializeGame   
 ;---------------------------------------------------------------------------------
 InitializeGame   
         LDA #$D0
-        STA currentYPosition
+        STA vicRegisterYPtr
         LDA #$00
-        STA currentXPosition
+        STA vicRegisterLoPtr
         LDY #$18
         TYA 
-        STA (currentXPosition),Y
+        STA (vicRegisterLoPtr),Y
         LDY #$20
         LDA #$00
-        STA (currentXPosition),Y
+        STA (vicRegisterLoPtr),Y
         INY 
-        STA (currentXPosition),Y
+        STA (vicRegisterLoPtr),Y
         LDA #$0A
         STA $D401    ;Voice 1: Frequency Control - High-Byte
         STA $D405    ;Voice 1: Attack / Decay Cycle Control
@@ -2189,7 +2193,10 @@ SetVolumeAndPlaySounds
         STA $D418    ;Select Filter Mode and Volume
         JMP PlayNewLevelSounds
 
-DrawGridCharAtOldPosAndCheckCollisions
+;---------------------------------------------------------------------------------
+; DrawGridCharAtOldPosAndCheckCollisions 
+;---------------------------------------------------------------------------------
+DrawGridCharAtOldPosAndCheckCollisions 
         LDA #GRID
         STA currentCharacter
         LDA #ORANGE
