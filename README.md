@@ -5,6 +5,8 @@
 
 This is the disassembled and [commented source code] for the 1982 Vic 20 (and Commodore 64 port) of Gridrunner by Jeff Minter. It is part of the [llamasource project](https://mwenge.github.io/llamaSource/).
 
+If you want to read more about the Gridrunner internals, take a look at [Gridrunner; The Little Black Book](https://github.com/mwenge/llamaSource/blob/main/GridrunnerTheLittleBlackBook.md).
+
 You can play Gridrunner in your browser at [https://gridrunner.xyz]. (Ctrl key is 'Fire', Arrow Keys to move.)
 
 ## Requirements
