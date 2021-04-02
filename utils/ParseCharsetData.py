@@ -1,5 +1,5 @@
-f = open("../src/c64/compressed-charset.asm", 'r')
-o = open("../src/c64/decompressed-charset.asm", 'w')
+f = open("../src/atari800/compressed-charset.asm", 'r')
+o = open("../src/atari800/decompressed-charset.asm", 'w')
 
 bytes = []
 labels = {}

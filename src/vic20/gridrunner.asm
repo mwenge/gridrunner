@@ -1,23 +1,21 @@
-; This is the reverse-engineered source code for the game 'Matrix' written by Jeff Minter in 1983.
+; This is the reverse-engineered source code for the game 'Gridrunner' written by
+; Jeff Minter in 1982.
 ;
-; The code in this file was created by disassembling a binary of the game released into
-; the public domain by Jeff Minter in 2019.
+; The code in this file was created by disassembling a binary of the game
+; released into the public domain by Jeff Minter in 2019.
 ;
-; The original code from which this source is derived is the copyright of Jeff Minter.
+; The original code from which this source is derived is the copyright of Jeff
+; Minter.
 ;
-; The original home of this file is at: https://github.com/mwenge/matrix
+; The original home of this file is at: https://github.com/mwenge/gridrunner
 ;
-; To the extent to which any copyright may apply to the act of disassembling and reconstructing
-; the code from its binary, the author disclaims copyright to this source code.  In place of
-; a legal notice, here is a blessing:
+; To the extent to which any copyright may apply to the act of disassembling and
+; reconstructing the code from its binary, the author disclaims copyright to
+; this source code.  In place of a legal notice, here is a blessing:
 ;
 ;    May you do good and not evil.
 ;    May you find forgiveness for yourself and forgive others.
 ;    May you share freely, never taking more than you give.
-;
-; (Note: I ripped this part from the SQLite licence! :) )
-;
-; **** ZP ABSOLUTE ADRESSES **** 
 ;
 screenRamLoPtr                  = $00
 screenRamHiPtr                  = $01
@@ -58,16 +56,13 @@ aA2                             = $A2
 livesLeft                       = $F0
 currentLevel                    = $F1
 unusedVariable2                 = $FF
+OFFSET_TO_COLOR_RAM = $78
 
-bombScreenPtrArrayLo            = $0030
-bombScreenPtrArrayHi            = $0031
-f0FFD                           = $0FFD
-f0FFE                           = $0FFE
-f0FFF                           = $0FFF
-f1000                           = $1000
-SCREEN_RAM                      = $1E00
-COLOR_RAM                       = $9600
-VIC_SWITCH_CASE                 = $0291
+bombScreenPtrArrayLo         = $0030
+bombScreenPtrArrayHi         = $0031
+SCREEN_RAM                   = $1E00
+COLOR_RAM                    = $9600
+VIC_SWITCH_CASE              = $0291
 
 VICCR5                          = $9005
 VICCRA                          = $900A
@@ -125,15 +120,28 @@ HI_SCORE2                       = $1E
 RIGHT_ARROW                     = $1F
 SPACE                           = $20
 
+nextDroidScreenLineLoPtr     = $0FFD
+nextDroidScreenLineHiPtr     = $0FFE
+nextDroidDirectionBitmap     = $0FFF
+droidScreenLineLoPtr         = $1000
+droidScreenLineHiPtr         = $1001
+droidDirectionBitMap         = $1002
+previousDroidScreenLineLoPtr = $1003
+previousDroidScreenLineHiPtr = $1004
+previousDroidDirectionBitmap = $1005
+
 * = $1001
-;-----------------------------------------------------------------------------------------------------
-; SYS 7076 (PrepareGame)
+;-----------------------------------------------------------------------------------
+; SYS 7076 (DrawTitleScreen)
 ; This launches the program from address $1BA4, i.e. DrawTitleScreen.
-;-----------------------------------------------------------------------------------------------------
+;----------------------------------------------------------------------------------
 ; $9E = SYS
         .BYTE $0B,$12,$0A,$00,$9E,$37,$30,$37
         .BYTE $36,$00,$00,$00
 
+; Memory from $1000 is used for storing the position of droids.
+; The values below are in an unitialized state.
+; 
         .BYTE $32,$38,$34,$C4,$CE,$4D,$CE,$C8
         .BYTE $EC,$80,$AC,$CC,$9C,$CD,$D6,$CC
         .BYTE $CC,$CC,$EC,$D4,$56,$C1,$C1,$81
@@ -168,9 +176,9 @@ CheckCurrentScoreAgainstHighScore
         JMP UpdateHiScore
 
 b10D6   BMI b10DB
-        JMP DrawCurrentHiscore
+        JMP DrawHiScoreAndWaitForFire
 
-b10DB   JMP j1BCA
+b10DB   JMP SaveHiScore
 
         .BYTE $01,$60
 ;-------------------------------------------------------------------------
@@ -183,10 +191,10 @@ InitializeScreenAndBorder
         STA VICCRF   ;$900F - screen colors: background, border & inverse
         JMP DrawBannerTopOfScreen
 
-        .BYTE $C5,$CE
-f10EF   .BYTE $02,$A8,$83,$A9,$B1,$B9,$B8,$B2
-        .BYTE $8A,$83,$8D,$BD,$39,$3B,$BC,$76
-        .BYTE $6A
+             .BYTE $C5,$CE
+txtCopyRight .BYTE $02,$A8,$83,$A9,$B1,$B9,$B8,$B2 ; (c) 1982
+             .BYTE $8A,$83,$8D,$BD,$39,$3B,$BC,$76 ; JCM
+             .BYTE $6A
 ;---------------------------------------------------------------------------------
 ; LaunchGame   
 ;---------------------------------------------------------------------------------
@@ -237,6 +245,8 @@ topLineTextColors =*-$01
         .BYTE $00,$03,$03,$03,$03,$04,$04
         .BYTE $04,$04,$04,$04,$00,$07,$07,$00
         .BYTE $01,$01,$01,$01,$01,$01,$01,$01
+
+SCREEN_LINE_WIDTH = $16
 ;-------------------------------------------------------------------------
 ; DrawGrid
 ;-------------------------------------------------------------------------
@@ -255,11 +265,11 @@ b1179   LDA #GRID
         PHA 
         ; Move the Hi pointer to COLOR RAM
         CLC 
-        ADC #$78
+        ADC #OFFSET_TO_COLOR_RAM
         STA screenRamHiPtr
 
         ; Draw the color
-        LDA #BOTTOM_ZAPPER
+        LDA #RED
         STA (screenRamLoPtr),Y
 
         PLA 
@@ -269,7 +279,7 @@ b1179   LDA #GRID
 
         LDA screenRamLoPtr
         CLC 
-        ADC #$16
+        ADC #SCREEN_LINE_WIDTH
         STA screenRamLoPtr
         LDA screenRamHiPtr
         ADC #$00
@@ -381,7 +391,7 @@ GetScreenPointerForCurrentXYPos
         LDX currentYPos
 b1240   LDA screenRamLoPtr
         CLC 
-        ADC #$16
+        ADC #SCREEN_LINE_WIDTH
         STA screenRamLoPtr
         LDA screenRamHiPtr
         ADC #$00
@@ -407,7 +417,7 @@ DrawCurrentCharacterToScreen
         ; Shift the hi pointer to color ram so we can draw the color.
         LDA screenRamHiPtr
         CLC 
-        ADC #$78
+        ADC #OFFSET_TO_COLOR_RAM
         STA screenRamHiPtr
         LDA currentColor
         STA (screenRamLoPtr),Y
@@ -548,7 +558,7 @@ b1342   JSR CheckBulletCollisionWithPod
         LDA bulletScreenRamHiPtr
         PHA 
         CLC 
-        ADC #$78
+        ADC #OFFSET_TO_COLOR_RAM
         STA bulletScreenRamHiPtr
         LDA #BOTTOM_ZAPPER
         STA (bulletScreenRamLoPtr),Y
@@ -580,7 +590,7 @@ b1375   LDA #BULLET_UP1
         LDA bulletScreenRamHiPtr
         PHA 
         CLC 
-        ADC #$78
+        ADC #OFFSET_TO_COLOR_RAM
         STA bulletScreenRamHiPtr
         LDA #LEFT_ZAPPER
         STA (bulletScreenRamLoPtr),Y
@@ -841,7 +851,8 @@ b151E   CMP #$0D
         DEX 
         LDA podDecaySequence,X
         STA (bulletScreenRamLoPtr),Y
-j1528   LDA #$00
+ResetBulletAndReturn
+        LDA #$00
         STA bulletActive
         PLA 
         PLA 
@@ -851,13 +862,13 @@ b152F   LDA #GRID
         STA (bulletScreenRamLoPtr),Y
         LDA bulletScreenRamHiPtr
         CLC 
-        ADC #$78
+        ADC #OFFSET_TO_COLOR_RAM
         STA bulletScreenRamHiPtr
         LDA #BOTTOM_ZAPPER
         STA (bulletScreenRamLoPtr),Y
         JSR PlayExplosion
         JSR IncreaseScoreBy10000
-        JMP j1528
+        JMP ResetBulletAndReturn
 
 ;-------------------------------------------------------------------------
 ; CheckBulletCollisionWithPod
@@ -1061,7 +1072,7 @@ b1637   LDA @wbombScreenPtrArrayHi - $01,X
         ; Draw the grid color at the old posotion
         LDA bombScreenHiPtr
         CLC 
-        ADC #$78
+        ADC #OFFSET_TO_COLOR_RAM
         STA bombScreenHiPtr
         LDA #BOTTOM_ZAPPER
         STA (bombScreenLoPtr),Y
@@ -1094,7 +1105,7 @@ b1637   LDA @wbombScreenPtrArrayHi - $01,X
         STA (bombScreenLoPtr),Y
         LDA bombScreenHiPtr
         CLC 
-        ADC #$78
+        ADC #OFFSET_TO_COLOR_RAM
         STA bombScreenHiPtr
         LDA #LEFT_ZAPPER
         STA (bombScreenLoPtr),Y
@@ -1159,80 +1170,94 @@ b16D0   CLC
         CLC 
         ADC droidsLeftToKill
         TAX 
-b16D6   LDA f1000,X
+
+        ; With X as the number of droids, move each droid in a squad
+        ; forward by one position.
+DrawDroidLoop
+        LDA droidScreenLineLoPtr,X
         STA screenRamLoPtr
-        LDA $1001,X
+        LDA droidScreenLineHiPtr,X
         STA screenRamHiPtr
         LDY #$00
         LDA (screenRamLoPtr),Y
-        CMP #$05
+        CMP #VERTICAL_LASER1
         BEQ b16F6
-        CMP #$06
+        CMP #VERTICAL_LASER2
         BEQ b16F6
-        CMP #$05
+        CMP #VERTICAL_LASER1
         BEQ b16F6
-        CMP #$06
+        CMP #VERTICAL_LASER2
         BEQ b16F6
         BNE b16F9
 b16F6   JMP CheckIfBulletHitsDroid
 
-b16F9   LDA $1002,X
+b16F9   LDA droidDirectionBitMap,X
         AND #$80
         BEQ b170F
+        
+        ; Draw the grid on the droid's current position.
         LDA #GRID
         STA (screenRamLoPtr),Y
         LDA screenRamHiPtr
         CLC 
-        ADC #$78
+        ADC #OFFSET_TO_COLOR_RAM
         STA screenRamHiPtr
-        LDA #BOTTOM_ZAPPER
+        LDA #RED
         STA (screenRamLoPtr),Y
-b170F   LDA $1002,X
+
+b170F   LDA droidDirectionBitMap,X
         AND #$40
         BNE b173B
-        LDA f0FFD,X
-        STA f1000,X
+
+        ;Draw the droid at its new position.
+        LDA nextDroidScreenLineLoPtr,X
+        STA droidScreenLineLoPtr,X
         STA screenRamLoPtr
-        LDA f0FFE,X
+        LDA nextDroidScreenLineHiPtr,X
         STA screenRamHiPtr
-        STA $1001,X
+        STA droidScreenLineHiPtr,X
         LDA #DROID1
         STA (screenRamLoPtr),Y
         LDA screenRamHiPtr
         CLC 
-        ADC #$78
+        ADC #OFFSET_TO_COLOR_RAM
         STA screenRamHiPtr
-        LDA #HORIZ_LASER1
+        LDA #CYAN
         STA (screenRamLoPtr),Y
-j1735   DEX 
+
+        ; Move the next droid.
+GoToNextDroid
         DEX 
         DEX 
-        BNE b16D6
+        DEX 
+        BNE DrawDroidLoop
         RTS 
 
-b173B   LDA f1000,X
+        ; This section deals with various cases like reaching the end
+        ; of a line, moving to the next one and so on.
+b173B   LDA droidScreenLineLoPtr,X
         STA screenRamLoPtr
-        LDA $1001,X
+        LDA droidScreenLineHiPtr,X
         STA screenRamHiPtr
         LDA #$01
         STA nextDroidPositionOffset
-        LDA $1002,X
+        LDA droidDirectionBitMap,X
         AND #$07
         CMP #$01
         BEQ b177B
         CMP #$00
-        BEQ b178B
+        BEQ GetScreenRamPtrForNewPosition
         CMP #$03
         BNE b1761
         LDA #$17
         STA nextDroidPositionOffset
-        JMP b178B
+        JMP GetScreenRamPtrForNewPosition
 
 b1761   CMP #$02
         BNE b176C
         LDA #$15
         STA nextDroidPositionOffset
-        JMP b178B
+        JMP GetScreenRamPtrForNewPosition
 
 b176C   CMP #$04
         BNE b1777
@@ -1251,7 +1276,11 @@ b177B   LDA screenRamLoPtr
         STA screenRamHiPtr
         JMP j179A
 
-b178B   LDY nextDroidPositionOffset
+;---------------------------------------------------------------------------------
+; GetScreenRamPtrForNewPosition 
+;---------------------------------------------------------------------------------
+GetScreenRamPtrForNewPosition 
+        LDY nextDroidPositionOffset
 b178D   DEC screenRamLoPtr
         LDA screenRamLoPtr
         CMP #$FF
@@ -1259,25 +1288,26 @@ b178D   DEC screenRamLoPtr
         DEC screenRamHiPtr
 b1797   DEY 
         BNE b178D
+
 j179A   JSR CheckForCollisionWithShip
         NOP 
-        BEQ b17F9
+        BEQ DrawDroidAtPosition
         CMP #$20
         BEQ b17C6
         CMP #$02
         BEQ b17C6
-j17A8   LDA $1002,X
+j17A8   LDA droidDirectionBitMap,X
         AND #$01
         BNE b17B5
-        INC $1002,X
+        INC droidDirectionBitMap,X
         JMP j17B8
 
-b17B5   DEC $1002,X
+b17B5   DEC droidDirectionBitMap,X
 j17B8   JSR CalculateDroidPosition
         NOP 
-        LDA $1002,X
+        LDA droidDirectionBitMap,X
         AND #$02
-        BNE b178B
+        BNE GetScreenRamPtrForNewPosition
         JMP b177B
 
 b17C6   INY 
@@ -1290,42 +1320,46 @@ b17C6   INY
         BEQ b17E0
         JMP j17A8
 
-b17D8   LDA $1002,X
+b17D8   LDA droidDirectionBitMap,X
         AND #$04
         BNE b17EC
 b17E0   =*+$01
-        JMP j1834
+        JMP ResetDroidPosition
 
         AND #$C1
         ORA #$04
-        STA $1002,X
-        JMP j1834
+        STA droidDirectionBitMap,X
+        JMP ResetDroidPosition
 
-b17EC   LDA $1002,X
+b17EC   LDA droidDirectionBitMap,X
         AND #$C1
         ORA #$02
-        STA $1002,X
-        JMP j1834
+        STA droidDirectionBitMap,X
+        JMP ResetDroidPosition
 
-b17F9   LDA currentDroidCharacter
+;---------------------------------------------------------------------------------
+; DrawDroidAtPosition   
+;---------------------------------------------------------------------------------
+DrawDroidAtPosition   
+        LDA currentDroidCharacter
         LDY #$00
         STA (screenRamLoPtr),Y
         LDA screenRamHiPtr
-        STA $1001,X
+        STA droidScreenLineHiPtr,X
         CLC 
-        ADC #$78
+        ADC #OFFSET_TO_COLOR_RAM
         STA screenRamHiPtr
         LDA #HORIZ_LASER1
         STA (screenRamLoPtr),Y
         LDA screenRamLoPtr
-        STA f1000,X
-        JMP j1735
+        STA droidScreenLineLoPtr,X
+        JMP GoToNextDroid
 
 ;-------------------------------------------------------------------------
 ; CalculateDroidPosition
 ;-------------------------------------------------------------------------
 CalculateDroidPosition
-        LDA $1002,X
+        LDA droidDirectionBitMap,X
         AND #$01
         BEQ b1827
         INC screenRamLoPtr
@@ -1342,21 +1376,25 @@ b1827   DEC screenRamLoPtr
         DEC screenRamHiPtr
         JMP b1822
 
-j1834   LDA #$1F
-        STA $1001,X
+;---------------------------------------------------------------------------------
+; ResetDroidPosition   
+;---------------------------------------------------------------------------------
+ResetDroidPosition   
+        LDA #$1F
+        STA droidScreenLineHiPtr,X
         LDA #$0A
-        STA f1000,X
-        LDA $1002,X
+        STA droidScreenLineLoPtr,X
+        LDA droidDirectionBitMap,X
         AND #$01
         BNE b184D
-        LDA $1002,X
+        LDA droidDirectionBitMap,X
         ORA #$01
-        STA $1002,X
-b184D   LDA $1001,X
+        STA droidDirectionBitMap,X
+b184D   LDA droidScreenLineHiPtr,X
         STA screenRamHiPtr
-        LDA f1000,X
+        LDA droidScreenLineLoPtr,X
         STA screenRamLoPtr
-        JMP b17F9
+        JMP DrawDroidAtPosition
 
 ;---------------------------------------------------------------------------------
 ; AnimateDroids   
@@ -1394,27 +1432,27 @@ b187D   INC droidsLeftToKill
         ADC droidsLeftToKill
         TAX 
         LDA #$1E
-        STA $1001,X
+        STA droidScreenLineHiPtr,X
         LDA #$32
-        STA f1000,X
+        STA droidScreenLineLoPtr,X
         LDA droidsLeftCurrentLevel
         CMP sizeOfDroidSquadForCurrentLevel
         BNE b18AF
         LDA #$C0
-        STA $1002,X
+        STA droidDirectionBitMap,X
         LDA aA2
         AND #$01
         BEQ b18AA
         LDA #$C1
-        STA $1002,X
+        STA droidDirectionBitMap,X
 b18AA   DEC unusedVariable2
         JMP DrawMovementofDroids
 
-b18AF   LDA f0FFF,X
+b18AF   LDA nextDroidDirectionBitmap,X
         AND #$4F
-        STA f0FFF,X
+        STA nextDroidDirectionBitmap,X
         LDA #$80
-        STA $1002,X
+        STA droidDirectionBitMap,X
         JMP DrawMovementofDroids
 
 j18BF   DEC noOfDroidSquadsCurrentLevel
@@ -1435,7 +1473,7 @@ CheckIfBulletHitsDroid
         LDA droidsLeftToKill
         CMP #$01
         BNE b190D
-        LDA $1002,X
+        LDA droidDirectionBitMap,X
         AND #$C0
         BEQ DroidHit
         LDA sizeOfDroidSquadForCurrentLevel
@@ -1458,7 +1496,7 @@ DroidHit
         ; Draw the color of the pod.
         LDA screenRamHiPtr
         CLC 
-        ADC #$78
+        ADC #OFFSET_TO_COLOR_RAM
         STA screenRamHiPtr
         LDA #SHIP
         STA (screenRamLoPtr),Y
@@ -1483,12 +1521,12 @@ RefillDroidsIfNecessary
         CLC 
         ADC droidsLeftToKill
         STA currentNoOfDroids
-j1919   LDA $1003,X
-        STA f1000,X
-        LDA $1004,X
-        STA $1001,X
-        LDA $1005,X
-        STA $1002,X
+j1919   LDA previousDroidScreenLineLoPtr,X
+        STA droidScreenLineLoPtr,X
+        LDA previousDroidScreenLineHiPtr,X
+        STA droidScreenLineHiPtr,X
+        LDA previousDroidDirectionBitmap,X
+        STA droidDirectionBitMap,X
         CPX currentNoOfDroids
         BEQ DroidHit
         INX 
@@ -1496,15 +1534,15 @@ j1919   LDA $1003,X
         INX 
         JMP j1919
 
-b1935   LDA $1002,X
+b1935   LDA droidDirectionBitMap,X
         AND #$40
         BNE b1945
         JSR s19D8
-        STA f0FFF,X
+        STA nextDroidDirectionBitmap,X
         JMP RefillDroidsIfNecessary
 
 b1945   JSR s1B67
-        STA $1005,X
+        STA previousDroidDirectionBitmap,X
         TXA 
         PHA 
 
@@ -1539,7 +1577,7 @@ BulletCollidedWithDroid
 ; CheckForBullets   
 ;---------------------------------------------------------------------------------
 CheckForBullets   
-        LDA $1002,X
+        LDA droidDirectionBitMap,X
         AND #$C0
         BNE b1935
         TXA 
@@ -1547,10 +1585,10 @@ CheckForBullets
 b197A   DEX 
         DEX 
         DEX 
-        LDA $1002,X
+        LDA droidDirectionBitMap,X
         AND #$40
         BEQ b197A
-        LDA $1002,X
+        LDA droidDirectionBitMap,X
         STA currentNoOfDroids
         PLA 
         TAX 
@@ -1572,7 +1610,7 @@ j1993
         CLC 
         ADC droidsLeftToKill
         TAX 
-j19A1   LDA f1000,X
+j19A1   LDA droidScreenLineLoPtr,X
         CMP bulletScreenRamLoPtr
         BEQ b19B2
 b19A8   DEX 
@@ -1584,7 +1622,7 @@ b19A8   DEX
         NOP 
         JMP j19A1
 
-b19B2   LDA $1001,X
+b19B2   LDA droidScreenLineHiPtr,X
         CMP bulletScreenRamHiPtr
         BNE b19A8
         LDA bulletScreenRamLoPtr
@@ -1598,33 +1636,33 @@ b19B2   LDA $1001,X
 ; j19C6   
 ;---------------------------------------------------------------------------------
 j19C6   
-        LDA f0FFF,X
+        LDA nextDroidDirectionBitmap,X
         ORA #$80
-        STA f0FFF,X
+        STA nextDroidDirectionBitmap,X
         JMP RefillDroidsIfNecessary
 
 ;---------------------------------------------------------------------------------
 ; j19D1   
 ;---------------------------------------------------------------------------------
 j19D1   
-        LDA $1002,X
-        ORA $1005,X
+        LDA droidDirectionBitMap,X
+        ORA previousDroidDirectionBitmap,X
         RTS 
 
 ;-------------------------------------------------------------------------
 ; s19D8
 ;-------------------------------------------------------------------------
 s19D8
-        LDA $1002,X
-        ORA f0FFF,X
+        LDA droidDirectionBitMap,X
+        ORA nextDroidDirectionBitmap,X
         RTS 
 
 ;-------------------------------------------------------------------------
 ; s19DF
 ;-------------------------------------------------------------------------
 s19DF
-        ORA $1005,X
-        STA $1005,X
+        ORA previousDroidDirectionBitmap,X
+        STA previousDroidDirectionBitmap,X
         RTS 
 
 ;-------------------------------------------------------------------------
@@ -1874,7 +1912,7 @@ LoadDataForLevel
 ; s1B67
 ;-------------------------------------------------------------------------
 s1B67
-        LDA $1002,X
+        LDA droidDirectionBitMap,X
         AND #$80
         JMP j1B75
 
@@ -1887,7 +1925,7 @@ txtLivesLeft =*-$01
 j1B75   
         BEQ b1B7D
         LDA #$40
-        STA $1002,X
+        STA droidDirectionBitMap,X
         NOP 
 b1B7D   JMP j19D1
 
@@ -1950,21 +1988,27 @@ b1BBB   LDA currentHighScore,Y
 UpdateHiScore   
         CPY #$07
         BNE b1BBB
-        BEQ DrawCurrentHiscore
-j1BCA   LDY #$07
+        BEQ DrawHiScoreAndWaitForFire
+
+;---------------------------------------------------------------------------------
+; SaveHiScore   
+;---------------------------------------------------------------------------------
+SaveHiScore   
+        LDY #$07
 b1BCC   LDA SCREEN_RAM + $000E,Y
         STA currentHighScore - $01,Y
         DEY 
         BNE b1BCC
 
+        ; Falls through
 ;---------------------------------------------------------------------------------
-; DrawCurrentHiscore   
+; DrawHiScoreAndWaitForFire   
 ;---------------------------------------------------------------------------------
-DrawCurrentHiscore   
+DrawHiScoreAndWaitForFire   
         LDY #$0A
 b1BD7   LDA highScoreText,Y
         STA SCREEN_RAM + $0048,Y
-        LDA f10EF,Y
+        LDA txtCopyRight,Y
         STA SCREEN_RAM + $008A,Y
         LDA #$01
         STA COLOR_RAM + $0048,Y
@@ -2073,4 +2117,4 @@ b1DE7   DEC livesLeft
 
               .BYTE $00,$00,$00,$00
 txtGridZapped .BYTE $00,$87,$92,$89,$84,$20,$9A,$81 ; GRID ZA
-              .BYTE $90,$90,$85,$84,$00,$00,$00,$FF     ; PPED
+              .BYTE $90,$90,$85,$84,$00,$00,$00,$FF ; PPED

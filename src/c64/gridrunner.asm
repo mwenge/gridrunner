@@ -108,6 +108,7 @@ POD6 = $12
 DROID1 = $13
 EXPLOSION1 = $16
 SPACE = $20
+VERTICAL_LINE = $3F
 
 WHITE                           = $01
 RED                             = $02
@@ -419,7 +420,7 @@ DrawGrid
         STA gridXPos
         LDA #ORANGE
         STA colorForCurrentCharacter
-        LDA #$3F
+        LDA #VERTICAL_LINE
         STA currentCharacter
 
         ; Draw the horizontal lines of the grid

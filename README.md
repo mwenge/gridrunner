@@ -3,19 +3,22 @@
 <img src="https://www.mobygames.com/images/covers/l/34991-gridrunner-commodore-64-front-cover.jpg" height=300><img src="https://user-images.githubusercontent.com/58846/103443482-9fb16180-4c57-11eb-9403-4968bd16287f.gif" height=300>
 
 
-This is the disassembled and [commented source code] for the 1982 Vic 20 (and Commodore 64 port) of Gridrunner by Jeff Minter. It is part of the [llamasource project](https://mwenge.github.io/llamaSource/).
+This is the disassembled and [commented source code] for the 1982 Vic 20 (and Commodore 64 and Atari 8-bit ports) of Gridrunner by Jeff Minter. It is part of the [llamasource project](https://mwenge.github.io/llamaSource/).
 
 If you want to read more about the Gridrunner internals, take a look at [Gridrunner; The Little Black Book](https://github.com/mwenge/llamaSource/blob/main/GridrunnerTheLittleBlackBook.md).
 
 You can play Gridrunner in your browser at [https://gridrunner.xyz]. (Ctrl key is 'Fire', Arrow Keys to move.)
 
 ## Requirements
-
 * [64tass][64tass], tested with v1.54, r1900
+### For c64 and Vic 20:
 * [VICE][vice]
+### For Atari:
+* [Atari800 Emulator][atari800]
 
 [64tass]: http://tass64.sourceforge.net/
 [vice]: http://vice-emu.sourceforge.net/
+[atari800]: https://atari800.github.io/
 [https://gridrunner.xyz]: https://mwenge.github.io/gridrunner.xyz
 [commented source code]:https://github.com/mwenge/gridrunner/blob/master/src/
 
@@ -27,25 +30,35 @@ $ make
 To compile and run the Vic 20 version do:
 
 ```sh
-$ make vic
+$ make runvic
+```
+
+To compile and run the Atari 8-bit version do:
+
+```sh
+$ make runatari
 ```
 
 The compiled game is written to the `bin` folder. 
 
 To just compile the game and get a binary (`gridrunner.prg`) do:
 
+For C64:
 ```sh
 $ make gridrunner.prg
 ```
-or
+For Vic 20:
 ```sh
 $ make gridrunner-vic20.prg
 ```
 
-for the Vic 20 version.
+For Atari 8-bit:
+```sh
+$ make gridrunner.xex
+```
 
 
-# Disassembling the Game
+# Disassembling the Game (C64 Version)
 
 ## Introduction
 A quick glance at the [disassembled source] will tell you that I haven't untangled everything in there yet. Maybe I will get bored and stop chipping away at it, however the bones of the disasssembled code are well defined and it is possible to follow the high-level game flow. So before I lose interest in it and move onto the next thing I'm writing up the disassembly process while it is still fresh in my mind.
