@@ -35,7 +35,7 @@ runvic: gridrunner-vic20.prg
 	$(XVIC) -verbose $(XVIC_IMAGE)
 
 runatari: gridrunner.xex
-	$(XATARI) -verbose $(XATARI_IMAGE)
+	$(XATARI) -win-height 800 -win-width 1200 $(XATARI_IMAGE)
 
 run: d64
 	$(X64) -verbose $(D64_IMAGE)
