@@ -3,11 +3,13 @@
 D64_IMAGE = "bin/gridrunner.d64"
 XVIC_IMAGE = "bin/gridrunner-vic20.prg"
 XATARI_IMAGE = "bin/gridrunner.xex"
+XATARIST_IMAGE = "bin/gr-st.prg"
 X64 = x64
 XVIC = xvic
 X64SC = x64sc
 C1541 = c1541
 XATARI = atari800
+XATARIST = hatari
 
 all: clean d64 run
 vic: clean vic runvic
@@ -26,6 +28,10 @@ gridrunner.xex: src/atari800/gridrunner.asm
 	dd if=bin/patch-atari-end-byte.bin of=bin/gridrunner.xex bs=1 seek=4 count=1 conv=notrunc
 	md5sum bin/gridrunner.xex orig/gridrunner.xex
 
+gridrunner-st.prg: src/atarist/gridrunner.asm
+	vasmm68k_mot -Ftos -spaces -devpac src/atarist/gridrunner.asm -o bin/gr-st.prg
+	md5sum bin/gr-st.prg bin/gr-st-bench.prg
+
 d64: gridrunner.prg
 	$(C1541) -format "gridrunner,rq" d64 $(D64_IMAGE)
 	$(C1541) $(D64_IMAGE) -write bin/gridrunner.prg "gridrunner"
@@ -36,6 +42,9 @@ runvic: gridrunner-vic20.prg
 
 runatari: gridrunner.xex
 	$(XATARI) -win-height 800 -win-width 1200 $(XATARI_IMAGE)
+
+runatarist: gridrunner-st.prg
+	$(XATARIST) $(XATARIST_IMAGE)
 
 run: d64
 	$(X64) -verbose $(D64_IMAGE)
