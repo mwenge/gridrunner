@@ -32,12 +32,14 @@ If you want to read more about the Gridrunner internals, take a look at [Gridrun
 
 ## Playing the Games
 C64: [https://gridrunner.xyz]. (Ctrl key is 'Fire', Arrow Keys to move.)
+
 Vic20: [https://gridrunner.xyz]. (Ctrl key is 'Fire', Arrow Keys to move.)
 
 ## Building the C64 Source Code
+<img src="https://www.mobygames.com/images/covers/l/34991-gridrunner-commodore-64-front-cover.jpg" height=300><img src="https://user-images.githubusercontent.com/58846/103443482-9fb16180-4c57-11eb-9403-4968bd16287f.gif" height=300>
 ### Requirements
-* [VICE][vice]
-* [64tass][64tass], tested with v1.54, r1900
+* [VICE][vice] - The most popular C64 emulator
+* [64tass][64tass] - An assembler for 6502 source code.
 
 ### Setup
 On Ubuntu you can install [VICE] as follows:
@@ -59,9 +61,10 @@ $ make gridrunner.prg
 ```
 
 ## Building the Vic20 Source Code
+<img src="https://user-images.githubusercontent.com/58846/114267974-adb11400-99f6-11eb-8797-036554e1a1f5.png" height=300><img src="https://user-images.githubusercontent.com/58846/114268079-27e19880-99f7-11eb-9e1a-87995309b96b.gif" height=300>
 ### Requirements
-* [VICE][vice]
-* [64tass][64tass], tested with v1.54, r1900
+* [VICE][vice] - The most popular C64/Vic20 emulator
+* [64tass][64tass] - An assembler for 6502 source code.
 
 ### Compiling
 To compile and run:
@@ -77,9 +80,10 @@ $ make gridrunner-vic20.prg
 ```
 
 ## Building the Atari-8 bit Source Code
+<img src="https://user-images.githubusercontent.com/58846/114267907-6591f180-99f6-11eb-87b0-65387139ccd7.png" height=300><img src="https://user-images.githubusercontent.com/58846/114267944-7d697580-99f6-11eb-9208-159c76d5c7c5.gif" height=300>
 ### Requirements
-* [Atari800 Emulator][atari800]
-* [64tass][64tass], tested with v1.54, r1900
+* [Atari800 Emulator][atari800] - An Atari 400/8000 emulator
+* [64tass][64tass] - An assembler for 6502 source code.
 
 ### Compiling
 To compile and run:
@@ -95,9 +99,22 @@ $ make gridrunner.xex
 ```
 
 ## Building the Atari ST Source Code
+<img src="https://user-images.githubusercontent.com/58846/114268282-367c7f80-99f8-11eb-8869-43ea4e64968d.gif" height=300>
+
+This unfinished and unpublished gem was written as a challenge by Minter to see what he could fit into 3.5k on the Atari ST. It's a basic gameplay demo with no sound or levels, but is very enjoyable and addictive to play.
+
+"There was one more version of Gridrunner on the Atari ST
+which I shall mention for completeness - in truth I haven't seen it for
+years and I'm not sure if it's in the archive anywhere. I can't remember
+why I was asked - for a coverdisk or for a demo I guess - but I was
+asked to do a game in 4K. Since the dear old unexpanded Vic had been
+3.5K I thought it would be natural to choose Gridrunner as the subject
+of the demo and so I made a little version that fit in 4K on the ST. It
+was super primitive but it was just about fully functional."
+ 
 ### Requirements
-* [Hatari][hatari]
-* [vasm][vasm]
+* [Hatari][hatari] - A popular Atari ST emulator
+* [vasm][vasm] - An assembler for Motorola 68000 source code
 
 ### Setup
 On Ubuntu you can install [Hatari] as follows:
@@ -129,8 +146,4 @@ $ make gridrunner-st.prg
 [vasm]: http://sun.hasenbraten.de/vasm/index.php?view=relsrc
 [https://gridrunner.xyz]: https://mwenge.github.io/gridrunner.xyz
 [commented source code]:https://github.com/mwenge/gridrunner/blob/master/src/
-
-```
-
-
 
