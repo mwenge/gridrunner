@@ -33,7 +33,7 @@ If you want to read more about the Gridrunner internals, take a look at [Gridrun
 ## Playing the Games
 [C64:](https://mwenge.github.io/gridrunner/c64/) (Ctrl key is 'Fire', Arrow Keys to move.)
 
-[Vic20:] (https://mwenge.github.io/gridrunner/vic20/) (Ctrl key is 'Fire', Arrow Keys to move.)
+[Vic20:](https://mwenge.github.io/gridrunner/vic20/) (Ctrl key is 'Fire', Arrow Keys to move.)
 
 [Atari800:](https://mwenge.github.io/gridrunner/atari800/?disk_filename=gridrunner.atr) (Alt key is 'Fire', Arrow Keys to move.)
 
