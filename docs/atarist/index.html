@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Gridrunneri in the Atari ST in the browser | atari st emulator</title>
+<style type="text/css">
+    html {
+      background-color: black;
+      color: white;
+    }
+    .pcejs {
+      background-color: black;
+      color: white;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+      font-family: sans-serif;
+      /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
+      border: 0px none;
+      padding: 0;
+    }
+    .pcejs-container { margin-top: 32px }
+
+    .pcejs-canvas { cursor: none }
+    h1 { font-weight: normal; }
+    h1 small { color: #999; font-size: 80% }
+    </style>
+</head>
+<body>
+<div class="pcejs pcejs-container">
+<h1>Jeff Minter's Gridrunner Demo for the Atari ST</h1>
+<div class="pcejs pcejs-loading-status">Downloading...</div>
+<div class="pcejs">
+<canvas class="pcejs pcejs-canvas" id="pcejs-canvas" oncontextmenu="event.preventDefault()"></canvas>
+</div>
+<p>This is Gridrunner running in the Atari ST <a href="https://github.com/jsdf/pce">pce.js emulator</a>.</p>
+<p>Open Floppy Disk A and Double-Click on GR-ST.prg to run 'Gridrunner'</p>
+<p>Use the Mouse Button to Fire and the Mouse to move around.</p>
+</div>
+<script type="text/javascript" src="bundle.js"></script>
+<script type="text/javascript">
+    // retarget mouse events on body
+    (function(){
+      var pcejsCanvas = document.getElementById('pcejs-canvas')
+
+      function retriggerEvent(event) {
+        if (event.pcejsRetriggered) return
+
+        var retriggeredEvent = new MouseEvent(event.type, event)
+        retriggeredEvent.pcejsRetriggered = true
+
+        pcejsCanvas.dispatchEvent(retriggeredEvent)
+      }
+
+      [
+        'mousedown',
+        'mouseenter',
+        'mouseleave',
+        'mousemove',
+        'mouseout',
+        'mouseover',
+        'mouseup',
+        'click',
+        'dblclick',
+      ].forEach(function(eventType) {
+        document.addEventListener(eventType, retriggerEvent)
+      })
+
+    })()
+    </script>
+</body>
+</html>
