@@ -1,0 +1,652 @@
+body {
+  height: 100%;
+  background-color: black;
+}
+
+#mute:hover{
+  cursor: pointer;
+}
+#mute {
+  position: fixed;
+  font-size: 2vh;
+  top: 1vh;
+  right: 1vw;
+}
+
+#canvas
+{
+	display: block;
+  font-size: 15px;
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 0;
+  animation-duration: 0.75s;
+  animation-delay: 0.25s;
+  animation-timing-function: cubic-bezier(0.1,0.2,0.8,1);
+  height: 100vh;
+  animation-name: zoomout;
+}
+@keyframes zoomout {from{ height: 200vh; } to{ }}
+
+#canvas:-webkit-full-screen 
+{
+	float: none;
+	width: 100%;
+	height: 100%;
+	padding: 0;
+	margin: 0;
+	border: 0 none;
+}
+
+#canvas:-moz-full-screen
+{
+	float: none;
+	width: 100%;
+	height: 100%;
+	padding: 0;
+	margin: 0;
+	border: 0 none;
+}
+
+#canvas:-ms-full-screen
+{
+	float: none;
+	width: 100%;
+	height: 100%;
+	padding: 0;
+	margin: 0;
+	border: 0 none;
+}
+
+#canvas:-o-full-screen
+{
+	float: none;
+	width: 100%;
+	height: 100%;
+	padding: 0;
+	margin: 0;
+	border: 0 none;
+}
+
+#canvas:full-screen
+{
+	float: none;
+	width: 100%;
+	height: 100%;
+	padding: 0;
+	margin: 0;
+	border: 0 none;
+}
+
+
+#canvas_container {
+  position: relative;
+}
+#canvas_overlay_left {
+  position: absolute;
+  z-index: 2147483647;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  display: none;
+
+ background-image: 
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'>\
+		<circle cx='5%' cy='50%' r='5%' fill='lightgray' fill-opacity='0.3'/>\
+		<circle cx='25%' cy='50%' r='5%' fill='lightgray' fill-opacity='0.3'/>\
+		<circle cx='15%' cy='34%' r='5%' fill='lightgray' fill-opacity='0.3'/>\
+		<circle cx='15%' cy='66%' r='5%' fill='lightgray' fill-opacity='0.3'/>\
+		</svg>");
+}
+
+
+#canvas_overlay_right {
+  position: absolute;
+  z-index: 2147483647;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  display: none;
+
+ background-image: 
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'>\
+		<circle cx='75%' cy='50%' r='5%' fill='lightgray' fill-opacity='0.3'/>\
+		<circle cx='95%' cy='50%' r='5%' fill='lightgray' fill-opacity='0.3'/>\
+		<circle cx='85%' cy='34%' r='5%' fill='lightgray' fill-opacity='0.3'/>\
+		<circle cx='85%' cy='66%' r='5%' fill='lightgray' fill-opacity='0.3'/>\
+		</svg>");
+}
+
+
+/* Tooltip text */
+#help_main
+{
+    position: relative;
+}
+
+#help_main #help_div
+{
+	display: none;
+    width: 300px;
+    background-color: #555;
+    color: #fff;
+    text-align: left;
+    padding: 5px 0 5px 10px;
+    border-radius: 6px;
+
+    /* Position the tooltip text */
+    position: absolute;
+    z-index: 1;
+    top: 125%;
+    left: 50%;
+    margin-left: -100px;
+}
+
+#drop_zone {
+  cursor: pointer;
+  background-color: #dddddd;
+  padding:10px;
+  border:2px dashed #a0a0ff; 
+  width:  85%;
+  height: 32px;
+}
+
+
+@media screen and (min-width: 480px) {
+	#print_version {
+	  float: right;
+	  font-size: x-small;
+	  color: #868686;
+	  cursor: pointer;
+	}
+	#print_version:after {
+		content: "\1F528";     
+	}	
+	.hide_mobile {	
+	}
+}
+@media screen and (max-width: 479px) {
+	#print_version {
+	display: none;
+	}
+
+	.hide_mobile {
+	display: none !important;
+	}
+}
+
+.hide_tape {	
+	display: none;
+}
+.show_tape {	
+}
+
+.keyboardInput {
+	background-color:#aecaff;
+	white-space: nowrap;
+	height: 24px;
+}
+
+ .button {        
+    display: inline-block;
+    white-space: nowrap;
+    background-color: #ccc;
+    background-image: linear-gradient(top, #eee, #ccc);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#eeeeee', EndColorStr='#cccccc');
+    border: 1px solid #777;
+    padding: 0 1.0em;
+    margin: 0.1em;
+    font: bold 0.9em/2em Arial, Helvetica;
+    text-decoration: none;
+    color: #333;
+    text-shadow: 0 1px 0 rgba(255,255,255,.8);
+    border-radius: .2em;
+    box-shadow: 0 0 1px 1px rgba(255,255,255,.8) inset, 0 1px 0 rgba(0,0,0,.3);
+}
+
+.button:hover {
+    background-color: #ddd;        
+    background-image: linear-gradient(top, #fafafa, #ddd);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorStr='#fafafa', EndColorStr='#dddddd');        
+}
+
+.button:enabled:active {
+    box-shadow: 0 0 4px 2px rgba(0,0,0,.3) inset;
+    position: relative;
+    top: 1px;
+}
+
+.button:disabled {
+    opacity: 0.5;
+}       
+
+.button#highlight {
+    animation-duration: .5s;
+    animation-name: hblink;
+    animation-iteration-count: 6;
+    animation-direction: alternate;
+    animation-timing-function: ease-in-out;
+	animation-delay: 5s;
+}       
+
+@keyframes hblink {
+    from {
+        background-color: #ccc;
+    }
+    to {
+        background-color: #def;        
+    }
+}
+
+.button:before {
+    background: #ccc;
+    background: rgba(0,0,0,.1);
+    float: left;        
+    width: 1em;
+    text-align: center;
+    font-size: 1.0em;
+    margin: 0 0.6em 0 -1em;
+    padding: 0 .4em;
+    box-shadow: 1px 0 0 rgba(0,0,0,.5), 2px 0 0 rgba(255,255,255,.5);
+    border-radius: .15em 0 0 .15em;
+    pointer-events: none;        
+}
+
+
+.bhighlight {
+	color: #33b;	
+}
+
+/* Hexadecimal entities for the icons */
+
+.add:before {
+    content: "\271A";
+}
+
+.edit:before {
+    content: "\270E";        
+}
+
+.delete:before {
+    content: "\2718";        
+}
+
+.save:before {
+    content: "\2714";        
+}
+
+.email:before {
+    content: "\2709";        
+}
+
+.like:before {
+    content: "\2764";        
+}
+
+.next:before {
+    content: "\279C";
+}
+
+.full:before {
+    content: "\25A3";
+}
+
+.sound:before {
+    content: "\2706";
+}
+
+.play:before {
+    content: "\25B6";
+}
+
+.tapeplay:before {
+    content: "\25BA";
+}
+
+.taperewind:before {
+    content: "\AB";
+}
+
+.tapezero:before {
+    content: "\25CE";
+}
+
+
+
+
+.c64config {
+  position: relative;
+  float: right;
+  display: inline-block;
+}
+
+.c64config .configcontent {
+  visibility: hidden;
+  width: 200px;
+  background-color: #555;
+  color: #fff;
+  text-align: left;
+  border-radius: 6px;
+  padding: 8px 0 8px 8px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -200px;
+}
+
+.c64config .configcontent::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+.c64config .show {
+  visibility: visible;
+  -webkit-animation: configfadeIn 1s;
+  animation: configfadeIn 1s
+}
+
+
+.horform2 {
+  padding:1px; border:2px solid #a0a0ff;
+  margin-top: 5px;
+  width: 100%;
+}
+.horform2 form {
+  padding:5px; border:0px;
+}
+.horform2 form .Auswahl { 
+  width:100%; 
+}
+
+#c64_status {
+	display: none;
+}
+
+@-webkit-keyframes configfadeIn {
+  from {opacity: 0;}
+  to {opacity: 1;}
+}
+
+@keyframes configfadeIn {
+  from {opacity: 0;}
+  to {opacity:1 ;}
+}
+#keyboardInputMaster {
+  position:absolute;
+  font:normal 11px Arial,sans-serif;
+  border-top:1px solid #eeeeee;
+  border-right:1px solid #888888;
+  border-bottom:1px solid #444444;
+  border-left:1px solid #cccccc;
+  -webkit-border-radius:0.6em;
+  -moz-border-radius:0.6em;
+  border-radius:0.6em;
+  -webkit-box-shadow:0px 2px 10px #444444;
+  -moz-box-shadow:0px 2px 10px #444444;
+  box-shadow:0px 2px 10px #444444;
+  opacity:0.95;
+  filter:alpha(opacity=95);
+  background-color:#dddddd;
+  text-align:left;
+  z-index:1000000;
+  width:auto;
+  height:auto;
+  min-width:0;
+  min-height:0;
+  margin:0px;
+  padding:0px;
+  line-height:normal;
+  -moz-user-select:none;
+  cursor:default;
+}
+#keyboardInputMaster * {
+  position:static;
+  color:#000000;
+  background:transparent;
+  font:normal 11px Arial,sans-serif;
+  width:auto;
+  height:auto;
+  min-width:0;
+  min-height:0;
+  margin:0px;
+  padding:0px;
+  border:0px none;
+  outline:0px;
+  vertical-align:baseline;
+  line-height:1.3em;
+}
+#keyboardInputMaster table {
+  table-layout:auto;
+}
+#keyboardInputMaster.keyboardInputSize1,
+#keyboardInputMaster.keyboardInputSize1 * {
+  font-size:9px;
+}
+#keyboardInputMaster.keyboardInputSize3,
+#keyboardInputMaster.keyboardInputSize3 * {
+  font-size:13px;
+}
+#keyboardInputMaster.keyboardInputSize4,
+#keyboardInputMaster.keyboardInputSize4 * {
+  font-size:16px;
+}
+#keyboardInputMaster.keyboardInputSize5,
+#keyboardInputMaster.keyboardInputSize5 * {
+  font-size:20px;
+}
+
+#keyboardInputMaster thead tr th {
+  padding:0.3em 0.3em 0.1em 0.3em;
+  background-color:#999999;
+  white-space:nowrap;
+  text-align:right;
+  -webkit-border-radius:0.6em 0.6em 0px 0px;
+  -moz-border-radius:0.6em 0.6em 0px 0px;
+  border-radius:0.6em 0.6em 0px 0px;
+}
+#keyboardInputMaster thead tr th div {
+  float:left;
+  font-size:130% !important;
+  height:1.3em;
+  font-weight:bold;
+  position:relative;
+  z-index:1;
+  margin-right:0.5em;
+  cursor:pointer;
+  background-color:transparent;
+}
+#keyboardInputMaster thead tr th div ol {
+  position:absolute;
+  left:0px;
+  top:90%;
+  list-style-type:none;
+  height:9.4em;
+  overflow-y:auto;
+  overflow-x:hidden;
+  background-color:#f6f6f6;
+  border:1px solid #999999;
+  display:none;
+  text-align:left;
+  width:12em;
+}
+#keyboardInputMaster thead tr th div ol li {
+  padding:0.2em 0.4em;
+  cursor:pointer;
+  white-space:nowrap;
+  width:12em;
+}
+#keyboardInputMaster thead tr th div ol li.selected {
+  background-color:#ffffcc;
+}
+#keyboardInputMaster thead tr th div ol li:hover,
+#keyboardInputMaster thead tr th div ol li.hover {
+  background-color:#dddddd;
+}
+#keyboardInputMaster thead tr th span,
+#keyboardInputMaster thead tr th strong,
+#keyboardInputMaster thead tr th small,
+#keyboardInputMaster thead tr th big {
+  display:inline-block;
+  padding:0px 0.4em;
+  height:1.4em;
+  line-height:1.4em;
+  border-top:1px solid #e5e5e5;
+  border-right:1px solid #5d5d5d;
+  border-bottom:1px solid #5d5d5d;
+  border-left:1px solid #e5e5e5;
+  background-color:#cccccc;
+  cursor:pointer;
+  margin:0px 0px 0px 0.3em;
+  -webkit-border-radius:0.3em;
+  -moz-border-radius:0.3em;
+  border-radius:0.3em;
+  vertical-align:middle;
+  -webkit-transition:background-color .15s ease-in-out;
+  -o-transition:background-color .15s ease-in-out;
+  transition:background-color .15s ease-in-out;
+}
+#keyboardInputMaster thead tr th strong {
+  font-weight:bold;
+}
+#keyboardInputMaster thead tr th small {
+  -webkit-border-radius:0.3em 0px 0px 0.3em;
+  -moz-border-radius:0.3em 0px 0px 0.3em;
+  border-radius:0.3em 0px 0px 0.3em;
+  border-right:1px solid #aaaaaa;
+  padding:0px 0.2em 0px 0.3em;
+}
+#keyboardInputMaster thead tr th big {
+  -webkit-border-radius:0px 0.3em 0.3em 0px;
+  -moz-border-radius:0px 0.3em 0.3em 0px;
+  border-radius:0px 0.3em 0.3em 0px;
+  border-left:0px none;
+  margin:0px;
+  padding:0px 0.3em 0px 0.2em;
+}
+#keyboardInputMaster thead tr th span:hover,
+#keyboardInputMaster thead tr th span.hover,
+#keyboardInputMaster thead tr th strong:hover,
+#keyboardInputMaster thead tr th strong.hover,
+#keyboardInputMaster thead tr th small:hover,
+#keyboardInputMaster thead tr th small.hover,
+#keyboardInputMaster thead tr th big:hover,
+#keyboardInputMaster thead tr th big.hover {
+  background-color:#dddddd;
+}
+
+#keyboardInputMaster tbody tr td {
+  text-align:left;
+  padding:0.2em 0.3em 0.3em 0.3em;
+  vertical-align:top;
+}
+#keyboardInputMaster tbody tr td div {
+  text-align:center;
+  position:relative;
+  zoom:1;
+}
+#keyboardInputMaster tbody tr td table {
+  white-space:nowrap;
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0px;
+}
+#keyboardInputMaster tbody tr td#keyboardInputNumpad table {
+  margin-left:0.2em;
+  width:auto;
+}
+#keyboardInputMaster tbody tr td table.keyboardInputCenter {
+  width:auto;
+  margin:0px auto;
+}
+#keyboardInputMaster tbody tr td table tbody tr td {
+  vertical-align:middle;
+  padding:0px 0.45em;
+  white-space:pre;
+  height:1.8em;
+  font-family:'Lucida Console','Arial Unicode MS',monospace;
+  border-top:1px solid #e5e5e5;
+  border-right:1px solid #5d5d5d;
+  border-bottom:1px solid #5d5d5d;
+  border-left:1px solid #e5e5e5;
+  background-color:#eeeeee;
+  cursor:default;
+  min-width:0.75em;
+  -webkit-border-radius:0.2em;
+  -moz-border-radius:0.2em;
+  border-radius:0.2em;
+  -webkit-transition:background-color .15s ease-in-out;
+  -o-transition:background-color .15s ease-in-out;
+  transition:background-color .15s ease-in-out;
+}
+#keyboardInputMaster tbody tr td table tbody tr td.last {
+  width:99%;
+}
+#keyboardInputMaster tbody tr td table tbody tr td.space {
+  padding:0px 4em;
+}
+#keyboardInputMaster tbody tr td table tbody tr td.deadkey {
+  background-color:#ccccdd;
+}
+#keyboardInputMaster tbody tr td table tbody tr td.target {
+  background-color:#ddddcc;
+}
+#keyboardInputMaster tbody tr td table tbody tr td:hover,
+#keyboardInputMaster tbody tr td table tbody tr td.hover {
+  border-top:1px solid #d5d5d5;
+  border-right:1px solid #555555;
+  border-bottom:1px solid #555555;
+  border-left:1px solid #d5d5d5;
+  background-color:#cccccc;
+}
+#keyboardInputMaster thead tr th span:active,
+#keyboardInputMaster thead tr th span.pressed,
+#keyboardInputMaster tbody tr td table tbody tr td:active,
+#keyboardInputMaster tbody tr td table tbody tr td.pressed {
+  border-top:1px solid #555555 !important;
+  border-right:1px solid #d5d5d5;
+  border-bottom:1px solid #d5d5d5;
+  border-left:1px solid #555555;
+  background-color:#cccccc;
+}
+
+#keyboardInputMaster tbody tr td table tbody tr td small {
+  display:block;
+  text-align:center;
+  font-size:0.6em !important;
+  line-height:1.1em;
+}
+
+#keyboardInputMaster tbody tr td div label {
+  position:absolute;
+  bottom:0.2em;
+  left:0.3em;
+}
+#keyboardInputMaster tbody tr td div label input {
+  background-color:#f6f6f6;
+  vertical-align:middle;
+  font-size:inherit;
+  width:1.1em;
+  height:1.1em;
+}
+#keyboardInputMaster tbody tr td div var {
+  position:absolute;
+  bottom:0px;
+  right:3px;
+  font-weight:bold;
+  font-style:italic;
+  color:#444444;
+}
+
+.keyboardInputInitiator {
+  margin:0px 3px;
+  vertical-align:middle;
+  cursor:pointer;
+}

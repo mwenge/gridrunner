@@ -1,0 +1,82 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<script language="JavaScript" src="js/common.js?rnd=50" type="text/javascript"><!-- x --></script>
+<title>Javascript Vic20 Emulator</title>
+</head>
+<body style="padding:0;margin:0">
+
+<style>
+body {
+  height: 100%;
+  background-color: black;
+}
+#canvas
+{
+	display: block;
+  font-size: 15px;
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 0;
+  animation-duration: 0.75s;
+  animation-delay: 0.25s;
+  animation-timing-function: cubic-bezier(0.1,0.2,0.8,1);
+  height: 100vh;
+  animation-name: zoomout;
+}
+@keyframes zoomout {from{ height: 200vh; } to{ }}
+
+</style>
+<script language="JavaScript" src="jquery-1.8.1.js" type="text/javascript"><!-- x --></script>
+<script language="JavaScript" src="jquery-ui-1.8.23.custom.min.js" type="text/javascript"><!-- x --></script>
+<script language="JavaScript" src="event.js?rnd=50" type="text/javascript"><!-- x --></script>
+<script language="JavaScript" src="vic20/carts.js?rnd=50" type="text/javascript"><!-- x --></script>
+<script language="JavaScript" src="vic20/basic.js?rnd=50" type="text/javascript"><!-- x --></script>
+<script language="JavaScript" src="vic20/vic20.js?rnd=50" type="text/javascript"><!-- x --></script>
+<script language="JavaScript" src="display/vic6560.js?rnd=50" type="text/javascript"><!-- x --></script>
+<script language="JavaScript" src="peripheral/via6522.js?rnd=50" type="text/javascript"><!-- x --></script>
+<script language="JavaScript" src="vic20/keyboard.js?rnd=50" type="text/javascript"><!-- x --></script>
+<script language="JavaScript" src="vic20/tapedrive.js?rnd=50" type="text/javascript"><!-- x --></script>
+<script language="JavaScript" src="cpu/cpu6502.js?rnd=50" type="text/javascript"><!-- x --></script>
+<script language="JavaScript" src="cpu/cpu6502disassemble.js?rnd=50" type="text/javascript"><!-- x --></script>
+<script language="JavaScript" src="cpu/cpu6502assemble.js?rnd=50" type="text/javascript"><!-- x --></script>
+
+<canvas id="canvas" width="1" height="1" style="display:block;margin-left:auto;margin-right:auto" onclick="fullscreen(true)">&#160;</canvas>
+
+<script>
+function updateMenuState() {
+	$("#joykeysopt").prop("checked", Config.joykeys);
+	$("#joykeysopt2").prop("checked", Config.joykeys);
+
+	$("#mem0400opt").prop("checked", Config.memoryAt0400);
+	$("#mem2000opt").prop("checked", Config.memoryAt2000);
+	$("#mem4000opt").prop("checked", Config.memoryAt4000);
+	$("#mem6000opt").prop("checked", Config.memoryAt6000);
+	$("#memA000opt").prop("checked", Config.memoryAtA000);
+	
+	$("#speedopt100").prop("checked", Config.speed==1);
+	$("#speedoptNoLimit").prop("checked", Config.speed!=1);
+	
+	$("#ntscUsaOpt").prop("checked",   kerneldata==kerneldataNtsc && chardata==chardataEnglish);
+	$("#ntscJapanOpt").prop("checked", kerneldata==kerneldataNtsc && chardata==chardataJapan);
+	$("#palWorldOpt").prop("checked",  kerneldata==kerneldataPal && chardata==chardataEnglish);
+	$("#palSweFiOpt").prop("checked",  kerneldata==kerneldataPal && chardata==chardataSwedenFinland);
+}
+</script>
+<script>
+vic20 = new Vic20();
+var machineType = getURLParameter("machineType");
+if (machineType=="pal") {vic20.isPal=true;kerneldata=kerneldataPal;machineType="pal";}
+
+/*if (machineType=="ntsc") */ else {vic20.isPal=false;kerneldata=kerneldataNtsc;}
+
+
+vic20.init();
+vic20.execute();
+
+loadPrg(["BAxCSoAAeeDM3YDAAAgM4QDxO3kzIzOgsyMnNbNzMzM7UbVwBHY4FDInuxOxKDF6MCDE10hEwkcGzArPZjjE74zP.4CO9u3O5ADd04gs0cRbE2EzI3MzJjEjM3MwMzIjo3MyE7cyPTI6F3MjizszEz8Na8ju003MhMzTRARc!ur9kcrPcyHe9SDOc2DT0Yvd8z8zMTl3IjEhlhMzNz4TgTo7jb89Mn!zRS83qDMzITUqD49koZrk7hfe0cCffOnMZ3b575RLowT3tgLP83Cj9wB0EgMTEvBMDwU1bwkybEAYp.fjFAZqI04DQykLRUszCg6gpGbu4KriD2Yv5sDv2pWqI04DQm6DN6Akp.fjFAZqA2YkCACIRAiLRASbRwEgbAKApCSmA4RmA8ByQfPYgaRu!ERm!3RuVFRm!XJiQHPYgEiIkUiIjYiJnICIZoBIwCLswCLswCwADMwAEQABEQABAcwBAEQABEQABEQAp6RhBkKLFCgoSAaFpCQkAUaAIhRa4VYApKQkAgWhBgI0qXKAYkmFFCQpBkGAFGgyQjNYpORhHkqCFiQqAU4CFORhUkKEF6QqLUYFpOQhRkaAFKRqEUIEgMiFpSQhsou6MhgE4J6fOKSksCSkMDSkQjvo!7oIRK69OCSkY16HR28HRCN.IlCHKBMgQKQCQgKapASyggpaJ9YhCAGI0LBIJOBI0OBIBUBI!VBInWBIuYBIvaBI12BTIIRqTUYJMBaEqru6gE.!QPNYp6RhBkKAFCgpDUKAYkmFFCQpBkGAFGgyQDPpEAmiIhJSgYjElWQkAUaAYkGeFGQpGEJAohKaqCGIQHRpHU4AliQhEAiNSELAJfA8HkMAwPAImnRqAUYBpKQhGAyUSUqApEA8MY8AlOQyMANBp2QhDUqApIA8CY.AlKQKEAvAGTQpCkCCwLg5EAiNSELAJDA8akcAQvQpHU4AliQhEwU6SksAwHfygAf7gYeGlOQhHUKBFiQqHUYBpWQhGw0USYcCwHAYM5mEluA0xAC0RUqApAI0BAWqBU4CleQhDY8AliQhEAiNSYOAQLg5BgI03XKAFyQpBUYDpCfjNAJoAELDJDA88kMCQXQqJEJDgByRVkKARyQpNgEGphXhNkqARyAaF2AoWYMDMl6ENgI03HLDJDA8MkMIQXQqAU4CgByRVkKCRyQpNgEGphXhNkaARyAaF2AYlmQKBAvDg1aDQmCgwPgzNAJT8LhxOAfAglqIF6ATQORpMk8!QHrxNwEYTUaCJHA8BAmxQAfAglKBFCRpRU4ApCQhEkKIFWAITJh5RUaEJTB0EkqAFGRqUU4AlKRhEAyUSYuElKRyWANBpGQhSUqEFSQqCUYBpGQhGAyUSUaEFOQqAUIBpGQhFAyUSYcFwHAYpuQhVU6EwHAYlGRhTUqEFSRqH24CQmqwNqAkpGQhYAGI8LBTFRh6qru6qrepUUIBpORhDAiNSkaBFaRsAUsFQTQqGUoFpORhXU6FFOQpWUYBpeQhGAyUSY8FleRyCAd6lORhDUKGFSAI2IRqDUoFxCQxWANBpSQhWkKAFWQqCUoBgMlEmjRpYUIBgYjExCQyFA!DJbA8LUqFFWQqHUoBMNlElSRhEkKAFWQqCUoBpORhXU6FFOAITJhxXU6FJLA0xX6EFOQpYUIBp.QhFk6BFaAITJh6qreqLUYFpCQhTUIFNqAkNuAkgVqDJHA8BAWpUAdAgxUOUIqBdvUFwfgyQjPTZlBYJ3A8NocvLVRkMkKAFuAaoBWqAEJDl2AGphXhNkqARyAISVBIgWBToURyAAdxg1gDPARESkK8NyAkpOQhbAWrMAZKACdAg5MDQ2KDQmM4wHAYGvB0GkKANyAkglK8NyAkgVqDJHA8XDmiI5vDe0rDeksuQjQqw2pDeoM0ujmqIC95gJqBgGATGWRpVksAwHAYpGQhVAKA5yiHwbAITXRms4ByQLfus8B8GAy0VkJLfgMwKCN8gZoFiaQ3LVB8GoM04bqFglsEwfA69uUFmaBYi6QvxAA8HosyQffqSAWqe0ZMAkLLeksEwXQqf0ZMAkKLdCDAYik!wAA0D4fMAgI01jGqpqAYi.QqA0JMAoM06DWpOksAw!GYi.QvwAA8NVoL9.CAF2SqAAKAR2SpugRa4VoLpKQkt07LAgRaW05LA0LMAkGAdCDAF6SvvAQhtEbLJDC8fksAwvRyHAPFpqQktUqLYkGeF6SqBEZLMxpFqCGTKoRqA0JMA05LAwUiWosyg!P0VCmxsAfAgl6AFyCT1YRpJkSAwHAYGTCTahRqgWIJmXSplksFQTQqTUYJliC0BAGGKgRZooavAARhA0bAQUYAgCQsAkcBw7QyGAvCJXA8GksBwLA0DwU0Y0rAQkCgw!QqAEJAlGAGphXhBkqARCQvCARKABdJ92!DdCAEFCQv.!QhB0ZAQk6ERCQpBgRa4VYApOQkAosyKDNng1LAQUIA9GAEFGQqBUoJ9KAEpcQyBAfKJDA81k8AQfQqXUoJMt4FJLA0HkaFFaCTLeRyEA9BpWRhmw0eXk6FFaSpAgRZmUIAlGQaAUYAMp5FkaixAUKAJ!P0CYcAIC98g0gGqDfWJDC8iksAw7RvCARKBAtB.LAEMh7FeLAEgUBGq3rAQkiAQjMT7dByxCQygA!CJLA8HkcAwvAToeRvCARKEAdDMRDGpEcCE0pAQwENY0rAQkSwJIQnCABT0gRplAKARCQpB0ZAQgRa4VYApOQkAUKAdCAEMVzF9KAEpEA8LYOAQLg5BkqFFaCYGDQpAk8!QPvxBwkIYk6HdGAEpqQnAARvCARKBANC9KAEJEQnCARvBARhB0LAQUIAMl!FlSC8BAmxhANCpCiCFGCT!iRphU8IwUA8Dw0uWUqIQPAT7ah5oou6qXKKYoAGlhiqp6RnBARqy0JAQUaIFPC0VkKwdKAElKaKBAfBpGcnCAhx!z0uW07!PkyTd.!DpCYnCABT7ahxiwExYUqIJ!P0EkKAFKCT7ahxpUKKJHA000rAQkCwwrQpjkcAQTg6qrOYGjSqPAKARCQpBgRa4VYApeQkAAaAiWQqw3IDQm6AFuBTGWBTxlRpoghCYUGKF2SvDARnAARvEARnBARvFARnCAB5tA!uojO6MlRG9KAEpAE0JAC2Z05!PwEEZAyZb0ZBQoISgOgoFAihVgmqMBRGxyQyTAfCJTB8FkcFwHAYMNZGLgGaMNZG9KAEpAM09qISKrsy9KAEpAE823rAQUYLopaptAy3ZwkxZgGapCQhLUKKYoAGlhiq9CAEFzA8KosyKru6qrOThmRvBARxNA97lyQhAUaDFGAoAwU0Y07!PkAgd.!DMBRG9KAEdUAEg1rAQ0x!PAWHFARnFABYJPB8ekMFwrRyVAvFJbA8Sk8Bw7QyKAvCJfA0BAGaox0ySgGaMdwGgCQsAk8BwPfsAAWq!3YBQykLRoeDcwBHN4v!.v!.KkRGZow.AEQABAQgBGYgBCQABEAABiGaleAoIkJIagI06XKCgiQmooBiQrfqWUYLpCYjNAJI7rhoI0LIaU4A9iiGFSgiIBiNSELAF3C0LkKAFWQqCUoBgMlEopqyQvtoI4PIa0LMaA!BJHI0G4NIa4NIa4PKa0LOaA!BJHI0G4NKa4NKaoM0ZbeLl2SyZANBpaRhtIKC9CiGFOQvooRhEoISgYjExCA0LUaLFWQqBUoBgMlEopqyQ3NoAhI09rM04ru6qruzOAJ8Dw0YawUkbkKANqAkNuAkNyAkgV6BFOQpIUIBpCQhFkqAFaAITJBTBpBoAkKIZyiHZCwHIC99gSQuwtRmK5RqBkpSWiI0ybM8wDQpwjRaw2oTekKEF2CiQ3vyQrvxtAt9g0WEkGfuQ1RhikrZdU4IKUYIg1rAQkCgMV3Gqr.GcACIwbQqA1pAQoOTRnRqBUY8pWQhwDyVbou6qzEmbASHbUK8w!QqAUIKp.QjOAJTmIBIgDRqC0oHRCKApCSmW4RmW8BiQfPoAkrRdk9DewE0QA8BQPP8LA6B56gHZWUHIC99gqQuC1RmI5RuvDRmK6RqBkJSWmpiWiI0pDC0RUqApAI83zEARou6qru6qjBGY8!!YgBGwDCEf8BEgAPGYgBG9OcgBCAIgNKLwAAAAIQBIDDAAAACE4DIQABCIgACQABCEIABYwjZY43!nPMAAAAG8gBGYgBPYgBGAAAACZGJ8gBG8gBAAL3HfIHwAAwAOhP.ONAAAAAAYgBAAAAAAgBP8gBAAgBJa1bvaRCGZ6nW!!vW.lpZZ2rWa1bmmRiQlCAAlKEJwYES!!vEixAw8LH.f40PDswLO5leyRP0AYEKAaBCgIEQhYAAAAmgBIAgAAAAAEAQAstkSL12AAAAzq6syuKAAAQRtVVRFBAAAItGWKh0AAAAVVVdVVFAAAA1UwFVUDAAAABC8hAEAAAAAAAAAAAAAwn!AAs3GbMf87PAGzP0IbsxGDgxGbs!8xP!AADMwwP!87PAGbsx.zvxGDg527tzG7v!AAP8A7v!AAAAd4xHwCLswCLswCLswCQACYABGcABFswBIkwBGYwBIcACJAAAHcQBHYgBJkwAIgACJowCKowCLsAAAAAAA4v!AIogC6PAIgAAIYe8lGfyUAtAGHPoAkKIZyiHMdcHguQuw3Rmf6RqDk5nWiI0ybO8MpyGliC8BAWpiAfAghGagAdHMZiEZyyHICdzMBaHgsvGpCQjNAp5wXK8JrA8Hk8CwPATM2hxwzEjdAAAAAAAHKZiECimBCJkFSIAAAw!"]);
+</script>
+</div>
+</body>
+</html>
