@@ -32,6 +32,10 @@ gridrunner-st.prg: src/atarist/gridrunner.asm
 	vasmm68k_mot -Ftos -spaces -devpac src/atarist/gridrunner.asm -o bin/gr-st.prg
 	md5sum bin/gr-st.prg bin/gr-st-bench.prg
 
+sgr-st.prg: src/atarist-sg/gridrunner.asm
+	vasmm68k_mot -Ftos -spaces -devpac src/atarist-sg/gridrunner.asm -o bin/sgr-st.prg
+	md5sum bin/gr-st.prg bin/gr-st-bench.prg
+
 d64: gridrunner.prg
 	$(C1541) -format "gridrunner,rq" d64 $(D64_IMAGE)
 	$(C1541) $(D64_IMAGE) -write bin/gridrunner.prg "gridrunner"

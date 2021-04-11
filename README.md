@@ -31,11 +31,11 @@ If you want to read more about the Gridrunner internals, take a look at [Gridrun
 <!-- vim-markdown-toc -->
 
 ## Playing the Games
-C64: [https://mwenge.github.io/gridrunner/c64/]. (Ctrl key is 'Fire', Arrow Keys to move.)
+[C64:](https://mwenge.github.io/gridrunner/c64/) (Ctrl key is 'Fire', Arrow Keys to move.)
 
-Vic20: [https://mwenge.github.io/gridrunner/vic20/]. (Ctrl key is 'Fire', Arrow Keys to move.)
+[Vic20:] (https://mwenge.github.io/gridrunner/vic20/) (Ctrl key is 'Fire', Arrow Keys to move.)
 
-Atari800: [https://mwenge.github.io/gridrunner/atari800/?disk_filename=gridrunner.atr]. (Alt key is 'Fire', Arrow Keys to move.)
+[Atari800:](https://mwenge.github.io/gridrunner/atari800/?disk_filename=gridrunner.atr) (Alt key is 'Fire', Arrow Keys to move.)
 
 ## Building the C64 Source Code
 <img src="https://www.mobygames.com/images/covers/l/34991-gridrunner-commodore-64-front-cover.jpg" height=300><img src="https://user-images.githubusercontent.com/58846/103443482-9fb16180-4c57-11eb-9403-4968bd16287f.gif" height=300>
