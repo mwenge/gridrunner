@@ -26,8 +26,8 @@ BOOT = $09
 DOSINI = $0C
 a0D = $0D
 ATRACT = $4D
-a81 = $81
-a82 = $82
+previousXPosition = $81
+previousYPosition = $82
 a83 = $83
 a84 = $84
 a85 = $85
@@ -44,10 +44,10 @@ a8F = $8F
 a90 = $90
 a91 = $91
 a92 = $92
-a93 = $93
-a94 = $94
+backgroundSound1 = $93
+backgroundSound2 = $94
 a9A = $9A
-a9B = $9B
+noOfDroidSquadsCurrentLevel = $9B
 a9C = $9C
 a9D = $9D
 a9E = $9E
@@ -68,20 +68,13 @@ aD1 = $D1
 currentLevel = $D8
 screenLinesLoPtrArray = $0600
 screenLinesHiPtrArray = $0620
-f0680 = $0680
-f06C0 = $06C0
-f07FF = $07FF
-f0800 = $0800
-f0801 = $0801
-f08FF = $08FF
-f0900 = $0900
-f0901 = $0901
-f09FF = $09FF
-f0A00 = $0A00
-f0A01 = $0A01
-f0B00 = $0B00
-f0B20 = $0B20
-f0FFF = $0FFF
+podLoPtrArray = $0680
+podHiPtrArray = $06C0
+droidXPositionArray = $0800
+droidYPositionArray = $0900
+droidStatusArray = $0A00
+explosionXPosArray = $0B00
+explosionYPosArray = $0B20
 SCREEN_RAM = $1000
 ;
 ; **** ABSOLUTE ADRESSES **** 
@@ -263,9 +256,9 @@ PopulateTitleScreen
         JSR ResetCurrentScore
 
 ;-------------------------------------------------------------------------
-; j32E5
+; ClearScreenAndEnterLevel
 ;-------------------------------------------------------------------------
-j32E5
+ClearScreenAndEnterLevel
         JSR ClearScreenIncrementLifeAndLevel
         LDA #$02
         STA aA2
@@ -278,7 +271,7 @@ j32E5
         LDA #$AA
         STA $D201    ;POT1
         STA $D203    ;POT3
-        JMP j3357
+        JMP EnterNewLevel
 
 ;-------------------------------------------------------------------------
 ; GetLinePtrForCurrentYPosition
@@ -345,9 +338,9 @@ b333F   LDA #$01
         RTS 
 
 ;-------------------------------------------------------------------------
-; j3357
+; EnterNewLevel
 ;-------------------------------------------------------------------------
-j3357
+EnterNewLevel
         JSR ClearGameScreen
         JSR DrawGrid
         JSR MaterializeShip
@@ -385,14 +378,14 @@ b3376   JSR WasteAFewCycles
         STA $D200    ;POT0
 
 b338E   TXA 
-        STA a81
+        STA previousXPosition
         LDA #$0F
-        SBC a81
+        SBC previousXPosition
         STA $D201    ;POT1
         LDA #$01
         STA currentCharacter
         JSR DrawFrameOfMaterializeShip
-        DEC a81
+        DEC previousXPosition
         LDA #$3F
         STA currentCharacter
         JSR DrawFrameOfMaterializeShip
@@ -415,13 +408,13 @@ DrawFrameOfMaterializeShip
         STA currentYPosition
         LDA #$14
         CLC 
-        SBC a81
+        SBC previousXPosition
         STA currentXPosition
         JSR WriteCurrentCharacterToCurrentXYPos
         LDX currentLevel
         LDA currentYPosition
         CLC 
-        SBC a81
+        SBC previousXPosition
         STA currentYPosition
         JSR WriteCurrentCharacterToCurrentXYPos
         LDA #$14
@@ -429,7 +422,7 @@ DrawFrameOfMaterializeShip
         JSR WriteCurrentCharacterToCurrentXYPos
         LDA currentXPosition
         CLC 
-        ADC a81
+        ADC previousXPosition
         STA currentXPosition
         JSR WriteCurrentCharacterToCurrentXYPos
         LDA #$14
@@ -440,9 +433,9 @@ DrawFrameOfMaterializeShip
         RTS 
 
 ;---------------------------------------------------------------------------------
-; b33EB   
+; PlayIntroSound   
 ;---------------------------------------------------------------------------------
-b33EB   
+PlayIntroSound   
         LDX #$02
 b33ED   LDY #$F0
 b33EF   DEY 
@@ -454,7 +447,7 @@ b33EF   DEY
         INC screenLineLoPtr
         LDA screenLineLoPtr
         CMP #$80
-        BNE b33EB
+        BNE PlayIntroSound
         RTS 
 
 ;-------------------------------------------------------------------------
@@ -463,8 +456,8 @@ b33EF   DEY
 SetUpGameAndEnterMainLoop
         JSR DrawGrid
         LDA #$14
-        STA a82
-        STA a81
+        STA previousYPosition
+        STA previousXPosition
         STA currentYPosition
         STA currentXPosition
         LDA #$03
@@ -474,6 +467,7 @@ SetUpGameAndEnterMainLoop
         STA aA2
         LDA #$33
         STA COLOR2   ;COLOR2  shadow for COLPF2 ($D018)
+
         LDA #$00
         STA $D207    ;POT7
         STA $D203    ;POT3
@@ -481,24 +475,26 @@ SetUpGameAndEnterMainLoop
         STA $D201    ;POT1
         LDA #$01
         STA screenLineLoPtr
-        JSR b33EB
+        JSR PlayIntroSound
+
         LDA #$A8
         STA $D201    ;POT1
         LDA #$01
         STA screenLineLoPtr
-        JSR b33EB
+        JSR PlayIntroSound
         LDA #$A3
         STA $D201    ;POT1
         LDA #$01
         STA screenLineLoPtr
-        JSR b33EB
+        JSR PlayIntroSound
+
         LDA #$00
         STA $D201    ;POT1
         LDA #$00
         STA $D208    ;AUDCTL
-        STA a93
+        STA backgroundSound1
         STA a9C
-        STA a9B
+        STA noOfDroidSquadsCurrentLevel
         STA a91
         STA @wa0086
         LDA #$02
@@ -510,14 +506,14 @@ SetUpGameAndEnterMainLoop
 
         LDX #$20
         LDA #$00
-b3471   STA f0680,X
-        STA f06C0,X
+b3471   STA podLoPtrArray,X
+        STA podHiPtrArray,X
         DEX 
         BNE b3471
 
-b347A   STA f0800,X
-        STA f0900,X
-        STA f0A00,X
+b347A   STA droidXPositionArray,X
+        STA droidYPositionArray,X
+        STA droidStatusArray,X
         DEY 
         BNE b347A
 
@@ -538,9 +534,9 @@ b347A   STA f0800,X
         JMP MainGameLoop
 
 ;-------------------------------------------------------------------------
-; DrawBullet
+; UpdateShipPosition
 ;-------------------------------------------------------------------------
-DrawBullet
+UpdateShipPosition
         DEC a83
         LDA a83
         CMP #$70
@@ -552,19 +548,20 @@ b34AD   LDA #$00
         LDA STICK0   ;STICK0  shadow for PORTA lo ($D300)
         EOR #$FF
         STA a84
-        LDA a81
+        LDA previousXPosition
         STA currentXPosition
-        LDA a82
+        LDA previousYPosition
         STA currentYPosition
         JSR GetCharacterAtCurrentXYPos
         CMP #$01
         BEQ b34CE
         CMP #$03
         BEQ b34CE
-        JSR s3B23
-b34CE   LDA a81
+        JSR CheckForCollisionsWithObjects
+
+b34CE   LDA previousXPosition
         STA currentXPosition
-        LDA a82
+        LDA previousYPosition
         STA currentYPosition
         LDA #$01
         STA currentCharacter
@@ -605,24 +602,23 @@ b350F   LDA a84
 b351F   JSR GetCharacterAtCurrentXYPos
         CMP #$01
         BEQ b352C
-        JSR s3B23
+        JSR CheckForCollisionsWithObjects
         JMP j3534
 
 b352C   LDA currentXPosition
-        STA a81
+        STA previousXPosition
         LDA currentYPosition
-        STA a82
-;-------------------------------------------------------------------------
-; j3534
-;-------------------------------------------------------------------------
+        STA previousYPosition
+
 j3534
-        LDA a82
+        LDA previousYPosition
         STA currentYPosition
-        LDA a81
+        LDA previousXPosition
         STA currentXPosition
         LDA #$03
         STA currentCharacter
         JMP WriteCurrentCharacterToCurrentXYPos
+        ; Returns
 
 ;-------------------------------------------------------------------------
 ; MainGameLoop
@@ -630,15 +626,15 @@ j3534
 MainGameLoop
         LDA #$02
         STA ATRACT   ;ATRACT  screen attract counter
-        JSR DrawBullet
+        JSR UpdateShipPosition
         JSR Waste20Cycles
-        JSR DrawLaser
+        JSR UpdateSomeCounters
         JSR UpdateZappersPosition
-        JSR s3674
-        JSR s37AF
-        JSR s3816
-        JSR s3875
-        JSR s3DAC
+        JSR DrawLasers
+        JSR UpdatePods
+        JSR DrawPods
+        JSR DrawDroids
+        JSR CheckForPause
         JMP MainGameLoop
 
 ;-------------------------------------------------------------------------
@@ -651,9 +647,9 @@ b3567   DEY
         RTS 
 
 ;-------------------------------------------------------------------------
-; DrawLaser
+; UpdateSomeCounters
 ;-------------------------------------------------------------------------
-DrawLaser
+UpdateSomeCounters
         DEC a85
         BEQ b3570
         RTS 
@@ -670,22 +666,20 @@ b3570   LDA #$20
 
 b3584   LDA #$00
         STA $D201    ;POT1
-;-------------------------------------------------------------------------
-; j3589
-;-------------------------------------------------------------------------
+
 j3589
         LDA a86
         CMP #$FF
         BNE b3592
-        JMP j35AE
+        JMP CheckLaserCollided
 
 b3592   LDA STRIG0   ;STRIG0  shadow for TRIG0 ($D001)
         BEQ b3598
         RTS 
 
-b3598   LDA a81
+b3598   LDA previousXPosition
         STA a87
-        LDA a82
+        LDA previousYPosition
         STA a88
         LDA #$FF
         STA a86
@@ -696,9 +690,9 @@ b3598   LDA a81
         RTS 
 
 ;-------------------------------------------------------------------------
-; j35AE
+; CheckLaserCollided
 ;-------------------------------------------------------------------------
-j35AE
+CheckLaserCollided
         LDA a87
         STA currentXPosition
         LDA a88
@@ -708,7 +702,7 @@ j35AE
         BEQ b35CB
         CMP #$09
         BEQ b35C4
-        JSR s35F2
+        JSR LookForBulletCollisions
 b35C4   LDA #$0A
         STA currentCharacter
         JMP j35EF
@@ -730,7 +724,7 @@ b35E3   STA currentYPosition
         JSR GetCharacterAtCurrentXYPos
         CMP #$01
         BEQ j35EF
-        JSR s35F2
+        JSR LookForBulletCollisions
 ;-------------------------------------------------------------------------
 ; j35EF
 ;-------------------------------------------------------------------------
@@ -738,11 +732,11 @@ j35EF
         JMP WriteCurrentCharacterToCurrentXYPos
 
 ;-------------------------------------------------------------------------
-; s35F2
+; LookForBulletCollisions
 ;-------------------------------------------------------------------------
-s35F2
-        JSR s371B
-        JSR s3A18
+LookForBulletCollisions
+        JSR BulletCollidedWithPod
+        JSR CheckBulletCollided
         RTS 
 
 ;-------------------------------------------------------------------------
@@ -813,14 +807,14 @@ b3648   STA currentYPosition
 b3673   RTS 
 
 ;-------------------------------------------------------------------------
-; s3674
+; DrawLasers
 ;-------------------------------------------------------------------------
-s3674
+DrawLasers
         DEC a92
         BEQ b3679
         RTS 
 
-b3679   JSR s3766
+b3679   JSR PlayBackgroundSound
         LDA #$20
         STA a92
         LDA a91
@@ -893,30 +887,28 @@ b36EF   JSR WriteCurrentCharacterToCurrentXYPos
         STA currentYPosition
         LDA #$0E
         STA currentCharacter
-f3711   =*+$02
         JMP WriteCurrentCharacterToCurrentXYPos
 
-f3712   .BYTE $01
-f3713   .BYTE $0C,$0D,$0E,$1B,$1C,$1D,$1E,$0B
+podDecaySequence   .BYTE $01,$0C,$0D,$0E,$1B,$1C,$1D,$1E,$0B
 ;-------------------------------------------------------------------------
-; s371B
+; BulletCollidedWithPod
 ;-------------------------------------------------------------------------
-s371B
+BulletCollidedWithPod
         LDX #$07
-b371D   CMP f3712,X
+b371D   CMP podDecaySequence,X
         BEQ b3726
         DEX 
         BNE b371D
         RTS 
 
-b3726   LDA f3711,X
+b3726   LDA podDecaySequence - $01,X
         STA currentCharacter
         CMP #$01
         BNE b3739
         LDX #$06
         LDY #$01
         JSR IncrementPlayerScore
-        JSR s375D
+        JSR ResetSounds
 b3739   JSR WriteCurrentCharacterToCurrentXYPos
         LDA #$00
         STA a86
@@ -945,35 +937,35 @@ b3757   PLA
         RTS 
 
 ;-------------------------------------------------------------------------
-; s375D
+; ResetSounds
 ;-------------------------------------------------------------------------
-s375D
-        LDA #<p7004
-        STA a93
-        LDA #>p7004
-        STA a94
+ResetSounds
+        LDA #$04
+        STA backgroundSound1
+        LDA #$70
+        STA backgroundSound2
         RTS 
 
 ;-------------------------------------------------------------------------
-; s3766
+; PlayBackgroundSound
 ;-------------------------------------------------------------------------
-s3766
-        LDA a93
+PlayBackgroundSound
+        LDA backgroundSound1
         CMP #$FF
         BNE b376D
         RTS 
 
-b376D   LDA a94
+b376D   LDA backgroundSound2
         CMP #$70
         BEQ b377D
-        INC a94
-        INC a94
-        LDA a94
+        INC backgroundSound2
+        INC backgroundSound2
+        LDA backgroundSound2
         STA $D202    ;POT2
         RTS 
 
-b377D   DEC a93
-        LDA a93
+b377D   DEC backgroundSound1
+        LDA backgroundSound1
         CMP #$03
         BNE b378D
         LDA #$AF
@@ -994,18 +986,16 @@ b3799   CMP #$01
 
 b37A5   LDA #$00
         STA $D203    ;POT3
-;-------------------------------------------------------------------------
-; j37AA
-;-------------------------------------------------------------------------
+
 j37AA
         LDA #$50
-        STA a94
+        STA backgroundSound2
         RTS 
 
 ;-------------------------------------------------------------------------
-; s37AF
+; UpdatePods
 ;-------------------------------------------------------------------------
-s37AF
+UpdatePods
         LDA a8C
         CMP #$03
         BEQ b37B6
@@ -1020,7 +1010,7 @@ b37B6   DEC a8C
 b37C2   LDA (screenLineLoPtr),Y
         CMP #$01
         BEQ b37CB
-        JSR s37D8
+        JSR DrawUpdatePod
 b37CB   INC screenLineLoPtr
         BNE b37C2
         INC screenLineHiPtr
@@ -1030,21 +1020,21 @@ b37CB   INC screenLineLoPtr
         RTS 
 
 ;-------------------------------------------------------------------------
-; s37D8
+; DrawUpdatePod
 ;-------------------------------------------------------------------------
-s37D8
+DrawUpdatePod
         CMP #$00
         BNE b37DD
         RTS 
 
 b37DD   LDX #$07
-b37DF   CMP f3712,X
+b37DF   CMP podDecaySequence,X
         BEQ b37E8
         DEX 
         BNE b37DF
         RTS 
 
-b37E8   LDA f3713,X
+b37E8   LDA podDecaySequence + $01,X
         STA (screenLineLoPtr),Y
         CPX #$07
         BNE b37F4
@@ -1058,28 +1048,28 @@ s37F5
         TXA 
         PHA 
         LDX #$20
-b37F9   LDA f06C0,X
+b37F9   LDA podHiPtrArray,X
         BEQ b3809
         DEX 
         BNE b37F9
         PLA 
         TAX 
-        LDA f3711,X
+        LDA podDecaySequence - $01,X
         STA (screenLineLoPtr),Y
         RTS 
 
 b3809   LDA screenLineLoPtr
-        STA f0680,X
+        STA podLoPtrArray,X
         LDA screenLineHiPtr
-        STA f06C0,X
+        STA podHiPtrArray,X
         PLA 
         TAX 
         RTS 
 
 ;-------------------------------------------------------------------------
-; s3816
+; DrawPods
 ;-------------------------------------------------------------------------
-s3816
+DrawPods
         LDA a92
         CMP #$03
         BEQ b381D
@@ -1092,11 +1082,11 @@ b381D   DEC a9A
 b3822   LDA #$02
         STA a9A
         LDX #$20
-b3828   LDA f06C0,X
+b3828   LDA podHiPtrArray,X
         BEQ b3871
-        LDA f0680,X
+        LDA podLoPtrArray,X
         STA screenLineLoPtr
-        LDA f06C0,X
+        LDA podHiPtrArray,X
         STA screenLineHiPtr
         LDY #$00
         LDA #$01
@@ -1111,30 +1101,30 @@ b3828   LDA f06C0,X
         LDA (screenLineLoPtr),Y
         CMP #$03
         BNE b3853
-        JMP j3A48
+        JMP CheckForCollisions
 
 b3853   CMP #$00
         BEQ b386C
         CMP #$04
         BEQ b386C
         LDA screenLineLoPtr
-        STA f0680,X
+        STA podLoPtrArray,X
         LDA screenLineHiPtr
-        STA f06C0,X
+        STA podHiPtrArray,X
         LDA #$0B
         STA (screenLineLoPtr),Y
         JMP b3871
 
 b386C   LDA #$00
-        STA f06C0,X
+        STA podHiPtrArray,X
 b3871   DEX 
         BNE b3828
         RTS 
 
 ;-------------------------------------------------------------------------
-; s3875
+; DrawDroids
 ;-------------------------------------------------------------------------
-s3875
+DrawDroids
         DEC a9D
         BEQ b387A
         RTS 
@@ -1146,33 +1136,33 @@ b387A   INC a9C
         LDA #$00
         STA a9C
 b3886   JSR s3938
+
         LDA #$A0
         STA a9D
-        LDX a9B
+        LDX noOfDroidSquadsCurrentLevel
+
 ;-------------------------------------------------------------------------
 ; j388F
 ;-------------------------------------------------------------------------
 j388F
-        LDA f0800,X
+        LDA droidXPositionArray,X
         STA currentXPosition
-        LDA f0900,X
+        LDA droidYPositionArray,X
         STA currentYPosition
         LDA #$01
         STA currentCharacter
         STX a9E
-        LDA f0A00,X
+        LDA droidStatusArray,X
         AND #$80
         BEQ b38A9
         JSR WriteCurrentCharacterToCurrentXYPos
 b38A9   LDX a9E
-        LDA f0A00,X
+        LDA droidStatusArray,X
         AND #$40
         BEQ b3915
-;-------------------------------------------------------------------------
-; j38B2
-;-------------------------------------------------------------------------
+
 j38B2
-        LDA f0A00,X
+        LDA droidStatusArray,X
         AND #$01
         BEQ b38BD
         INC currentXPosition
@@ -1181,7 +1171,7 @@ b38BD   DEC currentXPosition
         JSR GetCharacterAtCurrentXYPos
         CMP #$03
         BNE b38C9
-        JMP j3A48
+        JMP CheckForCollisions
 
 b38C9   LDX a9E
         CMP #$01
@@ -1191,18 +1181,16 @@ b38C9   LDX a9E
         CMP #$15
         BNE b38FD
         LDA #$01
-        STA f0800,X
+        STA droidXPositionArray,X
         STA currentXPosition
         LDA #$0D
-        STA f0900,X
+        STA droidYPositionArray,X
         STA currentYPosition
-        LDA f0A00,X
+        LDA droidStatusArray,X
         AND #$F0
         ORA #$01
-        STA f0A00,X
-;-------------------------------------------------------------------------
-; j38EF
-;-------------------------------------------------------------------------
+        STA droidStatusArray,X
+
 j38EF
         TXA 
         PHA 
@@ -1213,22 +1201,22 @@ j38EF
         TAX 
         JMP j3929
 
-b38FD   LDA f0A00,X
+b38FD   LDA droidStatusArray,X
         EOR #$03
-        STA f0A00,X
+        STA droidStatusArray,X
         JMP j38B2
 
 b3908   LDA currentXPosition
-        STA f0800,X
+        STA droidXPositionArray,X
         LDA currentYPosition
-        STA f0900,X
+        STA droidYPositionArray,X
         JMP j38EF
 
-b3915   LDA f07FF,X
-        STA f0800,X
+b3915   LDA droidXPositionArray - $01,X
+        STA droidXPositionArray,X
         STA currentXPosition
-        LDA f08FF,X
-        STA f0900,X
+        LDA droidYPositionArray - $01,X
+        STA droidYPositionArray,X
         STA currentYPosition
         LDA #$1F
         STA currentCharacter
@@ -1244,6 +1232,7 @@ j3929
 
 b3934   RTS 
 
+f3934 =*-$01
 f3935   .BYTE $1F,$3B,$3C
 ;-------------------------------------------------------------------------
 ; s3938
@@ -1260,27 +1249,25 @@ b3941   LDA droidsLeftToKill
 ; j3945
 ;-------------------------------------------------------------------------
 j3945
-        LDA a9B
+        LDA noOfDroidSquadsCurrentLevel
         BNE b394B
         PLA 
         PLA 
 b394B   RTS 
 
-b394C   INC a9B
-        LDX a9B
+b394C   INC noOfDroidSquadsCurrentLevel
+        LDX noOfDroidSquadsCurrentLevel
         LDA aAA
         CMP sizeOfDroidSquadForLevel
         BNE b3968
         LDA #$41
-;-------------------------------------------------------------------------
-; j3958
-;-------------------------------------------------------------------------
+
 j3958
-        STA f0A00,X
+        STA droidStatusArray,X
         LDA #$0A
-        STA f0800,X
+        STA droidXPositionArray,X
         LDA #$02
-        STA f0900,X
+        STA droidYPositionArray,X
         JMP j396D
 
 b3968   LDA #$00
@@ -1293,7 +1280,7 @@ j396D
         DEC aAA
         BNE j3945
         LDA #$80
-        STA f0A00,X
+        STA droidStatusArray,X
         DEC droidsLeftToKill
         LDA sizeOfDroidSquadForLevel
         STA aAA
@@ -1302,24 +1289,24 @@ j396D
         JMP j3945
 
 ;-------------------------------------------------------------------------
-; j3983
+; BulletCollidedWithDroid
 ;-------------------------------------------------------------------------
-j3983
-        LDX a9B
-b3985   LDA f0800,X
+BulletCollidedWithDroid
+        LDX noOfDroidSquadsCurrentLevel
+b3985   LDA droidXPositionArray,X
         CMP currentXPosition
         BEQ b3990
 b398C   DEX 
         BNE b3985
         RTS 
 
-b3990   LDA f0900,X
+b3990   LDA droidYPositionArray,X
         CMP currentYPosition
         BNE b398C
-        LDA f0A00,X
+        LDA droidStatusArray,X
         AND #$40
         BEQ b39FC
-        LDA f0A00,X
+        LDA droidStatusArray,X
         AND #$7F
         STA aD0
         TXA 
@@ -1335,20 +1322,20 @@ b3990   LDA f0900,X
         LDA #$00
         STA aD0
 b39BA   STX a9E
-b39BC   LDA f0801,X
-        STA f0800,X
-        LDA f0901,X
-        STA f0900,X
-        LDA f0A01,X
-        STA f0A00,X
+b39BC   LDA droidXPositionArray + $01,X
+        STA droidXPositionArray,X
+        LDA droidYPositionArray + $01,X
+        STA droidYPositionArray,X
+        LDA droidStatusArray + $01,X
+        STA droidStatusArray,X
         INX 
-        CPX a9B
+        CPX noOfDroidSquadsCurrentLevel
         BMI b39BC
-        DEC a9B
+        DEC noOfDroidSquadsCurrentLevel
         LDX a9E
-        LDA f0A00,X
+        LDA droidStatusArray,X
         ORA aD0
-        STA f0A00,X
+        STA droidStatusArray,X
         LDA #$0D
         STA currentCharacter
         LDA #$00
@@ -1361,57 +1348,55 @@ b39BC   LDA f0801,X
         LDX #$05
         LDY #$01
         JSR IncrementPlayerScore
-        JSR s375D
-        JSR s3D05
+        JSR ResetSounds
+        JSR CheckLevelComplete
         RTS 
 
-b39FC   LDA f0A00,X
+b39FC   LDA droidStatusArray,X
         AND #$80
         BNE b3A09
-        JSR s3A29
+        JSR UpdateDroidState
         JMP b39BA
 
-b3A09   LDA f09FF,X
+b3A09   LDA droidStatusArray - $01,X
         ORA #$80
-        STA f09FF,X
+        STA droidStatusArray - $01,X
         LDA #$00
         STA aD0
         JMP b39BA
 
 ;-------------------------------------------------------------------------
-; s3A18
+; CheckBulletCollided
 ;-------------------------------------------------------------------------
-s3A18
+CheckBulletCollided
         JSR GetCharacterAtCurrentXYPos
         LDX #$03
-b3A1D   CMP b3934,X
+b3A1D   CMP f3934,X
         BEQ b3A26
         DEX 
         BNE b3A1D
         RTS 
 
-b3A26   JMP j3983
+b3A26   JMP BulletCollidedWithDroid
 
 ;-------------------------------------------------------------------------
-; s3A29
+; UpdateDroidState
 ;-------------------------------------------------------------------------
-s3A29
-        LDA f09FF,X
+UpdateDroidState
+        LDA droidStatusArray - $01,X
         ORA #$80
-        STA f09FF,X
+        STA droidStatusArray - $01,X
         TXA 
         PHA 
-;-------------------------------------------------------------------------
-; j3A33
-;-------------------------------------------------------------------------
+
 j3A33
         DEX 
-        LDA f0A00,X
+        LDA droidStatusArray,X
         AND #$40
         BNE b3A3E
         JMP j3A33
 
-b3A3E   LDA f0A00,X
+b3A3E   LDA droidStatusArray,X
         AND #$7F
         STA aD0
         PLA 
@@ -1419,14 +1404,14 @@ b3A3E   LDA f0A00,X
         RTS 
 
 ;-------------------------------------------------------------------------
-; j3A48
+; CheckForCollisions
 ;-------------------------------------------------------------------------
-j3A48
+CheckForCollisions
         LDX #$F6
         TXS 
-        LDA a81
+        LDA previousXPosition
         STA currentXPosition
-        LDA a82
+        LDA previousYPosition
         STA currentYPosition
         LDA #$01
         STA currentCharacter
@@ -1437,7 +1422,8 @@ j3A48
         STA $D207    ;POT7
         LDA #$80
         STA $D200    ;POT0
-        JSR s3A96
+        JSR SetUpExplosionArray
+
         LDX #$00
 b3A6F   STX aD0
         LDA #$0F
@@ -1450,23 +1436,24 @@ b3A6F   STX aD0
         INX 
         LDA #$3E
         STA currentCharacter
-        JSR s3AAD
+        JSR PlayExplosion
         JSR WasteMoreCycles
         LDX aD0
         INX 
         CPX #$10
         BNE b3A6F
-        JMP j3CEB
+
+        JMP DecrementLivesAndRestartLevelOrEndGame
 
 ;-------------------------------------------------------------------------
-; s3A96
+; SetUpExplosionArray
 ;-------------------------------------------------------------------------
-s3A96
+SetUpExplosionArray
         LDX #$08
-b3A98   LDA a81
-        STA f0B00,X
-        LDA a82
-        STA f0B20,X
+b3A98   LDA previousXPosition
+        STA explosionXPosArray,X
+        LDA previousYPosition
+        STA explosionYPosArray,X
         DEX 
         BNE b3A98
         RTS 
@@ -1480,14 +1467,12 @@ s3AA6
         JMP j3AB1
 
 ;-------------------------------------------------------------------------
-; s3AAD
+; PlayExplosion
 ;-------------------------------------------------------------------------
-s3AAD
+PlayExplosion
         LDA #$01
         STA aD1
-;-------------------------------------------------------------------------
-; j3AB1
-;-------------------------------------------------------------------------
+
 j3AB1
         LDX #$08
 b3AB3   LDA aD1
@@ -1497,28 +1482,26 @@ b3AB3   LDA aD1
         BEQ b3AC5
         CMP #$01
         BNE b3AC8
-        INC f0B00,X
-b3AC5   INC f0B00,X
-b3AC8   DEC f0B00,X
+        INC explosionXPosArray,X
+b3AC5   INC explosionXPosArray,X
+b3AC8   DEC explosionXPosArray,X
         LDA f3B1B,X
         BEQ b3AD7
         CMP #$01
         BNE b3ADA
-        INC f0B20,X
-b3AD7   INC f0B20,X
-b3ADA   DEC f0B20,X
-b3ADD   LDA f0B00,X
+        INC explosionYPosArray,X
+b3AD7   INC explosionYPosArray,X
+b3ADA   DEC explosionYPosArray,X
+b3ADD   LDA explosionXPosArray,X
         STA currentXPosition
-        LDA f0B20,X
+        LDA explosionYPosArray,X
         STA currentYPosition
         STX a90
         JSR GetCharacterAtCurrentXYPos
         CMP aD1
         BNE b3AF9
         JSR WriteCurrentCharacterToCurrentXYPos
-;-------------------------------------------------------------------------
-; j3AF3
-;-------------------------------------------------------------------------
+
 j3AF3
         LDX a90
         DEX 
@@ -1526,10 +1509,10 @@ j3AF3
         RTS 
 
 b3AF9   LDX a90
-        LDA a81
-        STA f0B00,X
-        LDA a82
-        STA f0B20,X
+        LDA previousXPosition
+        STA explosionXPosArray,X
+        LDA previousYPosition
+        STA explosionYPosArray,X
         JMP j3AF3
 
 ;-------------------------------------------------------------------------
@@ -1547,19 +1530,19 @@ b3B0C   DEY
 f3B13   .BYTE $00,$00,$01,$01,$01,$FF,$FF,$FF
 f3B1B   .BYTE $01,$FF,$00,$01,$FF,$00,$01,$FF
 ;-------------------------------------------------------------------------
-; s3B23
+; CheckForCollisionsWithObjects
 ;-------------------------------------------------------------------------
-s3B23
+CheckForCollisionsWithObjects
         LDX #$08
-b3B25   CMP f3B30,X
+b3B25   CMP objectsForCollision,X
         BEQ b3B2E
         DEX 
         BNE b3B25
         RTS 
 
-f3B30   =*+$02
-b3B2E   JMP j3A48
+b3B2E   JMP CheckForCollisions
 
+objectsForCollision   =*-$01
         .BYTE $05,$06,$07,$08,$1F,$3B,$3C,$0B
 ;-------------------------------------------------------------------------
 ; ClearScreenIncrementLifeAndLevel
@@ -1715,9 +1698,9 @@ b3CCB   LDA #$04
         RTS 
 
 ;-------------------------------------------------------------------------
-; j3CEB
+; DecrementLivesAndRestartLevelOrEndGame
 ;-------------------------------------------------------------------------
-j3CEB
+DecrementLivesAndRestartLevelOrEndGame
         DEC SCREEN_RAM + $0027
         DEC currentLevel
         LDA SCREEN_RAM + $0027
@@ -1726,15 +1709,15 @@ j3CEB
         DEC SCREEN_RAM + $0027
         LDA #$00
         STA $D207    ;POT7
-        JMP j32E5
+        JMP ClearScreenAndEnterLevel
 
-b3D02   JMP j3D86
+b3D02   JMP EndGameANdUpdateHiScoreIfNecessary
 
 ;-------------------------------------------------------------------------
-; s3D05
+; CheckLevelComplete
 ;-------------------------------------------------------------------------
-s3D05
-        LDA a9B
+CheckLevelComplete
+        LDA noOfDroidSquadsCurrentLevel
         BEQ b3D0A
         RTS 
 
@@ -1744,23 +1727,23 @@ b3D0A   LDA droidsLeftToKill
 
 b3D0F   LDX #$F6
         TXS 
-        JMP j32E5
+        JMP ClearScreenAndEnterLevel
 
-noOfDroidSquadsForLevel   .BYTE $01,$01,$01,$02,$02,$02,$03,$03
-        .BYTE $03,$04,$04,$04,$05,$05,$05,$06
-        .BYTE $06,$06,$06,$06,$06,$06,$06,$06
-        .BYTE $06,$06,$06,$06,$06,$06,$06,$06
-        .BYTE $06,$06,$06,$06
-sizeOfDroidSquadsForLevels   .BYTE $06,$06,$0C,$04,$06,$0C,$04,$06
-        .BYTE $08,$04,$06,$0C,$04,$06,$08,$04
-        .BYTE $06,$08,$0A,$0C,$0E,$10,$12,$14
-        .BYTE $16,$18,$1A,$1C,$1E,$20,$22,$24
-        .BYTE $26
-laserFrameRateForLevel   .BYTE $14,$12,$10,$0E,$0D,$0C,$0B,$0A
-        .BYTE $09,$09,$09,$09,$09,$09,$09,$08
-        .BYTE $08,$08,$08,$08,$08,$08,$07,$07
-        .BYTE $07,$06,$06,$06,$06,$06,$06,$06
-        .BYTE $06
+noOfDroidSquadsForLevel    .BYTE $01,$01,$01,$02,$02,$02,$03,$03
+                           .BYTE $03,$04,$04,$04,$05,$05,$05,$06
+                           .BYTE $06,$06,$06,$06,$06,$06,$06,$06
+                           .BYTE $06,$06,$06,$06,$06,$06,$06,$06
+                           .BYTE $06,$06,$06,$06
+sizeOfDroidSquadsForLevels .BYTE $06,$06,$0C,$04,$06,$0C,$04,$06
+                           .BYTE $08,$04,$06,$0C,$04,$06,$08,$04
+                           .BYTE $06,$08,$0A,$0C,$0E,$10,$12,$14
+                           .BYTE $16,$18,$1A,$1C,$1E,$20,$22,$24
+                           .BYTE $26
+laserFrameRateForLevel     .BYTE $14,$12,$10,$0E,$0D,$0C,$0B,$0A
+                           .BYTE $09,$09,$09,$09,$09,$09,$09,$08
+                           .BYTE $08,$08,$08,$08,$08,$08,$07,$07
+                           .BYTE $07,$06,$06,$06,$06,$06,$06,$06
+                           .BYTE $06
 ;-------------------------------------------------------------------------
 ; ResetCurrentScore
 ;-------------------------------------------------------------------------
@@ -1773,9 +1756,9 @@ b3D7F   STA SCREEN_RAM + $000E,X
         RTS 
 
 ;-------------------------------------------------------------------------
-; j3D86
+; EndGameANdUpdateHiScoreIfNecessary
 ;-------------------------------------------------------------------------
-j3D86
+EndGameANdUpdateHiScoreIfNecessary
         LDX #$00
 b3D88   LDA SCREEN_RAM + $000F,X
         CMP SCREEN_RAM + $001C,X
@@ -1796,9 +1779,9 @@ b3D9E   LDA SCREEN_RAM + $000F,X
         JMP JumpToPopulateTitleScreen
 
 ;-------------------------------------------------------------------------
-; s3DAC
+; CheckForPause
 ;-------------------------------------------------------------------------
-s3DAC
+CheckForPause
         LDA CH       ;CH      keyboard FIFO byte
         CMP #$FF
         BNE b3DB4

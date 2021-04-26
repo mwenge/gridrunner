@@ -19,104 +19,104 @@
 ;
 ; **** ZP ABSOLUTE ADRESSES **** 
 ;
-currentXPosition = $02
-currentYPosition = $03
-currentCharacter = $04
-colorForCurrentCharacter = $05
-screenLineLoPtr = $06
-screenLineHiPtr = $07
-randomValue = $08
-currentExplosionCharacter = $09
-materializeShipOffset = $0A
-previousXPosition = $0B
-previousYPosition = $0C
-shipAnimationFrameRate = $0D
-joystickInput = $0E
-bulletAndLaserFrameRate = $0F
-currentBulletXPosition = $10
-currentBulletYPosition = $11
-currentBulletCharacter = $12
-bulletSoundControl = $13
-zapperFrameRate = $14
-leftZapperYPosition = $15
-bottomZapperXPosition = $16
-laserAndPodInterval = $17
-laserShootInterval = $18
-laserCurrentCharacter = $19
-leftLaserYPosition = $1A
-leftLaserXPosition = $1B
-bottomLaserXPosition = $1C
-bottomLaserYPosition = $1D
-podUpdateRate = $21
-backgroundSoundParm1 = $22
-backgroundSoundParm2 = $23
-noOfDroidSquadsCurrentLevel = $24
-droidFrameRate = $25
-currentDroidCharacter = $26
-currentDroidIndex = $27
-a28 = $28
-a29 = $29
-droidsLeftToKill = $2A
-sizeOfDroidSquadForLevel = $2B
+currentXPosition              = $02
+currentYPosition              = $03
+currentCharacter              = $04
+colorForCurrentCharacter      = $05
+screenLineLoPtr               = $06
+screenLineHiPtr               = $07
+randomValue                   = $08
+currentExplosionCharacter     = $09
+materializeShipOffset         = $0A
+previousXPosition             = $0B
+previousYPosition             = $0C
+shipAnimationFrameRate        = $0D
+joystickInput                 = $0E
+bulletAndLaserFrameRate       = $0F
+currentBulletXPosition        = $10
+currentBulletYPosition        = $11
+currentBulletCharacter        = $12
+bulletSoundControl            = $13
+zapperFrameRate               = $14
+leftZapperYPosition           = $15
+bottomZapperXPosition         = $16
+laserAndPodInterval           = $17
+laserShootInterval            = $18
+laserCurrentCharacter         = $19
+leftLaserYPosition            = $1A
+leftLaserXPosition            = $1B
+bottomLaserXPosition          = $1C
+bottomLaserYPosition          = $1D
+podUpdateRate                 = $21
+backgroundSoundParm1          = $22
+backgroundSoundParm2          = $23
+noOfDroidSquadsCurrentLevel   = $24
+droidFrameRate                = $25
+currentDroidCharacter         = $26
+currentDroidIndex             = $27
+a28                           = $28
+a29                           = $29
+droidsLeftToKill              = $2A
+sizeOfDroidSquadForLevel      = $2B
 currentShipExplosionCharacter = $2D
-cyclesToWasteCounter = $30
-collisionSoundControl = $33
-laserFrameRate = $34
-selectedLevel = $35
-soundEffectControl = $36
-lastKeyPressed = $C5
+cyclesToWasteCounter          = $30
+collisionSoundControl         = $33
+laserFrameRate                = $34
+selectedLevel                 = $35
+soundEffectControl            = $36
+lastKeyPressed                = $C5
 
 ;
 ; **** FIELDS **** 
 ;
-screenLinesLoPtrArray = $0340
-screenLinesHiPtrArray = $0360
-SCREEN_RAM = $0400
-podLoPtrArray = $0FFF
-podHiPtrArray = $101F
-droidXPositionArray = $10FF
-droidYPositionArray = $11FF
-droidStatusArray = $12FF
-explosionXPosArray = $1500
-explosionYPosArray = $1600
-charSetLocation = $2000
-COLOR_RAM = $D800
+screenLinesLoPtrArray         = $0340
+screenLinesHiPtrArray         = $0360
+SCREEN_RAM                    = $0400
+podLoPtrArray                 = $0FFF
+podHiPtrArray                 = $101F
+droidXPositionArray           = $10FF
+droidYPositionArray           = $11FF
+droidStatusArray              = $12FF
+explosionXPosArray            = $1500
+explosionYPosArray            = $1600
+charSetLocation               = $2000
+COLOR_RAM                     = $D800
 ;
 ; **** ABSOLUTE ADRESSES **** 
 ;
-a0002 = $0002
-a0003 = $0003
+a0002                         = $0002
+a0003                         = $0003
 ;
 ; **** POINTERS **** 
 ;
 ;
 ; **** PREDEFINED LABELS **** 
 ;
-ROM_RESTORj = $FD15
-ROM_RAMTASj = $FD50
-ROM_IOINITj = $FDA3
-ROM_CHROUT = $FFD2
+ROM_RESTORj                   = $FD15
+ROM_RAMTASj                   = $FD50
+ROM_IOINITj                   = $FDA3
+ROM_CHROUT                    = $FFD2
 
-GRID = $00
-LEFT_ZAPPER = $01
-BOTTOM_ZAPPER = $02
-SHIP = $07
-BULLET_UP1 = $08
-BOMB_DOWN = $0A
-POD3 = $0F
-POD6 = $12
-DROID1 = $13
-EXPLOSION1 = $16
-SPACE = $20
-VERTICAL_LINE = $3F
+GRID                          = $00
+LEFT_ZAPPER                   = $01
+BOTTOM_ZAPPER                 = $02
+SHIP                          = $07
+BULLET_UP1                    = $08
+BOMB_DOWN                     = $0A
+POD3                          = $0F
+POD6                          = $12
+DROID1                        = $13
+EXPLOSION1                    = $16
+SPACE                         = $20
+VERTICAL_LINE                 = $3F
 
-WHITE                           = $01
-RED                             = $02
-CYAN                            = $03
-GREEN                           = $05
-YELLOW                          = $07
-ORANGE = $08
-LTGREEN = $0D
+WHITE                         = $01
+RED                           = $02
+CYAN                          = $03
+GREEN                         = $05
+YELLOW                        = $07
+ORANGE                        = $08
+LTGREEN                       = $0D
 
 * = $0800
 
@@ -1880,7 +1880,13 @@ b8B0A   STA explosionYPosArray,X
         STA $D401    ;Voice 1: Frequency Control - High-Byte
         LDA #EXPLOSION1
         STA currentShipExplosionCharacter
-j8B24   LDA #$00
+        ; Falls through
+
+;---------------------------------------------------------------------------------
+; PlayExplosion   
+;---------------------------------------------------------------------------------
+PlayExplosion   
+        LDA #$00
         STA $D404    ;Voice 1: Control Register
         LDA #$81
         STA $D404    ;Voice 1: Control Register
@@ -1891,6 +1897,7 @@ j8B24   LDA #$00
         STA colorForCurrentCharacter
         LDA #GRID
         STA currentCharacter
+
 b8B3D   LDA explosionXPosArray,X
         STA currentXPosition
         LDA explosionYPosArray,X
@@ -1903,9 +1910,9 @@ b8B3D   LDA explosionXPosArray,X
 b8B53   LDX currentDroidIndex
         DEX 
         BNE b8B3D
+
         LDA #$14
 b8B5A   JMP AnimateShipExplosion
-
         DEX 
         BNE b8B5A
 
@@ -1958,7 +1965,7 @@ b8BAE   JMP MaybeRestartLevel
 PlayExplosionAndRestartLevel   
         DEC collisionSoundControl
         BMI b8BB8
-        JMP j8B24
+        JMP PlayExplosion
 
 b8BB8   JMP ClearScreenAndRestartLevel
 
