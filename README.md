@@ -2,6 +2,10 @@
 
 <img src="https://www.mobygames.com/images/covers/l/34991-gridrunner-commodore-64-front-cover.jpg" height=300><img src="https://user-images.githubusercontent.com/58846/103443482-9fb16180-4c57-11eb-9403-4968bd16287f.gif" height=300>
 
+[<img src="https://img.shields.io/badge/Download%20Gridrunner%202x%20Speed-Windows-blue.svg">](https://github.com/mwenge/gridrunner/releases/download/v0.1/gridrunner2x.exe)
+[<img src="https://img.shields.io/badge/Download%20Gridrunner%202x%20Speed-C64-green.svg">](https://github.com/mwenge/gridrunner/releases/download/v0.1/gridrunner2x.exe)
+[<img src="https://img.shields.io/badge/Play%20Gridrunner-Online-purple.svg">](https://mwenge.github.io/gridrunner/c64/)
+
 
 This is the reverse-engineered and [commented source code] for all known versions of Gridrunner by Jeff Minter. It is part of the [llamasource project](https://mwenge.github.io/llamaSource/).
 
