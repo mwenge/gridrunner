@@ -132,6 +132,8 @@ previousDroidDirectionBitmap = $1005
 
 .enc "petscii"  ;define an ascii->petscii encoding
         .cdef "  ", $20  ;characters
+        .cdef "()", $A8
+        .cdef "19", $B1
         .cdef "AZ", $81
 .enc "none"
 
@@ -194,10 +196,12 @@ InitializeScreenAndBorder            LDA #$FF
                                      STA VICCRF   ;$900F - screen colors: background, border & inverse
                                      JMP DrawBannerTopOfScreen
 
-                                     .BYTE $C5,$CE
-txtCopyRight                         .BYTE $02,$A8,$83,$A9,$B1,$B9,$B8,$B2 ; (c) 1982
-                                     .BYTE $8A,$83,$8D,$BD,$39,$3B,$BC,$76 ; JCM
-                                     .BYTE $6A
+                                     .BYTE $C5,$CE,$02
+txtCopyRight =*-$01
+.enc "petscii"
+                                     .TEXT "(C)1982JCM"
+.enc "none"
+                                     .BYTE $BD,$39,$3B,$BC,$76,$6A
 ;---------------------------------------------------------------------------------
 ; LaunchGame
 ;---------------------------------------------------------------------------------

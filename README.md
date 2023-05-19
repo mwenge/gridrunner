@@ -31,6 +31,7 @@ If you want to read more about the Gridrunner internals, take a look at [Gridrun
   * [Requirements](#requirements-3)
   * [Setup](#setup-1)
   * [Compiling](#compiling-3)
+* [Conversion to the Nintendo Entertainment System](#conversion-to-the-nintendo-entertainment-system)
 
 <!-- vim-markdown-toc -->
 
@@ -147,6 +148,11 @@ To just compile the game and get a binary (`gridrunner-st.prg`) do:
 ```sh
 $ make gridrunner-st.prg
 ```
+## Conversion to the Nintendo Entertainment System
+<img height="300" src="https://github.com/mwenge/gridnes/assets/58846/c9c73f89-cf4d-430d-a427-53450b8bef8d">
+
+I converted Gridrunner to the NES. [You can try it out here](https://github.com/mwenge/gridnes).
+
 [64tass]: http://tass64.sourceforge.net/
 [vice]: http://vice-emu.sourceforge.net/
 [atari800]: https://atari800.github.io/
